@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 全局属性定义 -->
+    <attr name="pixelScale" format="integer" />
+
     <declare-styleable name="PixelImageView">
-        <!-- 精灵完整名称，例如 "icons_5"、"background_48x48_0" -->
         <attr name="spriteName" format="string" />
-        <!-- 放大倍数，原始像素尺寸 × pixelScale = 最终显示尺寸 -->
-        <attr name="pixelScale" format="integer" />
-        <!-- 是否启用 9-patch 模式（用于背景图缩放） -->
+        <attr name="pixelScale" />
         <attr name="ninePatch" format="boolean" />
-        <!-- 背景绘制模式：tile（平铺）/ stretch（拉伸） -->
         <attr name="backgroundMode" format="enum">
             <enum name="tile" value="0" />
             <enum name="stretch" value="1" />
         </attr>
+    </declare-styleable>
+
+    <declare-styleable name="PixelImageButton">
+        <attr name="spriteUp" format="string" />
+        <attr name="spriteDown" format="string" />
+        <attr name="pixelScale" />
+        <attr name="defaultPressed" format="boolean" />
     </declare-styleable>
 </resources>

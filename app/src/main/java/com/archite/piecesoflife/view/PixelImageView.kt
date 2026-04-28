@@ -6,28 +6,25 @@ import android.util.AttributeSet
 import android.view.View
 import com.archite.piecesoflife.R
 import com.archite.piecesoflife.util.SpriteSheetManager
-import kotlin.math.ceil
 import kotlin.math.max
 
-class PixelImageView @JvmOverloads constructor(
+open class PixelImageView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
     private var spriteName: String? = null
-    private var pixelScale: Int = 1
+    var pixelScale: Int = 1
+        protected set
     private var isNinePatch: Boolean = false
-    private var backgroundMode: Int = 1
 
     private val paint = Paint().apply {
         isFilterBitmap = false
     }
-    private var sourceBitmap: Bitmap? = null
-    private var srcRect: Rect? = null
+    protected var sourceBitmap: Bitmap? = null
+    protected var srcRect: Rect? = null
     private var ninePatchInfo: SpriteSheetManager.NinePatchInfo? = null
-
-    private var drawRects: List<Pair<Rect, Rect>> = emptyList()
 
     init {
         setLayerType(LAYER_TYPE_SOFTWARE, null)
@@ -37,7 +34,6 @@ class PixelImageView @JvmOverloads constructor(
             spriteName = a.getString(R.styleable.PixelImageView_spriteName)
             pixelScale = a.getInteger(R.styleable.PixelImageView_pixelScale, 5)
             isNinePatch = a.getBoolean(R.styleable.PixelImageView_ninePatch, false)
-            backgroundMode = a.getInteger(R.styleable.PixelImageView_backgroundMode, 1)
             a.recycle()
         }
 
@@ -50,7 +46,7 @@ class PixelImageView @JvmOverloads constructor(
         loadSprite(name)
     }
 
-    private fun loadSprite(name: String) {
+    protected fun loadSprite(name: String) {
         val rect = SpriteSheetManager.getRect(name) ?: return
         srcRect = Rect(rect.x, rect.y, rect.x + rect.w, rect.y + rect.h)
         sourceBitmap = SpriteSheetManager.getSpriteBitmap(context, name)
@@ -129,49 +125,41 @@ class PixelImageView @JvmOverloads constructor(
             srcLeft, srcTop, srcLeft + leftFixed, srcTop + topFixed,
             0, 0, leftFixed, topFixed
         )
-
         drawPatch(canvas, bmp,
             srcLeft + leftFixed, srcTop,
             srcLeft + leftFixed + centerSrcW, srcTop + topFixed,
             leftFixed, 0, leftFixed + centerXStretch, topFixed
         )
-
         drawPatch(canvas, bmp,
             srcLeft + leftFixed + centerSrcW, srcTop,
             srcLeft + srcW, srcTop + topFixed,
             leftFixed + centerXStretch, 0, dstW, topFixed
         )
-
         drawPatch(canvas, bmp,
             srcLeft, srcTop + topFixed,
             srcLeft + leftFixed, srcTop + topFixed + centerSrcH,
             0, topFixed, leftFixed, topFixed + centerYStretch
         )
-
         drawPatch(canvas, bmp,
             srcLeft + leftFixed, srcTop + topFixed,
             srcLeft + leftFixed + centerSrcW, srcTop + topFixed + centerSrcH,
             leftFixed, topFixed, leftFixed + centerXStretch, topFixed + centerYStretch
         )
-
         drawPatch(canvas, bmp,
             srcLeft + leftFixed + centerSrcW, srcTop + topFixed,
             srcLeft + srcW, srcTop + topFixed + centerSrcH,
             leftFixed + centerXStretch, topFixed, dstW, topFixed + centerYStretch
         )
-
         drawPatch(canvas, bmp,
             srcLeft, srcTop + topFixed + centerSrcH,
             srcLeft + leftFixed, srcTop + srcH,
             0, topFixed + centerYStretch, leftFixed, dstH
         )
-
         drawPatch(canvas, bmp,
             srcLeft + leftFixed, srcTop + topFixed + centerSrcH,
             srcLeft + leftFixed + centerSrcW, srcTop + srcH,
             leftFixed, topFixed + centerYStretch, leftFixed + centerXStretch, dstH
         )
-
         drawPatch(canvas, bmp,
             srcLeft + leftFixed + centerSrcW, srcTop + topFixed + centerSrcH,
             srcLeft + srcW, srcTop + srcH,
