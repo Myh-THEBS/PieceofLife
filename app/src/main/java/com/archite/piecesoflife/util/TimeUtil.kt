@@ -24,22 +24,10 @@ object TimeUtil {
         val yc = arrayOf("周六", "周日", "周一", "周二", "周三", "周四", "周五", "周六")
 
         return when (type) {
-            TIME_TYPE_DATE -> "${calendar.get(Calendar.YEAR)}年${
-                trans(calendar.get(Calendar.MONTH) + 1)
-            }月${trans(calendar.get(Calendar.DAY_OF_MONTH))}日"
-            TIME_TYPE_SECOND -> "${
-                trans(calendar.get(Calendar.HOUR_OF_DAY))
-            }:${trans(calendar.get(Calendar.MINUTE))}:${
-                trans(calendar.get(Calendar.SECOND))
-            }"
-            TIME_TYPE_HOUR -> "${
-                trans(calendar.get(Calendar.HOUR_OF_DAY))
-            }:${trans(calendar.get(Calendar.MINUTE))}"
-            TIME_TYPE_DATE_WEEK -> "${calendar.get(Calendar.YEAR)}年${
-                trans(calendar.get(Calendar.MONTH) + 1)
-            }月${trans(calendar.get(Calendar.DATE))}日 ${
-                yc[calendar.get(Calendar.DAY_OF_WEEK)]
-            }"
+            TIME_TYPE_DATE -> "${calendar.get(Calendar.YEAR)}年${trans(calendar.get(Calendar.MONTH) + 1)}月${trans(calendar.get(Calendar.DAY_OF_MONTH))}日"
+            TIME_TYPE_SECOND -> "${trans(calendar.get(Calendar.HOUR_OF_DAY))}:${trans(calendar.get(Calendar.MINUTE))}:${trans(calendar.get(Calendar.SECOND))}"
+            TIME_TYPE_HOUR -> "${trans(calendar.get(Calendar.HOUR_OF_DAY))}:${trans(calendar.get(Calendar.MINUTE))}"
+            TIME_TYPE_DATE_WEEK -> "${calendar.get(Calendar.YEAR)}年${trans(calendar.get(Calendar.MONTH) + 1)}月${trans(calendar.get(Calendar.DATE))}日 ${yc[calendar.get(Calendar.DAY_OF_WEEK)]}"
             else -> ""
         }
     }
