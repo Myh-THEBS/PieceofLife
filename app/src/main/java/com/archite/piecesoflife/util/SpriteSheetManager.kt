@@ -3,11 +3,8 @@ package com.archite.piecesoflife.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Rect
 import androidx.annotation.RawRes
 import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
-import java.io.InputStream
 import java.util.WeakHashMap
 
 object SpriteSheetManager {
