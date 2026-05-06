@@ -40,4 +40,41 @@
             android:focusable="true" />
     </FrameLayout>
 
+    <TextView
+        android:id="@+id/testResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/TEXT_white1"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/testDbButton"
+        android:layout_width="120dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="24dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="测试数据库" />
+
+    <TextView
+        android:id="@+id/dsResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/TEXT_white1"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/testDsButton"
+        android:layout_width="120dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="32dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="测试 DataStore" />
+
 </LinearLayout>
