@@ -39,5 +39,14 @@ data class LogEntity(
     val flag1: Int = -1,
 
     @ColumnInfo(name = "items_json")
-    val itemsJson: String = "[]"
+    val itemsJson: String = "[]",
+
+    @ColumnInfo(name = "created_at")
+    val createdAt: Long = System.currentTimeMillis(),
+
+    @ColumnInfo(name = "updated_at")
+    val updatedAt: Long = System.currentTimeMillis(),
+
+    @ColumnInfo(name = "is_deleted", defaultValue = "0")
+    val isDeleted: Boolean = false
 )

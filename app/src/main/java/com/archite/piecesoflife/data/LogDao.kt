@@ -31,23 +31,34 @@ interface LogDao {
         }
     }
 
-    @Query("SELECT * FROM log_data WHERE id = :id")
+    @Query("SELECT * FROM log_data WHERE id = :id AND is_deleted = 0")
     suspend fun getById(id: Long): LogEntity?
 
+    /** 软删除：标记为已删除，数据保留在数据库中 */
+    @Query("UPDATE log_data SET is_deleted = 1, updated_at = :now WHERE id = :id")
+    suspend fun softDeleteById(id: Long, now: Long = System.currentTimeMillis())
+
+    /** 恢复软删除的日志 */
+    @Query("UPDATE log_data SET is_deleted = 0, updated_at = :now WHERE id = :id")
+    suspend fun restoreById(id: Long, now: Long = System.currentTimeMillis())
+
+    /** 物理删除（永久清除） */
     @Query("DELETE FROM log_data WHERE id = :id")
-    suspend fun deleteById(id: Long)
+    suspend fun permanentlyDeleteById(id: Long)
 
     @Query("""
         SELECT id FROM log_data 
-        WHERE (build_date BETWEEN :dateS AND :dateE) 
-           OR (log_type = :questType)
+        WHERE is_deleted = 0
+          AND ((build_date BETWEEN :dateS AND :dateE) 
+           OR (log_type = :questType))
         ORDER BY build_date ASC, build_time ASC
     """)
     suspend fun getIdsByDateRange(dateS: Int, dateE: Int, questType: Int = LogType.QUEST): List<Long>
 
     @Query("""
         SELECT * FROM log_data 
-        WHERE build_date <= :endDate 
+        WHERE is_deleted = 0
+          AND build_date <= :endDate 
           AND log_type IN (:searchTypes)
           AND log_text LIKE '%' || :keyword || '%'
         ORDER BY build_date DESC, build_time DESC
@@ -60,15 +71,16 @@ interface LogDao {
         limit: Int = 100
     ): List<LogEntity>
 
-    @Query("SELECT COUNT(*) FROM log_data WHERE build_date = :date")
+    @Query("SELECT COUNT(*) FROM log_data WHERE is_deleted = 0 AND build_date = :date")
     suspend fun existsByDate(date: Int): Boolean
 
-    @Query("SELECT COUNT(*) FROM log_data")
+    @Query("SELECT COUNT(*) FROM log_data WHERE is_deleted = 0")
     suspend fun getCount(): Long
 
     @Query("""
         SELECT * FROM log_data 
-        WHERE log_type = :questType 
+        WHERE is_deleted = 0
+          AND log_type = :questType 
           AND (flag0 = :unfinishedDefault OR flag0 = :unfinishedMinus)
         ORDER BY change_date ASC, change_time ASC
     """)
@@ -78,16 +90,20 @@ interface LogDao {
         unfinishedMinus: Int = QuestFlag.MINUS_UNFINISHED
     ): List<LogEntity>
 
-    @Query("SELECT * FROM log_data ORDER BY build_date ASC, build_time ASC")
+    @Query("SELECT * FROM log_data WHERE is_deleted = 0 ORDER BY build_date ASC, build_time ASC")
     suspend fun getAll(): List<LogEntity>
 
-    @Query("SELECT COUNT(*) FROM log_data WHERE build_date = :date")
+    @Query("SELECT * FROM log_data WHERE is_deleted = 1 ORDER BY updated_at DESC")
+    suspend fun getDeletedLogs(): List<LogEntity>
+
+    @Query("SELECT COUNT(*) FROM log_data WHERE is_deleted = 0 AND build_date = :date")
     fun observeCountByDate(date: Int): Flow<Int>
 
     @Query("""
         SELECT id FROM log_data 
-        WHERE (build_date BETWEEN :dateS AND :dateE) 
-           OR (log_type = :questType)
+        WHERE is_deleted = 0
+          AND ((build_date BETWEEN :dateS AND :dateE) 
+           OR (log_type = :questType))
         ORDER BY build_date ASC, build_time ASC
     """)
     fun observeIdsByDateRange(dateS: Int, dateE: Int, questType: Int = LogType.QUEST): Flow<List<Long>>
