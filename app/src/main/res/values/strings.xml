@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">Pieces of Life</string>
+    <string name="empty_string"> </string>
+
+    <!-- AddonTool -->
+    <string name="addon_title">更多工具</string>
+    <string name="addon_return">返回</string>
+    <string name="addon_confirm">确认</string>
+    <string name="addon_cancel">取消</string>
+    <string name="addon_tool1">添加任务</string>
+    <string name="addon_tool2">添加长文</string>
+    <string name="addon_tool3">添加图片</string>
+    <string name="addon_tool4">随机一下</string>
+    <string name="addon_tool5">问答精灵</string>
+    <string name="addon_tool6">词云宝典</string>
+    <string name="addon_tool7">属性账单</string>
 </resources>

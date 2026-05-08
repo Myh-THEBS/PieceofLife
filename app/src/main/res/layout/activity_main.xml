@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:background="@color/background_main">
+    android:background="@drawable/main_background">
 
     <TextView
         android:layout_width="wrap_content"
@@ -79,6 +79,24 @@
 
     <TextView
         android:id="@+id/tvImport"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/TEXT_white1"
+        android:textSize="11sp"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/btnAddonTool"
+        android:layout_width="240dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="附加工具" />
+
+    <TextView
+        android:id="@+id/tvAddonTool"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"

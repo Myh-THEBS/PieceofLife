@@ -6,6 +6,7 @@
     <color name="background_gray">#bcbcbc</color>
     <color name="white">#FFFFFFFF</color>
     <color name="TEXT_white1">#C8C8C8</color>
+    <color name="TEXT_black">#1D1D1D</color>
     <color name="TEXT_tool1">#1D1D1D</color>
     <color name="TEXT_tool2">#EFEFEF</color>
     <color name="TEXT_hint_default">#74ED79</color>
@@ -17,5 +18,7 @@
     <color name="system_color4">#072940</color>
     <color name="lightDark">#EDEDED</color>
     <color name="TEXT_hint_error2">#66110B</color>
-    <color name="background_main">#306267</color>
+    <color name="background_main">#306166</color>
+    <color name="background_bottom">#306166</color>
+    <color name="background_top">#000000</color>
 </resources>

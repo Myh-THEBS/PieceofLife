@@ -1,10 +1,16 @@
 package com.archite.piecesoflife
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import com.archite.piecesoflife.R
 import com.archite.piecesoflife.data.AppDatabase
 import com.archite.piecesoflife.data.LogEntity
 import com.archite.piecesoflife.data.LogRepository
@@ -12,6 +18,7 @@ import com.archite.piecesoflife.data.LogType
 import com.archite.piecesoflife.data.UserItem
 import com.archite.piecesoflife.data.UserPreferencesRepository
 import com.archite.piecesoflife.databinding.ActivityMainBinding
+import com.archite.piecesoflife.ui.AddonToolActivity
 import com.archite.piecesoflife.util.FileUtil
 import com.archite.piecesoflife.util.SpriteDef
 import com.archite.piecesoflife.util.SpriteLoader
@@ -76,6 +83,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupSystemBars()
+
         val logRepo = LogRepository(AppDatabase.getInstance(this).logDao())
         val userRepo = UserPreferencesRepository(this)
 
@@ -83,6 +92,7 @@ class MainActivity : AppCompatActivity() {
         SpriteLoader.setButton(binding.btnUpdateUser, SpriteDef.B48x32.RES, frame = SpriteDef.B48x32.frame(2), scale = 5)
         SpriteLoader.setButton(binding.btnExport, SpriteDef.B48x32.RES, frame = SpriteDef.B48x32.frame(4), scale = 5)
         SpriteLoader.setButton(binding.btnImport, SpriteDef.B48x32.RES, frame = SpriteDef.B48x32.frame(6), scale = 5)
+        SpriteLoader.setButton(binding.btnAddonTool, SpriteDef.B48x32.RES, frame = SpriteDef.B48x32.frame(4), scale = 5)
 
         binding.btnSaveLog.setOnClickListener {
             showStatus(binding.tvSaveLog, "保存中...")
@@ -144,6 +154,24 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnImport.setOnClickListener {
             importLauncher.launch(arrayOf("application/octet-stream", "application/zip"))
+        }
+
+        binding.btnAddonTool.setOnClickListener {
+            showStatus(binding.tvAddonTool, "打开 AddonTool...")
+            val intent = Intent(this, AddonToolActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun setupSystemBars() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.background_top)
+        window.navigationBarColor = ContextCompat.getColor(this, R.color.background_bottom)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            WindowInsetsCompat.CONSUMED
         }
     }
 
