@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.UUID
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     name = "user_preferences"
@@ -28,6 +29,7 @@ class UserPreferencesRepository(private val context: Context) {
         private val KEY_DAY_GROUP = intPreferencesKey("day_group")
         private val KEY_ITEMS_JSON = stringPreferencesKey("items_json")
         private val KEY_USER_AVATAR = intPreferencesKey("user_avatar")
+        private val KEY_USER_UUID = stringPreferencesKey("user_uuid")
 
         private val DEFAULT_ITEMS_JSON = """
             [
@@ -64,6 +66,14 @@ class UserPreferencesRepository(private val context: Context) {
         prefs[KEY_USER_AVATAR] ?: 0
     }
 
+    /**
+     * 观察设备唯一标识。首次启动时由 [getOrCreateUserId] 自动生成。
+     * 用户也可通过 [setUserUuid] 手动配置（例如服务端分发的固定 UUID）。
+     */
+    val userUuidFlow: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[KEY_USER_UUID] ?: ""
+    }
+
     val itemsFlow: Flow<List<UserItem>> = context.dataStore.data.map { prefs ->
         val json = prefs[KEY_ITEMS_JSON] ?: DEFAULT_ITEMS_JSON
         parseItemsJson(json)
@@ -75,6 +85,26 @@ class UserPreferencesRepository(private val context: Context) {
     suspend fun getUserExp(): Int = context.dataStore.data.first()[KEY_USER_EXP] ?: 0
     suspend fun getDayGroup(): Int = context.dataStore.data.first()[KEY_DAY_GROUP] ?: 2
     suspend fun getUserAvatar(): Int = context.dataStore.data.first()[KEY_USER_AVATAR] ?: 0
+
+    /**
+     * 获取设备唯一标识。首次调用时自动生成一个随机 UUID 并持久化，
+     * 后续调用始终返回同一个值。用户也可通过 [setUserUuid] 手动配置。
+     *
+     * 可用于：备份包 manifest.json 标识数据归属、未来自托管云同步的用户隔离。
+     */
+    suspend fun getOrCreateUserId(): String {
+        val existing = context.dataStore.data.first()[KEY_USER_UUID]
+        if (existing != null) return existing
+        val newId = UUID.randomUUID().toString()
+        context.dataStore.edit { it[KEY_USER_UUID] = newId }
+        return newId
+    }
+
+    /**
+     * 手动设置设备唯一标识（例如从服务端管理员处获取的固定 UUID）。
+     * 设置后将覆盖之前自动生成的值。
+     */
+    suspend fun setUserUuid(uuid: String) = context.dataStore.edit { it[KEY_USER_UUID] = uuid }
 
     suspend fun getItems(): List<UserItem> {
         val json = context.dataStore.data.first()[KEY_ITEMS_JSON] ?: DEFAULT_ITEMS_JSON
@@ -117,6 +147,7 @@ class UserPreferencesRepository(private val context: Context) {
         prefs[KEY_USER_EXP] = 0
         prefs[KEY_DAY_GROUP] = 1
         prefs[KEY_USER_AVATAR] = 0
+        prefs[KEY_USER_UUID] = UUID.randomUUID().toString()
         prefs[KEY_ITEMS_JSON] = DEFAULT_ITEMS_JSON
     }
 

@@ -6,75 +6,84 @@
     android:gravity="center_horizontal"
     android:background="@color/background_main">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="FileUtil 测试"
+        android:textColor="@color/TEXT_white1"
+        android:textSize="16sp" />
+
     <ImageView
-        android:id="@+id/demoSprite"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="32dp" >
-    </ImageView>
-
-
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:text="9-patch 背景示例"
-        android:textColor="@color/TEXT_white1"
-        android:textSize="14sp" />
-
-    <FrameLayout
-        android:id="@+id/demoNinePatch"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="12dp" >
-
-        <ImageView
-            android:id="@+id/demoButton"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_marginLeft="32dp"
-            android:layout_marginTop="32dp"
-            android:clickable="true"
-            android:focusable="true" />
-    </FrameLayout>
+        android:id="@+id/btnSaveLog"
+        android:layout_width="240dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="40dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="提交新日志" />
 
     <TextView
-        android:id="@+id/testResult"
+        android:id="@+id/tvSaveLog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="4dp"
         android:textColor="@color/TEXT_white1"
-        android:textSize="12sp"
+        android:textSize="11sp"
         android:visibility="gone" />
 
     <ImageView
-        android:id="@+id/testDbButton"
-        android:layout_width="120dp"
+        android:id="@+id/btnUpdateUser"
+        android:layout_width="240dp"
         android:layout_height="32dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="20dp"
         android:clickable="true"
         android:focusable="true"
-        android:contentDescription="测试数据库" />
+        android:contentDescription="更新用户信息" />
 
     <TextView
-        android:id="@+id/dsResult"
+        android:id="@+id/tvUpdateUser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:textColor="@color/TEXT_white1"
-        android:textSize="12sp"
+        android:textSize="11sp"
         android:visibility="gone" />
 
     <ImageView
-        android:id="@+id/testDsButton"
-        android:layout_width="120dp"
+        android:id="@+id/btnExport"
+        android:layout_width="240dp"
         android:layout_height="32dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginTop="20dp"
         android:clickable="true"
         android:focusable="true"
-        android:contentDescription="测试 DataStore" />
+        android:contentDescription="导出备份" />
+
+    <TextView
+        android:id="@+id/tvExport"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/TEXT_white1"
+        android:textSize="11sp"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/btnImport"
+        android:layout_width="240dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="导入恢复" />
+
+    <TextView
+        android:id="@+id/tvImport"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/TEXT_white1"
+        android:textSize="11sp"
+        android:visibility="gone" />
 
 </LinearLayout>
