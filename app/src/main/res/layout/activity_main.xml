@@ -104,4 +104,32 @@
         android:textSize="11sp"
         android:visibility="gone" />
 
+    <!-- PixelDialog 测试按钮 -->
+    <ImageView
+        android:id="@+id/btnDialogInfo"
+        android:layout_width="240dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="信息弹窗测试" />
+
+    <ImageView
+        android:id="@+id/btnDialogWarn"
+        android:layout_width="240dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="12dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="警告弹窗测试" />
+
+    <ImageView
+        android:id="@+id/btnDialogError"
+        android:layout_width="240dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="12dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="错误弹窗测试" />
+
 </LinearLayout>

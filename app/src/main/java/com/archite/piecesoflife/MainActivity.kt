@@ -19,6 +19,7 @@ import com.archite.piecesoflife.data.UserItem
 import com.archite.piecesoflife.data.UserPreferencesRepository
 import com.archite.piecesoflife.databinding.ActivityMainBinding
 import com.archite.piecesoflife.ui.AddonToolActivity
+import com.archite.piecesoflife.ui.PixelDialog
 import com.archite.piecesoflife.util.FileUtil
 import com.archite.piecesoflife.util.SpriteDef
 import com.archite.piecesoflife.util.SpriteLoader
@@ -93,6 +94,9 @@ class MainActivity : AppCompatActivity() {
         SpriteLoader.setButton(binding.btnExport, SpriteDef.B48x32.RES, frame = SpriteDef.B48x32.frame(4), scale = 5)
         SpriteLoader.setButton(binding.btnImport, SpriteDef.B48x32.RES, frame = SpriteDef.B48x32.frame(6), scale = 5)
         SpriteLoader.setButton(binding.btnAddonTool, SpriteDef.B48x32.RES, frame = SpriteDef.B48x32.frame(4), scale = 5)
+        SpriteLoader.setButton(binding.btnDialogInfo, SpriteDef.B48x24.RES, frame = SpriteDef.B48x24.frame(2), scale = 5)
+        SpriteLoader.setButton(binding.btnDialogWarn, SpriteDef.B48x24.RES, frame = SpriteDef.B48x24.frame(4), scale = 5)
+        SpriteLoader.setButton(binding.btnDialogError, SpriteDef.B48x24.RES, frame = SpriteDef.B48x24.frame(6), scale = 5)
 
         binding.btnSaveLog.setOnClickListener {
             showStatus(binding.tvSaveLog, "保存中...")
@@ -160,6 +164,37 @@ class MainActivity : AppCompatActivity() {
             showStatus(binding.tvAddonTool, "打开 AddonTool...")
             val intent = Intent(this, AddonToolActivity::class.java)
             startActivity(intent)
+        }
+
+        binding.btnDialogInfo.setOnClickListener {
+            PixelDialog(this)
+                .setType(PixelDialog.DialogType.INFO)
+                .setTitle("信息")
+                .setMessage("这是一条信息提示。\nPixelDialog 组件测试。")
+                .setConfirmText("知道了")
+                .show()
+        }
+
+        binding.btnDialogWarn.setOnClickListener {
+            PixelDialog(this)
+                .setType(PixelDialog.DialogType.WARN)
+                .setTitle("警告")
+                .setMessage("操作前请确认当前数据已备份！\n此操作不可撤销。")
+                .setConfirmText("确认执行")
+                .setCancelText("取消")
+                .onConfirm { /* 执行操作 */ }
+                .show()
+        }
+
+        binding.btnDialogError.setOnClickListener {
+            PixelDialog(this)
+                .setType(PixelDialog.DialogType.ERROR)
+                .setTitle("重要选择")
+                .setMessage("文件格式不兼容，无法读取。\n请检查文件格式后重试。")
+                .setConfirmText("重试")
+                .setCancelText("关闭")
+                .onConfirm { /* 执行操作 */ }
+                .show()
         }
     }
 

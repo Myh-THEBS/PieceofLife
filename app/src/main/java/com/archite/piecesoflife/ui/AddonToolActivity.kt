@@ -71,6 +71,35 @@ class AddonToolActivity : AppCompatActivity() {
         binding.btnCancel.setOnClickListener { finish() }
         binding.btnConfirm.setOnClickListener { finish() }
 
-        // 7 个工具面板暂时无业务逻辑，只渲染画面
+        // PixelDialog 集成测试：工具 1~3 分别展示信息/警告/错误弹窗
+        binding.toolPanel1.setOnClickListener {
+            PixelDialog(this)
+                .setType(PixelDialog.DialogType.INFO)
+                .setTitle("信息")
+                .setMessage("这是一条信息提示。\n可以包含多行文本。")
+                .setConfirmText("知道了")
+                .onConfirm { /* 可执行操作 */ }
+                .show()
+        }
+        binding.toolPanel2.setOnClickListener {
+            PixelDialog(this)
+                .setType(PixelDialog.DialogType.WARN)
+                .setTitle("警告")
+                .setMessage("操作前请确认当前数据已备份！\n此操作不可撤销。")
+                .setConfirmText("确认执行")
+                .setCancelText("取消")
+                .onConfirm { /* 执行操作 */ }
+                .show()
+        }
+        binding.toolPanel3.setOnClickListener {
+            PixelDialog(this)
+                .setType(PixelDialog.DialogType.ERROR)
+                .setTitle("错误")
+                .setMessage("文件格式不兼容，无法读取。\n请检查文件格式后重试。")
+                .setConfirmText("重试")
+                .setCancelText("关闭")
+                .onConfirm { /* 执行操作 */ }
+                .show()
+        }
     }
 }
