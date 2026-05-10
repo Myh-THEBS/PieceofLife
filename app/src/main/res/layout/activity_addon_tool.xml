@@ -61,12 +61,12 @@
             android:focusable="true">
         </ImageView>
 
-        <LinearLayout
+        <ImageView
             android:id="@+id/bottomSpacer"
             android:layout_width="0dp"
             android:layout_height="64dp"
-            android:layout_weight="1.0">
-        </LinearLayout>
+            android:layout_weight="1.0"
+            android:scaleType="fitXY" />
 
         <ImageView
             android:id="@+id/btnConfirm"

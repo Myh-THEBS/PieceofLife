@@ -56,6 +56,10 @@ object SpriteLoader {
         return loadCrop(SpriteDef.B72x72.RES, SpriteDef.B72x72.frame(index), scale)
     }
 
+    fun button96x32(index: Int, scale: Int = 5): Bitmap {
+        return loadCrop(SpriteDef.B96x32.RES, SpriteDef.B96x32.frame(index), scale)
+    }
+
     fun setIcon(view: ImageView, index: Int, scale: Int = 5) {
         view.setImageBitmap(icon(index, scale))
     }

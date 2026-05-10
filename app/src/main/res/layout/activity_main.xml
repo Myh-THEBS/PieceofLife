@@ -10,99 +10,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="FileUtil 测试"
+        android:text="Pieces of Life"
         android:textColor="@color/TEXT_white1"
-        android:textSize="16sp" />
-
-    <ImageView
-        android:id="@+id/btnSaveLog"
-        android:layout_width="240dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="40dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="提交新日志" />
-
-    <TextView
-        android:id="@+id/tvSaveLog"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="@color/TEXT_white1"
-        android:textSize="11sp"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/btnUpdateUser"
-        android:layout_width="240dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="20dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="更新用户信息" />
-
-    <TextView
-        android:id="@+id/tvUpdateUser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="@color/TEXT_white1"
-        android:textSize="11sp"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/btnExport"
-        android:layout_width="240dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="20dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="导出备份" />
-
-    <TextView
-        android:id="@+id/tvExport"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="@color/TEXT_white1"
-        android:textSize="11sp"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/btnImport"
-        android:layout_width="240dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="20dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="导入恢复" />
-
-    <TextView
-        android:id="@+id/tvImport"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="@color/TEXT_white1"
-        android:textSize="11sp"
-        android:visibility="gone" />
+        android:textSize="20sp" />
 
     <ImageView
         android:id="@+id/btnAddonTool"
         android:layout_width="240dp"
         android:layout_height="32dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="40dp"
         android:clickable="true"
         android:focusable="true"
         android:contentDescription="附加工具" />
-
-    <TextView
-        android:id="@+id/tvAddonTool"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="@color/TEXT_white1"
-        android:textSize="11sp"
-        android:visibility="gone" />
 
     <!-- PixelDialog 测试按钮 -->
     <ImageView
@@ -131,5 +50,14 @@
         android:clickable="true"
         android:focusable="true"
         android:contentDescription="错误弹窗测试" />
+
+    <ImageView
+        android:id="@+id/btnAppSetting"
+        android:layout_width="360dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="32dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="APP设置" />
 
 </LinearLayout>

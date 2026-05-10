@@ -14,4 +14,32 @@
     <string name="addon_tool5">问答精灵</string>
     <string name="addon_tool6">词云宝典</string>
     <string name="addon_tool7">属性账单</string>
+
+    <!-- AppSetting -->
+    <string name="app_setting_title">APP设置</string>
+    <string name="app_setting_debug">调试模式</string>
+    <string name="app_setting_debug_on">开</string>
+    <string name="app_setting_debug_off">关</string>
+    <string name="app_setting_left">主键左对齐</string>
+    <string name="app_setting_left_on">开</string>
+    <string name="app_setting_left_off">关</string>
+    <string name="app_setting_display">日志显示周期</string>
+    <string name="app_setting_month">月</string>
+    <string name="app_setting_week">周</string>
+    <string name="app_setting_day">日</string>
+    <string name="app_setting_backup">数据备份</string>
+    <string name="app_setting_save">Save</string>
+    <string name="app_setting_load">Load</string>
+    <string name="app_setting_import_title">导入确认</string>
+    <string name="app_setting_import_msg">此操作不可撤销！操作前请确认当前数据已备份。\n导入成功后APP将自动关闭。</string>
+    <string name="app_setting_unsaved_title">警告</string>
+    <string name="app_setting_unsaved_msg">有未保存的属性更改，是否直接退出？</string>
+    <string name="app_setting_confirm_title">警告</string>
+    <string name="app_setting_confirm_msg">是否确认变更以下N项属性？</string>
+
+    <!-- UserSetting -->
+    <string name="user_setting_title">用户设置</string>
+    <string name="user_setting_placeholder">功能开发中…</string>
+    <string name="app_setting_user">用户设置</string>
+    <string name="app_setting_user_enter">进入</string>
 </resources>

@@ -31,6 +31,14 @@
             android:name=".ui.AddonToolActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.AppSettingActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.UserSettingActivity"
+            android:exported="false" />
+
 
     </application>
 

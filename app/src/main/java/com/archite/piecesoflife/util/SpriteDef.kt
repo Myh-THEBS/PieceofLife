@@ -67,6 +67,12 @@ object SpriteDef {
         fun frame(index: Int) = SpriteFrame(index * FW, 0, FW, FH)
     }
 
+    object B96x32 {
+        val RES = R.drawable.button_96x32
+        const val FW = 96; const val FH = 32
+        fun frame(index: Int) = SpriteFrame(index * FW, 0, FW, FH)
+    }
+
     fun loadSheet(resId: Int): Bitmap {
         val opts = BitmapFactory.Options().apply { inScaled = false }
         return BitmapFactory.decodeResource(com.archite.piecesoflife.PieceOfLifeApp.getAppContext().resources, resId, opts)
