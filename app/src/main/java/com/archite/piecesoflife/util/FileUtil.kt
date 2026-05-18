@@ -46,7 +46,6 @@ object FileUtil {
             val userName = prefRepo.getUserName()
             val debugMode = prefRepo.getDebugMode()
             val lastDate = prefRepo.getLastDate()
-            val userExp = prefRepo.getUserExp()
             val dayGroup = prefRepo.getDayGroup()
             val userAvatar = prefRepo.getUserAvatar()
             val items = prefRepo.getItems()
@@ -58,8 +57,12 @@ object FileUtil {
                         itemsArr.put(JSONObject().apply {
                             put("name", item.name)
                             put("type", item.type)
-                            put("icon", item.icon)
+                            put("iconEmoji", item.iconEmoji)
                             put("value", item.value)
+                            put("abbr", item.abbr)
+                            put("rule", item.rule)
+                            put("levelExp", item.levelExp)
+                            put("priority", item.priority)
                         })
                     }
 
@@ -67,12 +70,11 @@ object FileUtil {
                         put("app_version", "1.3")
                         put("user_uuid", userId)
                         put("created_at", System.currentTimeMillis())
-                        put("schema_version", 1)
+                        put("schema_version", 2)
                         put("preferences", JSONObject().apply {
                             put("user_name", userName)
                             put("debug_mode", debugMode)
                             put("last_date", lastDate)
-                            put("user_exp", userExp)
                             put("day_group", dayGroup)
                             put("user_avatar", userAvatar)
                             put("items", itemsArr)
@@ -160,7 +162,6 @@ object FileUtil {
                     prefRepo.setUserName(prefs.optString("user_name", ""))
                     prefRepo.setDebugMode(prefs.optBoolean("debug_mode", false))
                     prefRepo.setLastDate(prefs.optInt("last_date", 19981228))
-                    prefRepo.setUserExp(prefs.optInt("user_exp", 0))
                     prefRepo.setDayGroup(prefs.optInt("day_group", 2))
                     prefRepo.setUserAvatar(prefs.optInt("user_avatar", 0))
 
@@ -172,8 +173,12 @@ object FileUtil {
                             items.add(UserItem(
                                 name = obj.optString("name", ""),
                                 type = obj.optString("type", UserItem.TYPE_ATTRIBUTES),
-                                icon = obj.optInt("icon", 0),
+                                iconEmoji = obj.optString("iconEmoji", if (obj.has("icon")) "\u2699" else "⚙"),
                                 value = obj.optInt("value", 0),
+                                abbr = obj.optString("abbr", ""),
+                                rule = obj.optString("rule", ""),
+                                levelExp = obj.optInt("levelExp", 1000),
+                                priority = obj.optInt("priority", 0),
                             ))
                         }
                         if (items.isNotEmpty()) {

@@ -25,25 +25,26 @@ class UserPreferencesRepository(private val context: Context) {
         private val KEY_USER_NAME = stringPreferencesKey("user_name")
         private val KEY_DEBUG_MODE = booleanPreferencesKey("debug_mode")
         private val KEY_LAST_DATE = intPreferencesKey("last_date")
-        private val KEY_USER_EXP = intPreferencesKey("user_exp")
         private val KEY_DAY_GROUP = intPreferencesKey("day_group")
         private val KEY_ITEMS_JSON = stringPreferencesKey("items_json")
         private val KEY_USER_AVATAR = intPreferencesKey("user_avatar")
         private val KEY_USER_UUID = stringPreferencesKey("user_uuid")
+        private val KEY_LEFT_MODE = booleanPreferencesKey("left_mode")
 
         private val DEFAULT_ITEMS_JSON = """
             [
-                {"name": "STP", "type": "Attributes", "icon": 0, "value": 0},
-                {"name": "HP", "type": "Attributes", "icon": 0, "value": 0},
-                {"name": "LUK", "type": "Attributes", "icon": 0, "value": 0},
-                {"name": "惩罚，STP-", "type": "Phrases", "icon": 0, "value": 0},
-                {"name": "学习，STP+", "type": "Phrases", "icon": 0, "value": 0}
+                {"name": "角色等级", "type": "Skill", "iconEmoji": "💠", "value": 9235, "abbr": "EXP", "levelExp": 1000, "priority": 99, "rule": "默认的等级和经验，代表一段时间以来的成长和经历。"},
+                {"name": "点数", "type": "Attributes", "iconEmoji": "💎", "value": 50, "abbr": "STP", "priority": 3, "rule": "学习和完成任务积累的奖励，可以与货币1:1兑换，购买自己想要的东西。"},
+                {"name": "健康", "type": "Attributes", "iconEmoji": "🍖", "value": 10, "abbr": "HP", "priority": 2, "rule": "健康指数，通过完成运动、早睡早起、健康饮食等获得，可以消费用于购买网络增值产品或零食。"},
+                {"name": "幸运", "type": "Attributes", "iconEmoji": "🎲", "value": -3, "abbr": "LUK", "priority": 1, "rule": "运气指数，LUK>0时代表近期处于好运，反之代表厄运。发生好运的事情时，LUK会增加，否则会减少。\nLUK=0 代表平凡的一天，运气应该是守恒的。"},
+                {"name": "点数惩罚", "type": "Phrases", "rule": "惩罚，STP-"},
+                {"name": "学习奖励", "type": "Phrases", "rule": "完成学习，STP+"}
             ]
         """.trimIndent()
     }
 
     val userNameFlow: Flow<String> = context.dataStore.data.map { prefs ->
-        prefs[KEY_USER_NAME] ?: ""
+        prefs[KEY_USER_NAME] ?: "默认用户"
     }
 
     val debugModeFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
@@ -52,10 +53,6 @@ class UserPreferencesRepository(private val context: Context) {
 
     val lastDateFlow: Flow<Int> = context.dataStore.data.map { prefs ->
         prefs[KEY_LAST_DATE] ?: 19981228
-    }
-
-    val userExpFlow: Flow<Int> = context.dataStore.data.map { prefs ->
-        prefs[KEY_USER_EXP] ?: 0
     }
 
     val dayGroupFlow: Flow<Int> = context.dataStore.data.map { prefs ->
@@ -74,17 +71,21 @@ class UserPreferencesRepository(private val context: Context) {
         prefs[KEY_USER_UUID] ?: ""
     }
 
+    val leftModeFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[KEY_LEFT_MODE] ?: false
+    }
+
     val itemsFlow: Flow<List<UserItem>> = context.dataStore.data.map { prefs ->
         val json = prefs[KEY_ITEMS_JSON] ?: DEFAULT_ITEMS_JSON
         parseItemsJson(json)
     }
 
-    suspend fun getUserName(): String = context.dataStore.data.first()[KEY_USER_NAME] ?: ""
+    suspend fun getUserName(): String = context.dataStore.data.first()[KEY_USER_NAME] ?: "默认用户"
     suspend fun getDebugMode(): Boolean = context.dataStore.data.first()[KEY_DEBUG_MODE] ?: false
     suspend fun getLastDate(): Int = context.dataStore.data.first()[KEY_LAST_DATE] ?: 19981228
-    suspend fun getUserExp(): Int = context.dataStore.data.first()[KEY_USER_EXP] ?: 0
     suspend fun getDayGroup(): Int = context.dataStore.data.first()[KEY_DAY_GROUP] ?: 2
     suspend fun getUserAvatar(): Int = context.dataStore.data.first()[KEY_USER_AVATAR] ?: 0
+    suspend fun getLeftMode(): Boolean = context.dataStore.data.first()[KEY_LEFT_MODE] ?: false
 
     /**
      * 获取设备唯一标识。首次调用时自动生成一个随机 UUID 并持久化，
@@ -114,9 +115,9 @@ class UserPreferencesRepository(private val context: Context) {
     suspend fun setUserName(name: String) = context.dataStore.edit { it[KEY_USER_NAME] = name }
     suspend fun setDebugMode(enabled: Boolean) = context.dataStore.edit { it[KEY_DEBUG_MODE] = enabled }
     suspend fun setLastDate(date: Int) = context.dataStore.edit { it[KEY_LAST_DATE] = date }
-    suspend fun setUserExp(exp: Int) = context.dataStore.edit { it[KEY_USER_EXP] = exp }
     suspend fun setDayGroup(group: Int) = context.dataStore.edit { it[KEY_DAY_GROUP] = group }
     suspend fun setUserAvatar(avatarIndex: Int) = context.dataStore.edit { it[KEY_USER_AVATAR] = avatarIndex }
+    suspend fun setLeftMode(enabled: Boolean) = context.dataStore.edit { it[KEY_LEFT_MODE] = enabled }
 
     suspend fun setItems(items: List<UserItem>) = context.dataStore.edit {
         it[KEY_ITEMS_JSON] = itemsToJson(items)
@@ -126,7 +127,6 @@ class UserPreferencesRepository(private val context: Context) {
         userName: String? = null,
         debugMode: Boolean? = null,
         lastDate: Int? = null,
-        userExp: Int? = null,
         dayGroup: Int? = null,
         userAvatar: Int? = null,
         items: List<UserItem>? = null
@@ -134,7 +134,6 @@ class UserPreferencesRepository(private val context: Context) {
         userName?.let { prefs[KEY_USER_NAME] = it }
         debugMode?.let { prefs[KEY_DEBUG_MODE] = it }
         lastDate?.let { prefs[KEY_LAST_DATE] = it }
-        userExp?.let { prefs[KEY_USER_EXP] = it }
         dayGroup?.let { prefs[KEY_DAY_GROUP] = it }
         userAvatar?.let { prefs[KEY_USER_AVATAR] = it }
         items?.let { prefs[KEY_ITEMS_JSON] = itemsToJson(it) }
@@ -144,9 +143,9 @@ class UserPreferencesRepository(private val context: Context) {
         prefs[KEY_USER_NAME] = "新用户"
         prefs[KEY_DEBUG_MODE] = true
         prefs[KEY_LAST_DATE] = 20250101
-        prefs[KEY_USER_EXP] = 0
         prefs[KEY_DAY_GROUP] = 1
         prefs[KEY_USER_AVATAR] = 0
+        prefs[KEY_LEFT_MODE] = false
         prefs[KEY_USER_UUID] = UUID.randomUUID().toString()
         prefs[KEY_ITEMS_JSON] = DEFAULT_ITEMS_JSON
     }
@@ -154,13 +153,11 @@ class UserPreferencesRepository(private val context: Context) {
     suspend fun validateUserData(): Int {
         val name = getUserName()
         val lastDate = getLastDate()
-        val userExp = getUserExp()
         val dayGroup = getDayGroup()
 
-        if (userExp == -114514 && name.isEmpty() && lastDate == 19981228) return 1
+        if (name.isEmpty() && lastDate == 19981228) return 1
         if (name.isEmpty()) return 2
         if (dayGroup < 0 || dayGroup > 365) return 3
-        if (userExp < 0) return 4
         return 0
     }
 
@@ -172,8 +169,12 @@ class UserPreferencesRepository(private val context: Context) {
                 UserItem(
                     name = obj.getString("name"),
                     type = obj.optString("type", "Attributes"),
-                    icon = obj.optInt("icon", 0),
-                    value = obj.optInt("value", 0)
+                    iconEmoji = obj.optString("iconEmoji", if (obj.has("icon")) "\u2699" else "⚙"),
+                    value = obj.optInt("value", 0),
+                    abbr = obj.optString("abbr", ""),
+                    rule = obj.optString("rule", ""),
+                    levelExp = obj.optInt("levelExp", 1000),
+                    priority = obj.optInt("priority", 0),
                 )
             }
         } catch (e: Exception) {
@@ -187,8 +188,12 @@ class UserPreferencesRepository(private val context: Context) {
             arr.put(JSONObject().apply {
                 put("name", item.name)
                 put("type", item.type)
-                put("icon", item.icon)
+                put("iconEmoji", item.iconEmoji)
                 put("value", item.value)
+                put("abbr", item.abbr)
+                put("rule", item.rule)
+                put("levelExp", item.levelExp)
+                put("priority", item.priority)
             })
         }
         return arr.toString()

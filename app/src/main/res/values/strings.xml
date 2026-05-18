@@ -35,11 +35,33 @@
     <string name="app_setting_unsaved_title">警告</string>
     <string name="app_setting_unsaved_msg">有未保存的属性更改，是否直接退出？</string>
     <string name="app_setting_confirm_title">警告</string>
-    <string name="app_setting_confirm_msg">是否确认变更以下N项属性？</string>
+    <string name="app_setting_confirm_msg">是否确认变更以下属性？</string>
 
     <!-- UserSetting -->
     <string name="user_setting_title">用户设置</string>
     <string name="user_setting_placeholder">功能开发中…</string>
+    <string name="user_setting_username">用户名</string>
+    <string name="user_setting_edit">编辑</string>
+    <string name="section_user">基础用户设置</string>
+    <string name="section_attributes">数值属性</string>
+    <string name="section_skills">技能属性</string>
+    <string name="section_phrases">常用短语</string>
+    <string name="section_add">新增</string>
     <string name="app_setting_user">用户设置</string>
     <string name="app_setting_user_enter">进入</string>
+
+    <!-- ItemEdit -->
+    <string name="item_field_name">属性名称</string>
+    <string name="item_field_abbr">属性简写</string>
+    <string name="item_field_icon">属性图标</string>
+    <string name="item_field_value">属性值/技能经验</string>
+    <string name="item_field_level_exp">升级所需经验</string>
+    <string name="item_field_priority">优先级</string>
+    <string name="item_field_rule">属性描述/短语内容</string>
+    <string name="item_delete">删除属性/技能/短语</string>
+    <string name="item_hint_abbr">用于在日志中正则匹配以增减属性。创建后不可修改，全局唯一。</string>
+    <string name="item_hint_icon">你可以输入喜欢的emoji作为该属性或技能的图标，图标会显示在主页的日志属性前。</string>
+    <string name="item_hint_level_exp">每升一级所需经验值，默认为1000。</string>
+    <string name="item_new_title">新建</string>
+    <string name="item_edit_title">编辑</string>
 </resources>

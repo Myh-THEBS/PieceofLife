@@ -39,6 +39,10 @@
             android:name=".ui.UserSettingActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.ItemEditActivity"
+            android:exported="false" />
+
 
     </application>
 
