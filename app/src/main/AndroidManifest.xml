@@ -43,6 +43,13 @@
             android:name=".ui.ItemEditActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.LogQueryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.QuestSettingActivity"
+            android:exported="false" />
 
     </application>
 

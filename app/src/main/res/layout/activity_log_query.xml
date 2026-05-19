@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/main_background">
+
+    <RelativeLayout
+        android:id="@+id/topToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+
+        <ImageView
+            android:id="@+id/toolbarBg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:contentDescription="@string/empty_string" />
+
+        <ImageView
+            android:id="@+id/btnReturn"
+            android:contentDescription="@string/addon_return"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="16dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:paddingBottom="6dp"
+            android:text="@string/log_query_title"
+            android:textColor="@color/TEXT_black"
+            android:fontFamily="@font/wqy_12px"
+            android:textSize="28dp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/btnCancel"
+            android:contentDescription="@string/addon_cancel"
+            android:layout_width="144dp"
+            android:layout_height="64dp"
+            android:scaleType="fitXY"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <ImageView
+            android:id="@+id/bottomSpacer"
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_weight="1.0"
+            android:scaleType="fitXY" />
+
+        <ImageView
+            android:id="@+id/btnConfirm"
+            android:contentDescription="@string/addon_confirm"
+            android:layout_width="144dp"
+            android:layout_height="64dp"
+            android:scaleType="fitXY"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/contentBg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@id/bottomBar"
+        android:layout_below="@id/topToolbar"
+        android:scaleType="fitXY"
+        android:contentDescription="@string/empty_string" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="64dp"
+        android:scrollbars="none"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:gravity="top">
+
+        <LinearLayout
+            android:id="@+id/contentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="60dp">
+
+            <!-- 年份/月份导航 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/btnYearDec"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/empty_string" />
+
+                <TextView
+                    android:id="@+id/tvYear"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:text="2026"
+                    android:paddingBottom="6dp"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:gravity="center"
+                    android:textSize="30dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/log_query_year"
+                    android:paddingBottom="6dp"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:textSize="30dp" />
+
+                <ImageView
+                    android:id="@+id/btnYearAdd"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/empty_string" />
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                </Space>
+                <ImageView
+                    android:id="@+id/btnMonthDec"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/empty_string" />
+
+                <TextView
+                    android:id="@+id/tvMonth"
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="6dp"
+                    android:text="12"
+                    android:gravity="center"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:textSize="30dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="6dp"
+                    android:text="@string/log_query_month"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:textSize="30dp" />
+
+                <ImageView
+                    android:id="@+id/btnMonthAdd"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/empty_string" />
+            </LinearLayout>
+
+
+            <!-- 日历容器（CalendarViewController 将填充此处） -->
+            <LinearLayout
+                android:id="@+id/dateContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="20dp" />
+
+            <!-- 选中日期 + 今天按钮 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    android:id="@+id/tvSelectedDate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingBottom="4dp"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:textSize="26dp" />
+
+                <ImageView
+                    android:id="@+id/btnToday"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/log_query_today" />
+            </LinearLayout>
+
+            <!-- 关键词搜索 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp">
+
+                <EditText
+                    android:id="@+id/etKeyword"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:paddingHorizontal="10dp"
+                    android:layout_marginEnd="80dp"
+                    android:background="@drawable/background_input"
+                    android:gravity="start|center_vertical"
+                    android:hint="@string/log_query_search_hint"
+                    android:maxLines="1"
+                    android:textColor="@color/TEXT_black"
+                    android:textSize="20dp"
+                    android:inputType="text" />
+
+                <ImageView
+                    android:id="@+id/btnSearch"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/log_query_search" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

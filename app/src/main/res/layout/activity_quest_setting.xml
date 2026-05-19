@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:paddingBottom="6dp"
-            android:text="@string/app_setting_title"
+            android:text="@string/quest_setting_title"
             android:textColor="@color/TEXT_black"
             android:fontFamily="@font/wqy_12px"
             android:textSize="28dp" />
@@ -97,57 +97,140 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="20dp">
+            android:paddingTop="60dp">
 
-            <!-- 0. 用户设置 -->
+            <!-- 年份/月份导航（与 LogQuery 一致） -->
             <LinearLayout
-                android:id="@+id/rowUserSetting"
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/btnYearDec"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/empty_string" />
+
+                <TextView
+                    android:id="@+id/tvYear"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:text="2026"
+                    android:paddingBottom="6dp"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:gravity="center"
+                    android:textSize="30dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/log_query_year"
+                    android:paddingBottom="6dp"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:textSize="30dp" />
+
+                <ImageView
+                    android:id="@+id/btnYearAdd"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/empty_string" />
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                </Space>
+                <ImageView
+                    android:id="@+id/btnMonthDec"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/empty_string" />
+
+                <TextView
+                    android:id="@+id/tvMonth"
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="6dp"
+                    android:text="12"
+                    android:gravity="center"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:textSize="30dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="6dp"
+                    android:text="@string/log_query_month"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:textSize="30dp" />
+
+                <ImageView
+                    android:id="@+id/btnMonthAdd"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/empty_string" />
+            </LinearLayout>
+
+            <!-- 日历容器（CalendarViewController 将填充此处） -->
+            <LinearLayout
+                android:id="@+id/dateContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="20dp" />
+
+            <!-- 第一行：任务期限 + 今天按钮 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="24dp"
                 android:orientation="horizontal"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/click_background">
-
-                <ImageView
-                    android:id="@+id/iconUserSetting"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:contentDescription="@string/app_setting_user" />
+                android:layout_marginTop="12dp">
 
                 <TextView
+                    android:id="@+id/tvDeadline"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="4dp"
                     android:paddingBottom="4dp"
-                    android:text="@string/app_setting_user"
                     android:textColor="@color/TEXT_black"
                     android:fontFamily="@font/wqy_12px"
                     android:textSize="26dp" />
 
                 <ImageView
-                    android:id="@+id/btnUserSetting"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:contentDescription="@string/app_setting_user_enter" />
+                    android:id="@+id/btnToday"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/log_query_today" />
             </LinearLayout>
 
-            <!-- 1. 调试模式 -->
+            <!-- 第二行：是否无期限 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
                 android:gravity="center_vertical"
-
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
 
                 <ImageView
-                    android:id="@+id/iconDebug"
+                    android:id="@+id/iconUnlimited"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:contentDescription="@string/app_setting_debug" />
+                    android:contentDescription="@string/empty_string" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -155,22 +238,22 @@
                     android:layout_weight="1"
                     android:layout_marginStart="4dp"
                     android:paddingBottom="4dp"
-                    android:text="@string/app_setting_debug"
+                    android:text="@string/quest_setting_unlimited_label"
                     android:textColor="@color/TEXT_black"
                     android:fontFamily="@font/wqy_12px"
                     android:textSize="26dp" />
 
                 <ImageView
-                    android:id="@+id/btnDebugToggle"
+                    android:id="@+id/btnUnlimited"
                     android:layout_width="120dp"
                     android:layout_height="40dp"
                     android:scaleType="fitXY"
                     android:clickable="true"
                     android:focusable="true"
-                    android:contentDescription="@string/app_setting_debug_on" />
+                    android:contentDescription="@string/empty_string" />
             </LinearLayout>
 
-            <!-- 2. 左手主键 -->
+            <!-- 第三行：任务类型 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
@@ -178,10 +261,10 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:id="@+id/iconLeftMode"
+                    android:id="@+id/iconQuestType"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:contentDescription="@string/app_setting_left" />
+                    android:contentDescription="@string/empty_string" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -189,22 +272,22 @@
                     android:layout_weight="1"
                     android:layout_marginStart="4dp"
                     android:paddingBottom="4dp"
-                    android:text="@string/app_setting_left"
+                    android:text="@string/quest_setting_type_label"
                     android:textColor="@color/TEXT_black"
                     android:fontFamily="@font/wqy_12px"
                     android:textSize="26dp" />
 
                 <ImageView
-                    android:id="@+id/btnLeftToggle"
+                    android:id="@+id/btnQuestType"
                     android:layout_width="120dp"
                     android:layout_height="40dp"
                     android:scaleType="fitXY"
                     android:clickable="true"
                     android:focusable="true"
-                    android:contentDescription="@string/app_setting_left_on" />
+                    android:contentDescription="@string/empty_string" />
             </LinearLayout>
 
-            <!-- 3. 显示模式 -->
+            <!-- 第四行：重复模式 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
@@ -212,10 +295,10 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:id="@+id/iconDisplay"
+                    android:id="@+id/iconRepeat"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:contentDescription="@string/app_setting_display" />
+                    android:contentDescription="@string/empty_string" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -223,13 +306,13 @@
                     android:layout_weight="1"
                     android:layout_marginStart="4dp"
                     android:paddingBottom="4dp"
-                    android:text="@string/app_setting_display"
+                    android:text="@string/quest_setting_repeat_label"
                     android:textColor="@color/TEXT_black"
                     android:fontFamily="@font/wqy_12px"
                     android:textSize="26dp" />
 
                 <ImageView
-                    android:id="@+id/btnDisplayMonth"
+                    android:id="@+id/btnRepeatMonth"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:scaleType="fitXY"
@@ -238,7 +321,7 @@
                     android:contentDescription="@string/app_setting_month" />
 
                 <ImageView
-                    android:id="@+id/btnDisplayWeek"
+                    android:id="@+id/btnRepeatWeek"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:scaleType="fitXY"
@@ -247,57 +330,13 @@
                     android:contentDescription="@string/app_setting_week" />
 
                 <ImageView
-                    android:id="@+id/btnDisplayDay"
+                    android:id="@+id/btnRepeatDay"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:scaleType="fitXY"
                     android:clickable="true"
                     android:focusable="true"
                     android:contentDescription="@string/app_setting_day" />
-            </LinearLayout>
-
-            <!-- 4. 数据备份 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:gravity="center_vertical"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/iconBackup"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:contentDescription="@string/app_setting_backup" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:paddingBottom="4dp"
-                    android:text="@string/app_setting_backup"
-                    android:textColor="@color/TEXT_black"
-                    android:fontFamily="@font/wqy_12px"
-                    android:textSize="26dp" />
-
-                <ImageView
-                    android:id="@+id/btnBackupSave"
-                    android:layout_width="60dp"
-                    android:layout_height="40dp"
-                    android:scaleType="fitXY"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:contentDescription="@string/app_setting_save" />
-
-                <ImageView
-                    android:id="@+id/btnBackupLoad"
-                    android:layout_width="60dp"
-                    android:layout_height="40dp"
-                    android:scaleType="fitXY"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:contentDescription="@string/app_setting_load" />
             </LinearLayout>
 
         </LinearLayout>

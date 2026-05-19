@@ -150,12 +150,12 @@ class AppSettingActivity : AppCompatActivity() {
         SpriteLoader.setButton(binding.btnCancel, SpriteDef.B72x32.RES, SpriteDef.B72x32.frame(2), scale = 5)
         SpriteLoader.setButton(binding.btnConfirm, SpriteDef.B72x32.RES, SpriteDef.B72x32.frame(0), scale = 5)
 
-        binding.iconDebug.setImageBitmap(SpriteLoader.button16(12, scale = 2))
-        binding.iconLeftMode.setImageBitmap(SpriteLoader.button16(1, scale = 2))
-        binding.iconDisplay.setImageBitmap(SpriteLoader.button16(14, scale = 2))
-        binding.iconBackup.setImageBitmap(SpriteLoader.button16(7, scale = 2))
-        binding.iconUserSetting.setImageBitmap(SpriteLoader.button16(9, scale = 2))
-        binding.btnUserSetting.setImageBitmap(SpriteLoader.button16(18, scale = 2))
+        binding.iconDebug.setImageBitmap(SpriteLoader.button16(12, scale = 5))
+        binding.iconLeftMode.setImageBitmap(SpriteLoader.button16(1, scale = 5))
+        binding.iconDisplay.setImageBitmap(SpriteLoader.button16(14, scale = 5))
+        binding.iconBackup.setImageBitmap(SpriteLoader.button16(7, scale = 5))
+        binding.iconUserSetting.setImageBitmap(SpriteLoader.button16(9, scale = 5))
+        binding.btnUserSetting.setImageBitmap(SpriteLoader.button16(18, scale = 5))
 
         SpriteLoader.setButton(binding.btnDebugToggle, SpriteDef.B96x32.RES, SpriteDef.B96x32.frame(0), scale = 5)
         SpriteLoader.setButton(binding.btnLeftToggle, SpriteDef.B96x32.RES, SpriteDef.B96x32.frame(0), scale = 5)

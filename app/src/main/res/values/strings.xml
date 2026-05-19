@@ -42,13 +42,32 @@
     <string name="user_setting_placeholder">功能开发中…</string>
     <string name="user_setting_username">用户名</string>
     <string name="user_setting_edit">编辑</string>
-    <string name="section_user">基础用户设置</string>
-    <string name="section_attributes">数值属性</string>
-    <string name="section_skills">技能属性</string>
+    <string name="section_user">基础信息</string>
+    <string name="section_attributes">属性列表</string>
+    <string name="section_skills">技能列表</string>
     <string name="section_phrases">常用短语</string>
     <string name="section_add">新增</string>
     <string name="app_setting_user">用户设置</string>
     <string name="app_setting_user_enter">进入</string>
+
+    <!-- LogQuery -->
+    <string name="log_query_title">日志检索</string>
+    <string name="log_query_selected">当前选择：</string>
+    <string name="log_query_search">搜索</string>
+    <string name="log_query_year">年</string>
+    <string name="log_query_month">月</string>
+    <string name="log_query_today">今天</string>
+    <string name="log_query_search_hint">检索关键字</string>
+
+    <!-- QuestSetting -->
+    <string name="quest_setting_title">任务设置</string>
+    <string name="quest_setting_deadline">任务期限：</string>
+    <string name="quest_setting_unlimited">任务无期限</string>
+    <string name="quest_setting_unlimited_label">是否无期限</string>
+    <string name="quest_setting_type_label">任务类型</string>
+    <string name="quest_setting_type_default">默认类型</string>
+    <string name="quest_setting_type_minus">惩罚类型</string>
+    <string name="quest_setting_repeat_label">重复模式</string>
 
     <!-- ItemEdit -->
     <string name="item_field_name">属性名称</string>
@@ -64,4 +83,5 @@
     <string name="item_hint_level_exp">每升一级所需经验值，默认为1000。</string>
     <string name="item_new_title">新建</string>
     <string name="item_edit_title">编辑</string>
+
 </resources>

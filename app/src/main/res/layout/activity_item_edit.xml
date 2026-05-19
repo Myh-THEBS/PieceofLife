@@ -393,18 +393,19 @@
                     android:id="@+id/labelDelete"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_weight="1"
+                    android:gravity="end"
                     android:fontFamily="@font/wqy_12px"
                     android:paddingBottom="4dp"
                     android:text="@string/item_delete"
                     android:textColor="#D24C4C"
-                    android:textSize="26dp" />
+                    android:textSize="20dp" />
 
                 <ImageView
                     android:id="@+id/btnDelete"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:contentDescription="@string/item_delete" />
             </LinearLayout>
 

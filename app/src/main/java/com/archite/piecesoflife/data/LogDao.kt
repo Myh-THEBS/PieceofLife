@@ -90,6 +90,9 @@ interface LogDao {
         unfinishedMinus: Int = QuestFlag.MINUS_UNFINISHED
     ): List<LogEntity>
 
+    @Query("SELECT DISTINCT build_date FROM log_data WHERE is_deleted = 0 AND build_date BETWEEN :startDate AND :endDate")
+    suspend fun getDistinctDatesInRange(startDate: Int, endDate: Int): List<Int>
+
     @Query("SELECT * FROM log_data WHERE is_deleted = 0 ORDER BY build_date ASC, build_time ASC")
     suspend fun getAll(): List<LogEntity>
 

@@ -31,6 +31,9 @@ class LogRepository(private val dao: LogDao) {
 
     suspend fun getActiveQuests(): List<LogEntity> = dao.getActiveQuests()
 
+    suspend fun getLogDateSetInRange(startDate: Int, endDate: Int): Set<Int> =
+        dao.getDistinctDatesInRange(startDate, endDate).toSet()
+
     suspend fun getAllLogs(): List<LogEntity> = dao.getAll()
 
     fun observeLogCountByDate(date: Int): Flow<Int> = dao.observeCountByDate(date)

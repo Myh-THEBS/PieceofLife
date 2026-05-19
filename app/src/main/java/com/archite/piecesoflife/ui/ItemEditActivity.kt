@@ -137,7 +137,7 @@ class ItemEditActivity : AppCompatActivity() {
         binding.labelRule.text = "${typeName}描述"
         binding.labelDelete.text = "删除该${typeName}"
         if (typeName == "属性") {
-            binding.labelValue.text = "${typeName}属性值"
+            binding.labelValue.text = "属性值"
         } else if (isSkill) {
             binding.labelValue.text = "技能经验"
         }

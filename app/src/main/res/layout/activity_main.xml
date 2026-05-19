@@ -60,4 +60,42 @@
         android:focusable="true"
         android:contentDescription="APP设置" />
 
+    <!-- LogQuery 测试 -->
+    <ImageView
+        android:id="@+id/btnLogQuery"
+        android:layout_width="240dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="日期检索测试" />
+
+    <TextView
+        android:id="@+id/tvLogQueryResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="未打开"
+        android:textColor="@color/TEXT_white1"
+        android:textSize="16sp" />
+
+    <!-- QuestSetting 测试 -->
+    <ImageView
+        android:id="@+id/btnQuestSetting"
+        android:layout_width="240dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="任务设置测试" />
+
+    <TextView
+        android:id="@+id/tvQuestSettingResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="未打开"
+        android:textColor="@color/TEXT_white1"
+        android:textSize="16sp" />
+
 </LinearLayout>

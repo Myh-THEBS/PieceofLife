@@ -162,8 +162,8 @@
 
                 <ImageView
                     android:id="@+id/btnEditUserName"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:contentDescription="@string/user_setting_edit" />
@@ -205,8 +205,8 @@
 
                 <ImageView
                     android:id="@+id/btnAddAttr"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:contentDescription="@string/section_add" />
@@ -253,8 +253,8 @@
 
                 <ImageView
                     android:id="@+id/btnAddSkill"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:contentDescription="@string/section_add" />
@@ -301,8 +301,8 @@
 
                 <ImageView
                     android:id="@+id/btnAddPhrase"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:contentDescription="@string/section_add" />

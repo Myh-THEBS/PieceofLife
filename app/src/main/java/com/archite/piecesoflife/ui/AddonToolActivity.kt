@@ -46,13 +46,13 @@ class AddonToolActivity : AppCompatActivity() {
 
     private fun renderSprites() {
         // 顶部返回按钮：B24 帧 0/1（偶弹起，奇按下）
-        SpriteLoader.setButton(binding.btnReturn, SpriteDef.B16.RES, SpriteDef.B16.frame(17), downFrame = SpriteDef.B16.frame(17), scale = 4)
+        SpriteLoader.setButton(binding.btnReturn, SpriteDef.B16.RES, SpriteDef.B16.frame(17), downFrame = SpriteDef.B16.frame(17), scale = 5)
 
         // 底部取消按钮：B72x32 帧 0/1
-        SpriteLoader.setButton(binding.btnCancel, SpriteDef.B72x32.RES, SpriteDef.B72x32.frame(2), scale = 4)
+        SpriteLoader.setButton(binding.btnCancel, SpriteDef.B72x32.RES, SpriteDef.B72x32.frame(2), scale = 5)
 
         // 底部确认按钮：B72x32 帧 2/3
-        SpriteLoader.setButton(binding.btnConfirm, SpriteDef.B72x32.RES, SpriteDef.B72x32.frame(0), scale = 4)
+        SpriteLoader.setButton(binding.btnConfirm, SpriteDef.B72x32.RES, SpriteDef.B72x32.frame(0), scale = 5)
 
         // 7 个工具图标（Icons 24x24，scale=2 → 48x48dp）
         val toolIcons = listOf(
@@ -61,7 +61,7 @@ class AddonToolActivity : AppCompatActivity() {
         )
         val iconIndices = listOf(20, 22, 23, 24, 3, 5, 17)
         for (i in toolIcons.indices) {
-            SpriteLoader.setIcon(toolIcons[i], index = iconIndices[i], scale = 4)
+            SpriteLoader.setIcon(toolIcons[i], index = iconIndices[i], scale = 5)
         }
     }
 
