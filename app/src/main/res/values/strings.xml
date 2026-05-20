@@ -3,7 +3,7 @@
     <string name="empty_string"> </string>
 
     <!-- AddonTool -->
-    <string name="addon_title">更多工具</string>
+    <string name="addon_title">工具宝箱</string>
     <string name="addon_return">返回</string>
     <string name="addon_confirm">确认</string>
     <string name="addon_cancel">取消</string>
@@ -16,7 +16,7 @@
     <string name="addon_tool7">属性账单</string>
 
     <!-- AppSetting -->
-    <string name="app_setting_title">APP设置</string>
+    <string name="app_setting_title">系统设置</string>
     <string name="app_setting_debug">调试模式</string>
     <string name="app_setting_debug_on">开</string>
     <string name="app_setting_debug_off">关</string>
@@ -51,7 +51,7 @@
     <string name="app_setting_user_enter">进入</string>
 
     <!-- LogQuery -->
-    <string name="log_query_title">日志检索</string>
+    <string name="log_query_title">日志查询</string>
     <string name="log_query_selected">当前选择：</string>
     <string name="log_query_search">搜索</string>
     <string name="log_query_year">年</string>
@@ -68,6 +68,13 @@
     <string name="quest_setting_type_default">默认类型</string>
     <string name="quest_setting_type_minus">惩罚类型</string>
     <string name="quest_setting_repeat_label">重复模式</string>
+
+    <!-- MainActivity -->
+    <string name="main_today">显示最新</string>
+    <string name="main_search">日志查询</string>
+    <string name="main_toolbox">工具宝箱</string>
+    <string name="main_settings">系统设置</string>
+    <string name="main_new_log">新建日志</string>
 
     <!-- ItemEdit -->
     <string name="item_field_name">属性名称</string>

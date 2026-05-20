@@ -73,6 +73,13 @@ object SpriteDef {
         fun frame(index: Int) = SpriteFrame(index * FW, 0, FW, FH)
     }
 
+    object ProcessBar {
+        val RES = R.drawable.process_bar
+        const val FW = 8; const val FH = 8
+        // 帧顺序：0=左端点, 1=已填充段, 2=未填充段, 3=右端点
+        fun frame(index: Int) = SpriteFrame(index * FW, 0, FW, FH)
+    }
+
     fun loadSheet(resId: Int): Bitmap {
         val opts = BitmapFactory.Options().apply { inScaled = false }
         return BitmapFactory.decodeResource(com.archite.piecesoflife.PieceOfLifeApp.getAppContext().resources, resId, opts)

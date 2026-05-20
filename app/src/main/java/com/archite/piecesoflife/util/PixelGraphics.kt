@@ -114,4 +114,36 @@ object PixelGraphics {
         if (scale == 1) return cropped
         return Bitmap.createScaledBitmap(cropped, w * scale, h * scale, false)
     }
+
+    /**
+     * 绘制经验条。
+     * 精灵图 process_bar.png 每帧 8×8：0=左端点, 1=已填充, 2=未填充, 3=右端点
+     * @param sheet   process_bar 精灵图
+     * @param ratio   填充比例 0.0~1.0
+     * @param barWidth  目标总宽度（px）
+     * @param barHeight 目标总高度（px）
+     */
+    fun drawExpBar(sheet: Bitmap, ratio: Float, barWidth: Int, barHeight: Int): Bitmap {
+        val result = Bitmap.createBitmap(barWidth, barHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(result)
+        val capW = barHeight
+        val fillW = barWidth - 2 * capW
+        val filledW = (fillW * ratio.coerceIn(0f, 1f)).toInt()
+        val unfilledW = fillW - filledW
+
+        fun drawFrame(index: Int, dx: Int, dw: Int) {
+            if (dw <= 0) return
+            val sx = index * 8
+            srcR.set(sx, 0, sx + 8, 8)
+            dstR.set(dx, 0, dx + dw, barHeight)
+            canvas.drawBitmap(sheet, srcR, dstR, paint)
+        }
+
+        drawFrame(0, 0, capW)
+        if (filledW > 0) drawFrame(1, capW, filledW)
+        if (unfilledW > 0) drawFrame(2, capW + filledW, unfilledW)
+        drawFrame(3, barWidth - capW, capW)
+
+        return result
+    }
 }

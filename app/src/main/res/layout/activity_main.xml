@@ -1,101 +1,353 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
     android:background="@drawable/main_background">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="Pieces of Life"
-        android:textColor="@color/TEXT_white1"
-        android:textSize="20sp" />
-
     <ImageView
-        android:id="@+id/btnAddonTool"
-        android:layout_width="240dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="40dp"
+        android:id="@+id/toolbarBg"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:scaleType="fitXY"
+        android:contentDescription="@string/empty_string" />
+
+    <!-- Top Bar -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:padding="10dp"
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true">
+
+        <ImageView
+            android:id="@+id/ivAvatar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:contentDescription="@string/empty_string" />
+
+        <LinearLayout
+            android:id="@+id/rightContainer"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="80dp"
+            android:layout_marginStart="4dp"
+
+            android:orientation="vertical">
+
+            <!-- 第一行：等级 + 经验条 -->
+            <LinearLayout
+                android:id="@+id/rowLevel"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/tvUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="top"
+                    android:text="建学"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:layout_marginStart="5dp"
+                    android:textStyle="bold"
+                    android:textSize="28dp" />
+
+                <TextView
+                    android:id="@+id/tvLevel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="34dp"
+                    android:gravity="center_horizontal"
+                    android:text="Lv.15"
+                    android:textColor="@color/TEXT_black"
+                    android:layout_marginStart="10dp"
+                    android:paddingHorizontal="8dp"
+                    android:background="@drawable/background_input"
+                    android:fontFamily="@font/fonsung"
+                    android:textSize="24dp" />
+
+            </LinearLayout>
+
+
+
+            <!-- 第二行：数值属性 -->
+            <LinearLayout
+                android:id="@+id/attrContainer"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/attrItem1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/background_input"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="8dp">
+
+                    <TextView
+                        android:id="@+id/tvAttrIcon1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="22dp"
+                        android:maxWidth="50dp"
+                        android:textSize="22dp"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textStyle="bold"
+                        android:textColor="@color/TEXT_black"
+                        android:fontFamily="@font/fonsung"/>
+
+                    <TextView
+                        android:id="@+id/tvAttrValue1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="24dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/TEXT_black"
+                        android:fontFamily="@font/fonsung" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/attrItem2"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/background_input"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="4dp"
+                    android:paddingHorizontal="8dp">
+
+                    <TextView
+                        android:id="@+id/tvAttrIcon2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="22dp"
+                        android:maxWidth="50dp"
+                        android:textSize="22dp"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textStyle="bold"
+                        android:textColor="@color/TEXT_black"
+                        android:fontFamily="@font/fonsung"/>
+
+                    <TextView
+                        android:id="@+id/tvAttrValue2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:gravity="end"
+                        android:textSize="24dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/TEXT_black"
+                        android:fontFamily="@font/fonsung" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/attrItem3"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/background_input"
+                    android:paddingHorizontal="8dp">
+
+                    <TextView
+                        android:id="@+id/tvAttrIcon3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="22dp"
+                        android:maxWidth="50dp"
+                        android:textSize="22dp"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textStyle="bold"
+                        android:textColor="@color/TEXT_black"
+                        android:fontFamily="@font/fonsung"/>
+
+                    <TextView
+                        android:id="@+id/tvAttrValue3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:gravity="end"
+                        android:textSize="24dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/TEXT_black"
+                        android:fontFamily="@font/fonsung" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- RecyclerView（日志列表） -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/topBar"
+        android:layout_above="@id/bottomBar"
+        android:clipToPadding="false"
+        android:paddingBottom="20dp" />
+
+    <!-- 浮动主键（FAB） -->
+    <ImageView
+        android:id="@+id/btnNewLog"
+        android:layout_width="144dp"
+        android:layout_height="144dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="116dp"
         android:clickable="true"
         android:focusable="true"
-        android:contentDescription="附加工具" />
-
-    <!-- PixelDialog 测试按钮 -->
-    <ImageView
-        android:id="@+id/btnDialogInfo"
-        android:layout_width="240dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="20dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="信息弹窗测试" />
+        android:contentDescription="@string/main_new_log" />
 
     <ImageView
-        android:id="@+id/btnDialogWarn"
-        android:layout_width="240dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="12dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="警告弹窗测试" />
+        android:id="@+id/bottomBarBg"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:scaleType="fitXY"
+        android:contentDescription="@string/empty_string" />
 
-    <ImageView
-        android:id="@+id/btnDialogError"
-        android:layout_width="240dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="12dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="错误弹窗测试" />
+    <!-- Bottom Bar -->
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:paddingTop="10dp"
+        android:orientation="horizontal">
 
-    <ImageView
-        android:id="@+id/btnAppSetting"
-        android:layout_width="360dp"
-        android:layout_height="64dp"
-        android:layout_marginTop="32dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="APP设置" />
+        <LinearLayout
+            android:id="@+id/btnTool1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
 
-    <!-- LogQuery 测试 -->
-    <ImageView
-        android:id="@+id/btnLogQuery"
-        android:layout_width="240dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="20dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="日期检索测试" />
+            <ImageView
+                android:id="@+id/toolIcon1"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/click_background"
+                android:duplicateParentState="true"
+                android:contentDescription="@string/main_today" />
 
-    <TextView
-        android:id="@+id/tvLogQueryResult"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="未打开"
-        android:textColor="@color/TEXT_white1"
-        android:textSize="16sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/main_today"
+                android:textColor="@color/TEXT_black"
+                android:fontFamily="@font/silver"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
-    <!-- QuestSetting 测试 -->
-    <ImageView
-        android:id="@+id/btnQuestSetting"
-        android:layout_width="240dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="任务设置测试" />
+        <LinearLayout
+            android:id="@+id/btnTool2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
 
-    <TextView
-        android:id="@+id/tvQuestSettingResult"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="未打开"
-        android:textColor="@color/TEXT_white1"
-        android:textSize="16sp" />
+            <ImageView
+                android:id="@+id/toolIcon2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/click_background"
+                android:duplicateParentState="true"
+                android:contentDescription="@string/main_search" />
 
-</LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/main_search"
+                android:textColor="@color/TEXT_black"
+                android:fontFamily="@font/silver"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btnTool3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/toolIcon3"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/click_background"
+                android:duplicateParentState="true"
+                android:contentDescription="@string/main_toolbox" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/main_toolbox"
+                android:textColor="@color/TEXT_black"
+                android:fontFamily="@font/silver"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btnTool4"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/toolIcon4"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/click_background"
+                android:duplicateParentState="true"
+                android:contentDescription="@string/main_settings" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/main_settings"
+                android:textColor="@color/TEXT_black"
+                android:fontFamily="@font/silver"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

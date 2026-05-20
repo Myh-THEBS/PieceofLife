@@ -40,7 +40,7 @@
         android:paddingBottom="6dp"
         android:background="@drawable/background_input"
         android:gravity="center"
-        android:maxLength="10"
+        android:maxLength="7"
         android:textColor="@color/TEXT_black"
         android:textSize="20dp"
         android:fontFamily="@font/wqy_12px" />

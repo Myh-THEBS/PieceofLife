@@ -60,6 +60,10 @@ object SpriteLoader {
         return loadCrop(SpriteDef.B96x32.RES, SpriteDef.B96x32.frame(index), scale)
     }
 
+    fun processBar(index: Int, scale: Int = 1): Bitmap {
+        return loadCrop(SpriteDef.ProcessBar.RES, SpriteDef.ProcessBar.frame(index), scale)
+    }
+
     fun setIcon(view: ImageView, index: Int, scale: Int = 5) {
         view.setImageBitmap(icon(index, scale))
     }
