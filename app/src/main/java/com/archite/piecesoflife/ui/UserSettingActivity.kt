@@ -213,21 +213,32 @@ class UserSettingActivity : AppCompatActivity() {
         val lines = mutableListOf<String>()
         if (currentUserName != initialUserName) lines.add(" · 用户名")
 
-        for (item in currentItems) {
-            val old = initialItems.find { it.abbr == item.abbr}
+        val currentAttrs = currentItems.filter { it.type != UserItem.TYPE_PHRASES }
+        val initialAttrs = initialItems.filter { it.type != UserItem.TYPE_PHRASES }
+
+        for (item in currentAttrs) {
+            val key = item.abbr
+            val old = initialAttrs.find { it.abbr == key }
             if (old == null) {
-                lines.add(" · ${item.abbr}（新增）")
+                lines.add(" · $key（新增）")
             } else if (old != item) {
-                lines.add(" · ${item.abbr}")
+                lines.add(" · $key")
             }
         }
 
-        for (item in initialItems) {
-            if (currentItems.none { it.abbr == item.abbr}) {
+        for (item in initialAttrs) {
+            if (currentAttrs.none { it.abbr == item.abbr }) {
                 lines.add(" · ${item.abbr}（删除）")
             }
         }
-        val showLines = if (lines.size > 3) lines.take(3) + listOf(" · …") else lines
+
+        val currentPhrases = currentItems.filter { it.type == UserItem.TYPE_PHRASES }
+        val initialPhrases = initialItems.filter { it.type == UserItem.TYPE_PHRASES }
+        if (currentPhrases != initialPhrases) {
+            lines.add(" · 快捷短语变更")
+        }
+
+        val showLines = if (lines.size > 3) lines.take(3) + listOf(" · ···") else lines
         return showLines.joinToString("\n")
     }
 

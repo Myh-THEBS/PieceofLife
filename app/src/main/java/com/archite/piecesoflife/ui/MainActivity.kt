@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity() {
                 valueTv.text = attr.value.toString()
                 item.visibility = View.VISIBLE
             } else {
-                item.visibility = View.GONE
+                item.visibility = View.INVISIBLE
             }
         }
 
