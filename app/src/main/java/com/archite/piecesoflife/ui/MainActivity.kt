@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initAvatar() {
         binding.ivAvatar.setImageDrawable(null)
-        binding.ivAvatar.setBackgroundColor(Color.WHITE)
+        //binding.ivAvatar.setBackgroundColor(Color.WHITE)
         binding.ivAvatar.visibility = View.VISIBLE
     }
 
