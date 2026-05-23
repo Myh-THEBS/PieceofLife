@@ -34,6 +34,21 @@ class LogRepository(private val dao: LogDao) {
     suspend fun getLogDateSetInRange(startDate: Int, endDate: Int): Set<Int> =
         dao.getDistinctDatesInRange(startDate, endDate).toSet()
 
+    suspend fun getLogsInDateRange(startDate: Int, endDate: Int): List<LogEntity> =
+        dao.getLogsInDateRange(startDate, endDate)
+
+    suspend fun completeQuest(logId: Long, isSuccess: Boolean) {
+        val today = com.archite.piecesoflife.util.TimeUtil.getTimeInt()
+        dao.getById(logId)?.let { quest ->
+            val newFlag0 = if (isSuccess) {
+                if (QuestFlag.isDefaultType(quest.flag0)) QuestFlag.DEFAULT_FINISHED else QuestFlag.MINUS_FINISHED
+            } else {
+                if (QuestFlag.isDefaultType(quest.flag0)) QuestFlag.DEFAULT_FAILED else QuestFlag.MINUS_FAILED
+            }
+            dao.completeQuest(logId, newFlag0, today)
+        }
+    }
+
     suspend fun getAllLogs(): List<LogEntity> = dao.getAll()
 
     fun observeLogCountByDate(date: Int): Flow<Int> = dao.observeCountByDate(date)

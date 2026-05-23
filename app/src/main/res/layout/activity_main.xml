@@ -41,15 +41,13 @@
             <LinearLayout
                 android:id="@+id/rowLevel"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal">
                 <TextView
                     android:id="@+id/tvUsername"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="top"
                     android:text="建学"
                     android:textColor="@color/TEXT_black"
                     android:fontFamily="@font/wqy_12px"
@@ -61,9 +59,11 @@
                     android:id="@+id/tvLevel"
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
-                    android:gravity="center_horizontal"
+                    android:layout_marginTop="2dp"
+                    android:gravity="bottom"
                     android:textColor="@color/TEXT_black"
                     android:layout_gravity="center"
+                    android:text="Lv. 99+"
                     android:paddingHorizontal="8dp"
                     android:background="@drawable/background_input"
                     android:fontFamily="@font/fonsung"
@@ -72,21 +72,26 @@
 
             </LinearLayout>
 
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+            </Space>
 
 
             <!-- 第二行：数值属性 -->
             <LinearLayout
                 android:id="@+id/attrContainer"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <LinearLayout
                     android:id="@+id/attrItem1"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="30dp"
                     android:layout_weight="0.3"
                     android:gravity="center_vertical"
                     android:background="@drawable/background_input"
@@ -96,10 +101,11 @@
                     <TextView
                         android:id="@+id/tvAttrIcon1"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:minWidth="22dp"
                         android:maxWidth="50dp"
-                        android:textSize="22dp"
+                        android:textSize="16dp"
+                        android:gravity="center"
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:textStyle="bold"
@@ -114,7 +120,7 @@
                         android:gravity="end"
                         android:maxLines="1"
                         android:ellipsize="end"
-                        android:textSize="24dp"
+                        android:textSize="16dp"
                         android:textStyle="bold"
                         android:textColor="@color/TEXT_black"
                         android:fontFamily="@font/fonsung" />
@@ -123,7 +129,7 @@
                 <LinearLayout
                     android:id="@+id/attrItem2"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="30dp"
                     android:layout_weight="0.3"
                     android:gravity="center_vertical"
                     android:background="@drawable/background_input"
@@ -134,10 +140,11 @@
                     <TextView
                         android:id="@+id/tvAttrIcon2"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:minWidth="22dp"
                         android:maxWidth="50dp"
-                        android:textSize="22dp"
+                        android:textSize="16dp"
+                        android:gravity="center"
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:textStyle="bold"
@@ -152,7 +159,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:gravity="end"
-                        android:textSize="24dp"
+                        android:textSize="16dp"
                         android:textStyle="bold"
                         android:textColor="@color/TEXT_black"
                         android:fontFamily="@font/fonsung" />
@@ -161,7 +168,7 @@
                 <LinearLayout
                     android:id="@+id/attrItem3"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="30dp"
                     android:layout_weight="0.3"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
@@ -172,10 +179,11 @@
                     <TextView
                         android:id="@+id/tvAttrIcon3"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:minWidth="22dp"
                         android:maxWidth="50dp"
-                        android:textSize="22dp"
+                        android:textSize="16dp"
+                        android:gravity="center"
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:textStyle="bold"
@@ -190,7 +198,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:gravity="end"
-                        android:textSize="24dp"
+                        android:textSize="16dp"
                         android:textStyle="bold"
                         android:textColor="@color/TEXT_black"
                         android:fontFamily="@font/fonsung" />
@@ -207,7 +215,26 @@
         android:layout_below="@id/topBar"
         android:layout_above="@id/bottomBar"
         android:clipToPadding="false"
-        android:paddingBottom="20dp" />
+        android:paddingBottom="200dp" />
+
+    <!-- 加载覆盖层（预留） -->
+    <RelativeLayout
+        android:id="@+id/loadingOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/topBar"
+        android:layout_above="@id/bottomBar"
+        android:gravity="center"
+        android:visibility="gone"
+        android:background="@drawable/main_background">
+
+        <ImageView
+            android:id="@+id/ivLoading"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/empty_string" />
+    </RelativeLayout>
 
     <!-- 浮动主键（FAB） -->
     <ImageView

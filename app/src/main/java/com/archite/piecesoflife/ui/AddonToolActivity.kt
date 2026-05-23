@@ -1,5 +1,6 @@
 package com.archite.piecesoflife.ui
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -12,6 +13,12 @@ import com.archite.piecesoflife.util.SpriteDef
 import com.archite.piecesoflife.util.SpriteLoader
 
 class AddonToolActivity : AppCompatActivity() {
+
+    companion object {
+        const val EXTRA_EDIT_RESULT = "editResult"
+        const val RESULT_LOGS_CHANGED = 1
+        const val RESULT_SETTINGS_CHANGED = 2
+    }
 
     private lateinit var binding: ActivityAddonToolBinding
 
@@ -66,10 +73,15 @@ class AddonToolActivity : AppCompatActivity() {
     }
 
     private fun bindClickEvents() {
-        // 返回、取消、确认 — 均关闭页面
         binding.btnReturn.setOnClickListener { finish() }
-        binding.btnCancel.setOnClickListener { finish() }
-        binding.btnConfirm.setOnClickListener { finish() }
+        binding.btnCancel.setOnClickListener {
+            setResult(RESULT_OK, Intent().apply { putExtra(EXTRA_EDIT_RESULT, RESULT_SETTINGS_CHANGED) })
+            finish()
+        }
+        binding.btnConfirm.setOnClickListener {
+            setResult(RESULT_OK, Intent().apply { putExtra(EXTRA_EDIT_RESULT, RESULT_LOGS_CHANGED) })
+            finish()
+        }
 
         // PixelDialog 集成测试：工具 1~3 分别展示信息/警告/错误弹窗
         binding.toolPanel1.setOnClickListener {

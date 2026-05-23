@@ -85,8 +85,8 @@
         android:layout_height="0dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="64dp"
+        android:layout_marginTop="70dp"
+        android:layout_marginBottom="74dp"
         android:scrollbars="none"
         android:paddingStart="24dp"
         android:paddingEnd="24dp">

@@ -191,21 +191,26 @@ class UserSettingActivity : AppCompatActivity() {
         if (currentUserName != initialUserName) {
             lines.add("用户名：$initialUserName -> $currentUserName")
         }
-        val oldMap = initialItems.associateBy { it.abbr }
-        val newMap = currentItems.associateBy { it.abbr }
-        for (item in currentItems) {
-            val old = oldMap[item.abbr]
+
+        val currentAttrs = currentItems.filter { it.type != UserItem.TYPE_PHRASES }
+        val initialAttrs = initialItems.filter { it.type != UserItem.TYPE_PHRASES }
+
+        for (item in currentAttrs) {
+            val key = item.abbr
+            val old = initialAttrs.find { it.abbr == key }
             if (old == null) {
                 lines.add("新增：${item.abbr}")
             } else if (old != item) {
                 lines.add("${item.abbr}：${old.value} -> ${item.value}")
             }
         }
-        for (item in initialItems) {
-            if (newMap[item.abbr] == null) {
+
+        for (item in initialAttrs) {
+            if (currentAttrs.none { it.abbr == item.abbr }) {
                 lines.add("删除：${item.abbr}")
             }
         }
+
         return "APP属性调整：\n" + lines.joinToString("\n")
     }
 

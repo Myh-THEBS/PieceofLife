@@ -72,8 +72,8 @@ class InputDialog(context: Context) : Dialog(context) {
     private fun renderSprites() {
         binding.dialogIcon.setImageBitmap(SpriteLoader.icon(31, scale = 5))
         binding.dialogTitle.setTextColor(android.graphics.Color.parseColor("#6f6806"))
-        SpriteLoader.setButton(binding.btnCancel, SpriteDef.B48x24.RES, SpriteDef.B48x24.frame(16), scale = 5)
-        SpriteLoader.setButton(binding.btnConfirm, SpriteDef.B48x24.RES, SpriteDef.B48x24.frame(14), scale = 5)
+        SpriteLoader.setButton(binding.btnCancel, SpriteDef.B48x24.RES, SpriteDef.B48x24.frame(2), scale = 5)
+        SpriteLoader.setButton(binding.btnConfirm, SpriteDef.B48x24.RES, SpriteDef.B48x24.frame(0), scale = 5)
     }
 
     private fun bindEvents() {

@@ -10,34 +10,62 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.archite.piecesoflife.R
-import com.archite.piecesoflife.data.AppDatabase
-import com.archite.piecesoflife.data.LogRepository
 import com.archite.piecesoflife.data.UserItem
-import com.archite.piecesoflife.data.UserPreferencesRepository
 import com.archite.piecesoflife.databinding.ActivityMainBinding
 import com.archite.piecesoflife.util.SpriteDef
 import com.archite.piecesoflife.util.SpriteLoader
 import com.archite.piecesoflife.util.TimeUtil
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+
+data class RefreshOptions(
+    val resetFocus: Boolean = false,
+    val clearKeyword: Boolean = false,
+    val scrollTarget: ScrollTarget = ScrollTarget.NONE,
+)
+
+enum class ScrollTarget { NONE, BOTTOM, FIRST_OF_FOCUS_DATE }
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val ioScope = CoroutineScope(Dispatchers.IO)
-    private lateinit var userRepo: UserPreferencesRepository
-    private lateinit var logRepo: LogRepository
+    private lateinit var viewModel: MainViewModel
+    private lateinit var adapter: LogAdapter
+    private lateinit var layoutManager: androidx.recyclerview.widget.LinearLayoutManager
+    private var isLoading = false
+    private var lastIntervalStart = 0
+    private var lastIntervalEnd = 0
 
     private val logQueryLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
             val data = result.data
-            val focusDate = data?.getIntExtra(LogQueryActivity.EXTRA_FOCUS_DATE, 0) ?: 0
-            val keyword = data?.getStringExtra(LogQueryActivity.EXTRA_KEYWORD) ?: ""
+            val newDate = data?.getIntExtra(LogQueryActivity.EXTRA_FOCUS_DATE, 0) ?: 0
+            val kw = data?.getStringExtra(LogQueryActivity.EXTRA_KEYWORD) ?: ""
+            if (newDate > 0) viewModel.focusDate = newDate
+            viewModel.keyword = kw
+            refresh(RefreshOptions(scrollTarget = ScrollTarget.FIRST_OF_FOCUS_DATE))
+        }
+    }
+
+    private val settingsLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { refresh(RefreshOptions()) }
+
+    private val addonToolLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val editResult = result.data?.getIntExtra(AddonToolActivity.EXTRA_EDIT_RESULT, 0) ?: 0
+            val options = when (editResult) {
+                AddonToolActivity.RESULT_LOGS_CHANGED -> RefreshOptions(resetFocus = true, clearKeyword = true, scrollTarget = ScrollTarget.BOTTOM)
+                AddonToolActivity.RESULT_SETTINGS_CHANGED -> RefreshOptions()
+                else -> RefreshOptions()
+            }
+            refresh(options)
         }
     }
 
@@ -49,17 +77,17 @@ class MainActivity : AppCompatActivity() {
         setupSystemBars()
         renderBackgrounds()
         initAvatar()
-        initData()
+        initViewModel()
         initRecyclerView()
         renderSprites()
         bindClickEvents()
+        runNewDayCheck()
     }
 
     private fun setupSystemBars() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = ContextCompat.getColor(this, R.color.background_top)
         window.navigationBarColor = ContextCompat.getColor(this, R.color.background_bottom)
-
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -74,22 +102,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun initAvatar() {
         binding.ivAvatar.setImageDrawable(null)
-        //binding.ivAvatar.setBackgroundColor(Color.WHITE)
         binding.ivAvatar.visibility = View.VISIBLE
     }
 
-    private fun initData() {
-        userRepo = UserPreferencesRepository(this)
-        logRepo = LogRepository(AppDatabase.getInstance(this).logDao())
-
-        ioScope.launch {
-            val items = userRepo.getItems()
-            val userName = userRepo.getUserName()
-            withContext(Dispatchers.Main) {
-                binding.tvUsername.text = userName
-                renderTopBar(items)
-            }
-        }
+    private fun initViewModel() {
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        refresh(RefreshOptions(resetFocus = true, clearKeyword = true, scrollTarget = ScrollTarget.BOTTOM))
     }
 
     private fun renderTopBar(items: List<UserItem>) {
@@ -119,12 +137,11 @@ class MainActivity : AppCompatActivity() {
             val (item, iconTv, valueTv) = attrItems[i]
             if (i < attrs.size) {
                 val attr = attrs[i]
-                val iconText = attr.iconEmoji.ifEmpty { attr.abbr }
-                iconTv.text = iconText
+                iconTv.text = attr.iconEmoji.ifEmpty { attr.abbr }
                 valueTv.text = attr.value.toString()
                 item.visibility = View.VISIBLE
             } else {
-                item.visibility = View.INVISIBLE
+                item.visibility = View.GONE
             }
         }
 
@@ -132,13 +149,33 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initRecyclerView() {
-        binding.recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
+        layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
+        adapter = LogAdapter(
+            onQuestComplete = { log ->
+                lifecycleScope.launch {
+                    viewModel.completeQuestSync(log.id, true)
+                    refresh(RefreshOptions())
+                }
+            },
+            onQuestFail = { log ->
+                lifecycleScope.launch {
+                    viewModel.completeQuestSync(log.id, false)
+                    refresh(RefreshOptions())
+                }
+            },
+        )
+
+        binding.recyclerView.layoutManager = layoutManager
+        binding.recyclerView.adapter = adapter
+        (binding.recyclerView.itemAnimator as? androidx.recyclerview.widget.SimpleItemAnimator)?.apply {
+            addDuration = 300
+            removeDuration = 300
+        }
     }
 
     private fun renderSprites() {
         SpriteLoader.setButton(binding.btnNewLog,
             SpriteDef.B72x72.RES, SpriteDef.B72x72.frame(2), 5)
-
         SpriteLoader.setIcon(binding.toolIcon1, 40)
         SpriteLoader.setIcon(binding.toolIcon2, 41)
         SpriteLoader.setIcon(binding.toolIcon3, 42)
@@ -146,28 +183,129 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bindClickEvents() {
-        binding.btnTool1.setOnClickListener { resetToToday() }
-
+        binding.btnTool1.setOnClickListener {
+            refresh(RefreshOptions(resetFocus = true, clearKeyword = true, scrollTarget = ScrollTarget.BOTTOM))
+        }
         binding.btnTool2.setOnClickListener {
             val intent = Intent(this, LogQueryActivity::class.java)
-            intent.putExtra(LogQueryActivity.EXTRA_FOCUS_DATE, TimeUtil.getTimeInt())
+            intent.putExtra(LogQueryActivity.EXTRA_FOCUS_DATE, viewModel.focusDate)
             logQueryLauncher.launch(intent)
         }
-
         binding.btnTool3.setOnClickListener {
-            startActivity(Intent(this, AddonToolActivity::class.java))
+            addonToolLauncher.launch(Intent(this, AddonToolActivity::class.java))
         }
-
         binding.btnTool4.setOnClickListener {
             startActivity(Intent(this, AppSettingActivity::class.java))
         }
-
         binding.btnNewLog.setOnClickListener {
-            // 第四阶段实现：打开日志编辑器
+            // 第四阶段：打开日志编辑器
+            // val intent = Intent(this, LogEditorActivity::class.java)
+            // startActivity(intent)
         }
     }
 
-    private fun resetToToday() {
-        // 第三阶段核心功能：重置 focusDate 并刷新列表
+    private fun runNewDayCheck() {
+        lifecycleScope.launch {
+            val result = viewModel.runNewDayCheck()
+            if (result.isNewDay) {
+                refresh(RefreshOptions())
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refresh(RefreshOptions())
+    }
+
+    private fun refresh(options: RefreshOptions) {
+        if (isLoading) return
+        isLoading = true
+
+        val oldFocusDate = viewModel.focusDate
+
+        if (options.resetFocus) viewModel.focusDate = TimeUtil.getTimeInt()
+        if (options.clearKeyword) viewModel.keyword = ""
+
+        val sameInterval = lastIntervalEnd > 0 &&
+            viewModel.focusDate in lastIntervalStart..lastIntervalEnd &&
+            oldFocusDate in lastIntervalStart..lastIntervalEnd &&
+            oldFocusDate != viewModel.focusDate
+
+        if (sameInterval) {
+            binding.recyclerView.animate()
+                .alpha(0f).setDuration(100)
+                .withEndAction { doRefresh(options) }
+                .start()
+        } else {
+            doRefresh(options)
+        }
+    }
+
+    private fun doRefresh(options: RefreshOptions) {
+        viewModel.refresh { state ->
+            val interval = TimeUtil.calDateInterval(viewModel.focusDate, state.dayGroup)
+            lastIntervalStart = interval[0]
+            lastIntervalEnd = interval[1]
+
+            binding.tvUsername.text = state.userName
+            renderTopBar(state.items)
+            adapter.itemAbbrMap = state.itemAbbrMap
+            adapter.submitList(state.logs)
+
+            val fabParams = binding.btnNewLog.layoutParams as? android.widget.RelativeLayout.LayoutParams
+            if (state.leftMode) {
+                fabParams?.removeRule(android.widget.RelativeLayout.ALIGN_PARENT_END)
+                fabParams?.addRule(android.widget.RelativeLayout.ALIGN_PARENT_START)
+            } else {
+                fabParams?.removeRule(android.widget.RelativeLayout.ALIGN_PARENT_START)
+                fabParams?.addRule(android.widget.RelativeLayout.ALIGN_PARENT_END)
+            }
+            fabParams?.marginEnd = (if (state.leftMode) 0 else 20 * resources.displayMetrics.density).toInt()
+            fabParams?.marginStart = (if (state.leftMode) 20 * resources.displayMetrics.density else 0).toInt()
+            binding.btnNewLog.requestLayout()
+
+            if (state.debugMode && viewModel.keyword.isNotEmpty() && options.scrollTarget == ScrollTarget.FIRST_OF_FOCUS_DATE) {
+                val summary = buildSearchSummary(state)
+                summary?.let {
+                    PixelDialog(this)
+                        .setType(PixelDialog.DialogType.INFO)
+                        .setButtons(PixelDialog.ButtonMode.SINGLE_KNOWN)
+                        .setTitle("检索结果")
+                        .setMessage(it)
+                        .show()
+                }
+            }
+
+            binding.recyclerView.post {
+                if (state.logs.isNotEmpty()) {
+                    when (options.scrollTarget) {
+                        ScrollTarget.BOTTOM -> binding.recyclerView.scrollToPosition(state.logs.size - 1)
+                        ScrollTarget.FIRST_OF_FOCUS_DATE -> {
+                            val idx = state.logs.indexOfFirst { it.buildDate >= viewModel.focusDate }
+                            if (idx >= 0) layoutManager.scrollToPositionWithOffset(idx, 0)
+                        }
+                        ScrollTarget.NONE -> {}
+                    }
+                }
+
+                if (binding.recyclerView.alpha < 1f) {
+                    binding.recyclerView.animate()
+                        .alpha(1f).setDuration(200)
+                        .start()
+                }
+
+                isLoading = false
+            }
+        }
+    }
+
+    private fun buildSearchSummary(state: MainUiState): String? {
+        val logs = state.logs.filter { it.id > 0 }
+        if (logs.isEmpty()) return null
+        val dates = logs.map { it.buildDate }.distinct().sorted()
+        val startStr = TimeUtil.dateInt2String(dates.first())
+        val endStr = TimeUtil.dateInt2String(dates.last())
+        return "在 $startStr 至 $endStr 间，检索到 ${logs.size} 条\"${viewModel.keyword}\"相关日志。"
     }
 }

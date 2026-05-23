@@ -51,16 +51,16 @@ class AppSettingActivity : AppCompatActivity() {
                     if (result.isSuccess) {
                         PixelDialog(this@AppSettingActivity)
                             .setType(PixelDialog.DialogType.INFO)
+                            .setButtons(PixelDialog.ButtonMode.SINGLE_CLOSE)
                             .setTitle("导出成功")
                             .setMessage("数据已成功导出到所选位置。")
-                            .setConfirmText("知道了")
                             .show()
                     } else {
                         PixelDialog(this@AppSettingActivity)
                             .setType(PixelDialog.DialogType.ERROR)
+                            .setButtons(PixelDialog.ButtonMode.SINGLE_CLOSE)
                             .setTitle("导出失败")
                             .setMessage(result.exceptionOrNull()?.message ?: "未知错误")
-                            .setConfirmText("关闭")
                             .show()
                     }
                 }
@@ -83,9 +83,9 @@ class AppSettingActivity : AppCompatActivity() {
                     } else {
                         PixelDialog(this@AppSettingActivity)
                             .setType(PixelDialog.DialogType.ERROR)
+                            .setButtons(PixelDialog.ButtonMode.SINGLE_CLOSE)
                             .setTitle("导入失败")
                             .setMessage(result.exceptionOrNull()?.message ?: "未知错误")
-                            .setConfirmText("关闭")
                             .show()
                     }
                 }
@@ -328,16 +328,22 @@ class AppSettingActivity : AppCompatActivity() {
         }
 
         binding.btnBackupSave.setOnClickListener {
-            exportLauncher.launch("PiecesOfLife_${TimeUtil.getTimeInt()}.piecesbackup")
+            PixelDialog(this)
+                .setType(PixelDialog.DialogType.WARN)
+                .setTitle(getString(R.string.app_setting_confirm_title))
+                .setMessage("确认导出当前日志和用户数据？\n导出成功后可随时恢复。")
+                .onConfirm {
+                    exportLauncher.launch("PiecesOfLife_${TimeUtil.getTimeInt()}.piecesbackup")
+                }
+                .show()
         }
 
         binding.btnBackupLoad.setOnClickListener {
             PixelDialog(this)
                 .setType(PixelDialog.DialogType.ERROR)
+                .setButtons(PixelDialog.ButtonMode.DUAL_IMPORT_CONFIRM)
                 .setTitle(getString(R.string.app_setting_import_title))
                 .setMessage(getString(R.string.app_setting_import_msg))
-                .setConfirmText("确认导入")
-                .setCancelText("取消")
                 .onConfirm {
                     importLauncher.launch(arrayOf("application/octet-stream", "application/zip"))
                 }

@@ -17,7 +17,7 @@ object SpriteLoader {
     private fun cropKey(resId: Int, frame: SpriteFrame, scale: Int) =
         "$resId@${frame.x}_${frame.y}_${frame.w}_${frame.h}x$scale"
 
-    private fun loadCrop(resId: Int, frame: SpriteFrame, scale: Int): Bitmap {
+    internal fun loadCrop(resId: Int, frame: SpriteFrame, scale: Int): Bitmap {
         val key = cropKey(resId, frame, scale)
         return cropCache.getOrPut(key) {
             PixelGraphics.crop(sheet(resId), frame.x, frame.y, frame.w, frame.h, scale)

@@ -13,13 +13,6 @@
         android:layout_height="36dp">
 
         <ImageView
-            android:id="@+id/titleBarBg"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:contentDescription="@string/empty_string" />
-
-        <ImageView
             android:id="@+id/dialogIcon"
             android:layout_width="36dp"
             android:layout_height="36dp"
@@ -66,34 +59,103 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:gravity="center"
         android:paddingTop="12dp"
         android:paddingBottom="12dp"
         android:paddingStart="16dp"
-        android:paddingEnd="16dp">
+        android:paddingEnd="16dp"
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/btnCancel"
-            android:layout_width="96dp"
+        <!-- 单按钮行（64x24 居中） -->
+        <LinearLayout
+            android:id="@+id/btnRowSingle"
+            android:layout_width="match_parent"
             android:layout_height="48dp"
+            android:gravity="center"
+            android:visibility="gone">
 
-            android:clickable="true"
-            android:focusable="true"
-            android:contentDescription="@string/addon_cancel" />
+            <ImageView
+                android:id="@+id/btnSingle"
+                android:layout_width="144dp"
+                android:layout_height="48dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/empty_string" />
+        </LinearLayout>
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"/>
-
-        <ImageView
-            android:id="@+id/btnConfirm"
-            android:layout_width="96dp"
+        <!-- 双按钮行（48x24 左右） -->
+        <LinearLayout
+            android:id="@+id/btnRowDual"
+            android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:contentDescription="@string/addon_confirm" />
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/btnCancel"
+                android:layout_width="96dp"
+                android:layout_height="48dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/addon_cancel" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/btnConfirm"
+                android:layout_width="96dp"
+                android:layout_height="48dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/addon_confirm" />
+        </LinearLayout>
+
+        <!-- 三按钮行（36x24 左中右） -->
+        <LinearLayout
+            android:id="@+id/btnRowTriple"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/btnLeft"
+                android:layout_width="72dp"
+                android:layout_height="48dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/empty_string" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/btnCenter"
+                android:layout_width="72dp"
+                android:layout_height="48dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/empty_string" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/btnRight"
+                android:layout_width="72dp"
+                android:layout_height="48dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/empty_string" />
+        </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>

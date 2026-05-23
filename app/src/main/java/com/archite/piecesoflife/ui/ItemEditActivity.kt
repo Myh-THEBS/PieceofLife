@@ -185,10 +185,9 @@ class ItemEditActivity : AppCompatActivity() {
         binding.btnDelete.setOnClickListener {
             PixelDialog(this)
                 .setType(PixelDialog.DialogType.WARN)
+                .setButtons(PixelDialog.ButtonMode.DUAL_DELETE_CANCEL)
                 .setTitle("删除确认")
                 .setMessage("确定要删除此${if (itemType == UserItem.TYPE_PHRASES) "短语" else "属性/技能"}吗？此操作不可撤销。")
-                .setConfirmText("确认删除")
-                .setCancelText("取消")
                 .onConfirm {
                     setResult(RESULT_DELETED, Intent().apply {
                         putExtra(EXTRA_INDEX, editIndex)

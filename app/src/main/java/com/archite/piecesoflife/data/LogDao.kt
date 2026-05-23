@@ -96,6 +96,12 @@ interface LogDao {
     @Query("SELECT * FROM log_data WHERE is_deleted = 0 ORDER BY build_date ASC, build_time ASC")
     suspend fun getAll(): List<LogEntity>
 
+    @Query("SELECT * FROM log_data WHERE is_deleted = 0 AND build_date BETWEEN :startDate AND :endDate ORDER BY build_date ASC, build_time ASC")
+    suspend fun getLogsInDateRange(startDate: Int, endDate: Int): List<LogEntity>
+
+    @Query("UPDATE log_data SET flag0 = :flag0, build_date = :buildDate, updated_at = :now WHERE id = :id")
+    suspend fun completeQuest(id: Long, flag0: Int, buildDate: Int, now: Long = System.currentTimeMillis())
+
     @Query("SELECT * FROM log_data WHERE is_deleted = 1 ORDER BY updated_at DESC")
     suspend fun getDeletedLogs(): List<LogEntity>
 

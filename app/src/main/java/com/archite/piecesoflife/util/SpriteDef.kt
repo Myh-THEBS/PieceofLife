@@ -73,10 +73,28 @@ object SpriteDef {
         fun frame(index: Int) = SpriteFrame(index * FW, 0, FW, FH)
     }
 
+    object B36x24 {
+        val RES = R.drawable.button_36x24
+        const val FW = 36; const val FH = 24
+        fun frame(index: Int) = SpriteFrame(index * FW, 0, FW, FH)
+    }
+
+    object B64x24 {
+        val RES = R.drawable.button_64x24
+        const val FW = 64; const val FH = 24
+        fun frame(index: Int) = SpriteFrame(index * FW, 0, FW, FH)
+    }
+
     object ProcessBar {
         val RES = R.drawable.process_bar
         const val FW = 8; const val FH = 8
         // 帧顺序：0=左端点, 1=已填充段, 2=未填充段, 3=右端点
+        fun frame(index: Int) = SpriteFrame(index * FW, 0, FW, FH)
+    }
+
+    object Loading {
+        val RES = R.drawable.loading
+        const val FW = 48; const val FH = 48
         fun frame(index: Int) = SpriteFrame(index * FW, 0, FW, FH)
     }
 
