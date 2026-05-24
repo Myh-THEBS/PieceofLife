@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/main_background"
+    android:fitsSystemWindows="true">
+
+    <!-- 顶部工具栏 -->
+    <RelativeLayout
+        android:id="@+id/topToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+
+        <ImageView
+            android:id="@+id/toolbarBg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:contentDescription="@string/empty_string" />
+
+        <ImageView
+            android:id="@+id/btnReturn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/click_background"
+            android:contentDescription="@string/addon_return" />
+
+        <ImageView
+            android:id="@+id/btnTool1"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/btnReturn"
+            android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/click_background"
+            android:visibility="gone"
+            android:contentDescription="@string/empty_string" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:paddingBottom="6dp"
+            android:textColor="@color/TEXT_black"
+            android:fontFamily="@font/wqy_12px"
+            android:textSize="28dp" />
+
+        <ImageView
+            android:id="@+id/btnTool2"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/btnContinue"
+            android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/click_background"
+            android:contentDescription="@string/empty_string" />
+
+        <ImageView
+            android:id="@+id/btnContinue"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/click_background"
+            android:contentDescription="@string/empty_string" />
+    </RelativeLayout>
+
+    <!-- 底部工具栏 -->
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:paddingHorizontal="8dp"
+        android:orientation="horizontal">
+
+        <HorizontalScrollView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.7"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/editorToolsContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/btnUndo"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background_edit_tool"
+                    android:contentDescription="@string/empty_string" />
+
+                <ImageView
+                    android:id="@+id/btnRedo"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background_edit_tool"
+                    android:contentDescription="@string/empty_string" />
+
+                <ImageView
+                    android:id="@+id/btnBold"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background_edit_tool"
+                    android:contentDescription="@string/empty_string" />
+
+                <ImageView
+                    android:id="@+id/btnUnderline"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background_edit_tool"
+                    android:contentDescription="@string/empty_string" />
+
+                <ImageView
+                    android:id="@+id/btnStrikethrough"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background_edit_tool"
+                    android:contentDescription="@string/empty_string" />
+
+                <ImageView
+                    android:id="@+id/btnFontSize"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background_edit_tool"
+                    android:contentDescription="@string/empty_string" />
+
+                <ImageView
+                    android:id="@+id/btnFontColor"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background_edit_tool"
+                    android:contentDescription="@string/empty_string" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/itemToolContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/fastTagBtn"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background_edit_tool"
+                    android:contentDescription="@string/empty_string" />
+
+                <ImageView
+                    android:id="@+id/fastShortBtn"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background_edit_tool"
+                    android:contentDescription="@string/empty_string" />
+
+                <ImageView
+                    android:id="@+id/fastAbbrBtn"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background_edit_tool"
+                    android:contentDescription="@string/empty_string" />
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <!-- FCB 浮动按钮（类似 FAB） -->
+    <ImageView
+        android:id="@+id/btnFCB"
+        android:layout_width="108dp"
+        android:layout_height="108dp"
+        android:layout_above="@id/bottomBar"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="@string/empty_string" />
+
+    <!-- 滚动内容区 -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="70dp"
+        android:layout_marginBottom="70dp"
+        android:scrollbars="none"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:gravity="top">
+
+        <LinearLayout
+            android:id="@+id/contentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="15dp">
+
+            <EditText
+                android:id="@+id/etContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="120dp"
+                android:textColor="@color/TEXT_white1"
+                android:fontFamily="@font/wqy_12px"
+                android:textSize="20sp"
+                android:background="@null"
+                android:gravity="start|top" />
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

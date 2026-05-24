@@ -81,6 +81,13 @@ object SpriteLoader {
                     view.performClick()
                 }
                 MotionEvent.ACTION_CANCEL -> view.setImageBitmap(upBmp)
+                MotionEvent.ACTION_MOVE -> {
+                    val x = event.x
+                    val y = event.y
+                    if (x < 0 || x > view.width || y < 0 || y > view.height) {
+                        view.setImageBitmap(upBmp)
+                    }
+                }
             }
             true
         }

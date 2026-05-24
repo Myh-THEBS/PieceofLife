@@ -51,6 +51,11 @@
             android:name=".ui.QuestSettingActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.LogEditorActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>

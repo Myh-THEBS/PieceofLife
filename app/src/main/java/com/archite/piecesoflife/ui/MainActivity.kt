@@ -3,6 +3,7 @@ package com.archite.piecesoflife.ui
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -66,6 +67,14 @@ class MainActivity : AppCompatActivity() {
                 else -> RefreshOptions()
             }
             refresh(options)
+        }
+    }
+
+    private val logEditorLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            refresh(RefreshOptions(resetFocus = true, clearKeyword = true, scrollTarget = ScrollTarget.BOTTOM))
         }
     }
 
@@ -174,8 +183,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun renderSprites() {
-        SpriteLoader.setButton(binding.btnNewLog,
-            SpriteDef.B72x72.RES, SpriteDef.B72x72.frame(2), 5)
+        val fabUp = SpriteLoader.button72x72(2, scale = 5)
+        val fabDown = SpriteLoader.button72x72(3, scale = 5)
+        binding.btnNewLog.setImageBitmap(fabUp)
+        binding.btnNewLog.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> binding.btnNewLog.setImageBitmap(fabDown)
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> binding.btnNewLog.setImageBitmap(fabUp)
+            }
+            false
+        }
         SpriteLoader.setIcon(binding.toolIcon1, 40)
         SpriteLoader.setIcon(binding.toolIcon2, 41)
         SpriteLoader.setIcon(binding.toolIcon3, 42)
@@ -198,9 +215,19 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, AppSettingActivity::class.java))
         }
         binding.btnNewLog.setOnClickListener {
-            // 第四阶段：打开日志编辑器
-            // val intent = Intent(this, LogEditorActivity::class.java)
-            // startActivity(intent)
+            logEditorLauncher.launch(
+                Intent(this, LogEditorActivity::class.java).apply {
+                    putExtra(LogEditorActivity.EXTRA_LOG_ID, LogEditorActivity.NEW_LOG_DEFAULT)
+                }
+            )
+        }
+        binding.btnNewLog.setOnLongClickListener {
+            logEditorLauncher.launch(
+                Intent(this, LogEditorActivity::class.java).apply {
+                    putExtra(LogEditorActivity.EXTRA_LOG_ID, LogEditorActivity.NEW_LOG_QUEST)
+                }
+            )
+            true
         }
     }
 
