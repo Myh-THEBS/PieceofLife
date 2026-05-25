@@ -1,5 +1,6 @@
 package com.archite.piecesoflife.util
 
+import android.R
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.view.MotionEvent
@@ -78,16 +79,13 @@ object SpriteLoader {
                 MotionEvent.ACTION_DOWN -> view.setImageBitmap(downBmp)
                 MotionEvent.ACTION_UP -> {
                     view.setImageBitmap(upBmp)
-                    view.performClick()
-                }
-                MotionEvent.ACTION_CANCEL -> view.setImageBitmap(upBmp)
-                MotionEvent.ACTION_MOVE -> {
-                    val x = event.x
+                    var x = event.x
                     val y = event.y
-                    if (x < 0 || x > view.width || y < 0 || y > view.height) {
-                        view.setImageBitmap(upBmp)
+                    if (x >= 0 && x <= view.width && y >= 0 && y <= view.height) {
+                        view.performClick()
                     }
                 }
+                MotionEvent.ACTION_CANCEL -> view.setImageBitmap(upBmp)
             }
             true
         }

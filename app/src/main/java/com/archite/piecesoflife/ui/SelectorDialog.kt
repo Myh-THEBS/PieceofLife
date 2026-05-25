@@ -34,6 +34,16 @@ class SelectorDialog(context: Context) : Dialog(context) {
         return this
     }
 
+    fun setCenteredItems(items: List<String>): SelectorDialog {
+        buildCenteredItemList(items)
+        return this
+    }
+
+    fun setColorItems(items: List<String>): SelectorDialog {
+        buildColorItemList(items)
+        return this
+    }
+
     fun setItemsWithRemark(items: List<Pair<String, String>>): SelectorDialog {
         buildItemListWithRemark(items)
         return this
@@ -83,6 +93,44 @@ class SelectorDialog(context: Context) : Dialog(context) {
         for ((index, item) in items.withIndex()) {
             val itemView = layoutInflater.inflate(R.layout.item_selector_entry, binding.listContainer, false)
             itemView.findViewById<TextView>(R.id.itemTitle).text = item
+            itemView.findViewById<TextView>(R.id.itemRemark).visibility = android.view.View.GONE
+            itemView.setOnClickListener {
+                onItemSelectedAction?.invoke(item, index)
+                dismiss()
+            }
+            binding.listContainer.addView(itemView)
+            addDividerIfNeeded(index, items.size)
+        }
+    }
+
+    private fun buildCenteredItemList(items: List<String>) {
+        binding.listContainer.removeAllViews()
+        for ((index, item) in items.withIndex()) {
+            val itemView = layoutInflater.inflate(R.layout.item_selector_entry, binding.listContainer, false)
+            val titleView = itemView.findViewById<TextView>(R.id.itemTitle)
+            titleView.text = item
+            titleView.gravity = Gravity.CENTER
+            itemView.findViewById<TextView>(R.id.itemRemark).visibility = android.view.View.GONE
+            itemView.setOnClickListener {
+                onItemSelectedAction?.invoke(item, index)
+                dismiss()
+            }
+            binding.listContainer.addView(itemView)
+            addDividerIfNeeded(index, items.size)
+        }
+    }
+
+    private fun buildColorItemList(items: List<String>) {
+        binding.listContainer.removeAllViews()
+        for ((index, item) in items.withIndex()) {
+            val itemView = layoutInflater.inflate(R.layout.item_selector_entry, binding.listContainer, false)
+            val titleView = itemView.findViewById<TextView>(R.id.itemTitle)
+            titleView.text = item
+            titleView.gravity = Gravity.CENTER
+            val hashIdx = item.indexOf("#")
+            if (hashIdx >= 0) {
+                try { titleView.setTextColor(Color.parseColor(item.substring(hashIdx))) } catch (_: Exception) {}
+            }
             itemView.findViewById<TextView>(R.id.itemRemark).visibility = android.view.View.GONE
             itemView.setOnClickListener {
                 onItemSelectedAction?.invoke(item, index)

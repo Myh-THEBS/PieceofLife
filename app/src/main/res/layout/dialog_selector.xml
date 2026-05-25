@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/dialogRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <!-- 标题栏 -->
+    <!-- 标题栏（保持不变） -->
     <RelativeLayout
         android:id="@+id/titleContainer"
         android:layout_marginTop="12dp"
@@ -32,24 +33,30 @@
             android:textStyle="bold" />
     </RelativeLayout>
 
-    <!-- 选项列表 -->
-    <ScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxHeight="300dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/background_input"
         android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="12dp"
-        android:scrollbars="none"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
-
-        <LinearLayout
-            android:id="@+id/listContainer"
+        android:paddingHorizontal="8dp"
+        >
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="60dp"
-            android:background="@drawable/background_input"
-            android:paddingHorizontal="6dp"
-            android:orientation="vertical" />
-    </ScrollView>
+            android:layout_height="match_parent"
+            android:scrollbars="none"
+            app:layout_constraintHeight_max="230dp">
+            <LinearLayout
+                android:id="@+id/listContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="60dp"
+
+                android:paddingHorizontal="6dp"
+                android:orientation="vertical" />
+        </ScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </LinearLayout>

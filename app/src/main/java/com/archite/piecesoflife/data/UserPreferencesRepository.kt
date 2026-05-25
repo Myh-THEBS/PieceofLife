@@ -30,6 +30,17 @@ class UserPreferencesRepository(private val context: Context) {
         private val KEY_USER_AVATAR = intPreferencesKey("user_avatar")
         private val KEY_USER_UUID = stringPreferencesKey("user_uuid")
         private val KEY_LEFT_MODE = booleanPreferencesKey("left_mode")
+        private val KEY_SIZE_LIST = stringPreferencesKey("size_list")
+        private val KEY_COLOR_LIST = stringPreferencesKey("color_list")
+
+        // 默认字号列表（相对比例 * 20）
+        private val DEFAULT_SIZE_LIST = listOf(10, 12, 16, 18, 20, 24, 36, 48)
+
+        // 默认颜色列表（ARGB 格式字符串）
+        val DEFAULT_COLOR_LIST = listOf(
+            "#FF000000", "#FFFFFFFF", "#FFED6464", "#FFF3994B", "#FFFBD92A",
+            "#FF6CEA3E", "#FF3BCDAB", "#FF2391C5", "#FF954ADF", "#FFFD8BDD",
+        )
 
         private val DEFAULT_ITEMS_JSON = """
             [
@@ -121,6 +132,30 @@ class UserPreferencesRepository(private val context: Context) {
 
     suspend fun setItems(items: List<UserItem>) = context.dataStore.edit {
         it[KEY_ITEMS_JSON] = itemsToJson(items)
+    }
+
+    suspend fun getSizeList(): List<Int> {
+        val json = context.dataStore.data.first()[KEY_SIZE_LIST] ?: return DEFAULT_SIZE_LIST
+        return try {
+            val arr = JSONArray(json)
+            List(arr.length()) { arr.getInt(it) }
+        } catch (_: Exception) { DEFAULT_SIZE_LIST }
+    }
+
+    suspend fun getColorList(): List<String> {
+        val json = context.dataStore.data.first()[KEY_COLOR_LIST] ?: return DEFAULT_COLOR_LIST
+        return try {
+            val arr = JSONArray(json)
+            List(arr.length()) { arr.getString(it) }
+        } catch (_: Exception) { DEFAULT_COLOR_LIST }
+    }
+
+    suspend fun setSizeList(sizes: List<Int>) = context.dataStore.edit {
+        it[KEY_SIZE_LIST] = JSONArray(sizes).toString()
+    }
+
+    suspend fun setColorList(colors: List<String>) = context.dataStore.edit {
+        it[KEY_COLOR_LIST] = JSONArray(colors).toString()
     }
 
     suspend fun updateAll(

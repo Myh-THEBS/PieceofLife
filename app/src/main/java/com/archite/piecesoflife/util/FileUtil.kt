@@ -70,7 +70,7 @@ object FileUtil {
                         put("app_version", "1.3")
                         put("user_uuid", userId)
                         put("created_at", System.currentTimeMillis())
-                        put("schema_version", 2)
+                        put("schema_version", 3)
                         put("preferences", JSONObject().apply {
                             put("user_name", userName)
                             put("debug_mode", debugMode)
@@ -78,6 +78,8 @@ object FileUtil {
                             put("day_group", dayGroup)
                             put("user_avatar", userAvatar)
                             put("items", itemsArr)
+                            put("size_list", JSONArray(prefRepo.getSizeList()))
+                            put("color_list", JSONArray(prefRepo.getColorList()))
                         })
                     }
 
@@ -184,6 +186,18 @@ object FileUtil {
                         if (items.isNotEmpty()) {
                             prefRepo.setItems(items)
                         }
+                    }
+
+                    val sizeArr = prefs.optJSONArray("size_list")
+                    if (sizeArr != null) {
+                        val sizes = List(sizeArr.length()) { sizeArr.getInt(it) }
+                        if (sizes.isNotEmpty()) prefRepo.setSizeList(sizes)
+                    }
+
+                    val colorArr = prefs.optJSONArray("color_list")
+                    if (colorArr != null) {
+                        val colors = List(colorArr.length()) { colorArr.getString(it) }
+                        if (colors.isNotEmpty()) prefRepo.setColorList(colors)
                     }
                 }
             }
