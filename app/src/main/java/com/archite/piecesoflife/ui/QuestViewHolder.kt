@@ -17,6 +17,7 @@ class QuestViewHolder(
     itemView: View,
     private val onQuestComplete: (LogEntity) -> Unit,
     private val onQuestFail: (LogEntity) -> Unit,
+    private val onItemLongClick: (LogEntity) -> Unit,
 ) : RecyclerView.ViewHolder(itemView) {
 
     private val btnConfirm: ImageView = itemView.findViewById(R.id.btnQuestConfirm)
@@ -50,9 +51,15 @@ class QuestViewHolder(
         if (QuestFlag.isFinished(log.flag0) || QuestFlag.isFailed(log.flag0)) {
             btnColumn.visibility = View.GONE
         } else {
+            btnColumn.visibility = View.VISIBLE
             btnConfirm.visibility = View.VISIBLE
             SpriteLoader.setButton(btnConfirm,
                 SpriteDef.B24.RES, SpriteDef.B24.frame(8), 5)
+        }
+
+        itemView.setOnLongClickListener {
+            onItemLongClick(log)
+            true
         }
     }
 }

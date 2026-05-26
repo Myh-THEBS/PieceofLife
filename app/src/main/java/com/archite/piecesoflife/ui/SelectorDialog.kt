@@ -2,6 +2,7 @@ package com.archite.piecesoflife.ui
 
 import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Color
 import android.view.Gravity
 import android.view.ViewGroup
@@ -15,7 +16,6 @@ import androidx.core.graphics.toColorInt
 class SelectorDialog(context: Context) : Dialog(context) {
 
     private val binding: DialogSelectorBinding = DialogSelectorBinding.inflate(layoutInflater)
-
     private var onItemSelectedAction: ((String, Int) -> Unit)? = null
 
     init {
@@ -56,6 +56,11 @@ class SelectorDialog(context: Context) : Dialog(context) {
 
     fun setCancelableOutside(cancelable: Boolean): SelectorDialog {
         setCanceledOnTouchOutside(cancelable)
+        return this
+    }
+
+    fun setOnDismissListener(listener: () -> Unit): SelectorDialog {
+        super.setOnDismissListener(DialogInterface.OnDismissListener { listener() })
         return this
     }
 

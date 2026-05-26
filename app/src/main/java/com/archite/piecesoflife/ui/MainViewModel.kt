@@ -4,9 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.archite.piecesoflife.data.AppDatabase
+import com.archite.piecesoflife.data.ApplyMode
 import com.archite.piecesoflife.data.LogEntity
+import com.archite.piecesoflife.data.LogItemChange
 import com.archite.piecesoflife.data.LogRepository
 import com.archite.piecesoflife.data.LogType
+import com.archite.piecesoflife.data.QuestFlag
 import com.archite.piecesoflife.data.UserItem
 import com.archite.piecesoflife.data.UserPreferencesRepository
 import com.archite.piecesoflife.util.NewDayChecker
@@ -32,9 +35,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     var focusDate: Int = TimeUtil.getTimeInt()
     var keyword: String = ""
+    var debugMode: Boolean = false
 
     suspend fun completeQuestSync(logId: Long, isSuccess: Boolean) {
         logRepo.completeQuest(logId, isSuccess)
+        val log = logRepo.getLogById(logId) ?: return
+        val deltas = LogItemChange.fromJson(log.itemsJson)
+        if (deltas.isEmpty()) return
+        val mode = if (isSuccess) {
+            if (QuestFlag.isMinusType(log.flag0)) ApplyMode.PENALTY_SUCCESS else ApplyMode.DEFAULT_SUCCESS
+        } else {
+            if (QuestFlag.isMinusType(log.flag0)) ApplyMode.PENALTY_FAILURE else ApplyMode.DEFAULT_FAILURE
+        }
+        val items = userRepo.getItems().toMutableList()
+        LogItemChange.apply(deltas, mode, items)
+        userRepo.setItems(items)
+    }
+
+    suspend fun permanentlyDeleteLog(logId: Long) {
+        logRepo.permanentlyDeleteLog(logId)
     }
 
     suspend fun runNewDayCheck(): NewDayChecker.NewDayResult {
@@ -48,6 +67,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val userName = userRepo.getUserName()
                 val items = userRepo.getItems()
                 val debugMode = userRepo.getDebugMode()
+                this@MainViewModel.debugMode = debugMode
                 val leftMode = userRepo.getLeftMode()
 
                 val dateInterval = TimeUtil.calDateInterval(focusDate, dayGroup)
@@ -64,6 +84,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                 val logs = (rangeLogs + activeQuests)
                     .distinctBy { it.id }
+                    .filter { debugMode || (it.logType != LogType.DEBUG && it.logType != LogType.ERROR) }
                     .sortedWith(compareBy({ it.buildDate }, { it.buildTime }))
 
                 val itemAbbrMap = items.filter { it.abbr.isNotEmpty() }

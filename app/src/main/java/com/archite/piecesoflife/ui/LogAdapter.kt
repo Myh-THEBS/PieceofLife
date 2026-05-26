@@ -12,6 +12,7 @@ import com.archite.piecesoflife.data.LogType
 class LogAdapter(
     private val onQuestComplete: (LogEntity) -> Unit,
     private val onQuestFail: (LogEntity) -> Unit,
+    private val onItemLongClick: (LogEntity) -> Unit,
     var itemAbbrMap: Map<String, String> = emptyMap(),
 ) : ListAdapter<LogEntity, RecyclerView.ViewHolder>(LogDiffCallback()) {
 
@@ -32,11 +33,11 @@ class LogAdapter(
         return when (viewType) {
             VIEW_TYPE_QUEST -> {
                 val view = inflater.inflate(R.layout.item_quest_entry, parent, false)
-                QuestViewHolder(view, onQuestComplete, onQuestFail)
+                QuestViewHolder(view, onQuestComplete, onQuestFail, onItemLongClick)
             }
             else -> {
                 val view = inflater.inflate(R.layout.item_log_entry, parent, false)
-                LogViewHolder(view)
+                LogViewHolder(view, onItemLongClick)
             }
         }
     }

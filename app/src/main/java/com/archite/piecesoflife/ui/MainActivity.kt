@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.archite.piecesoflife.R
+import com.archite.piecesoflife.data.LogType
 import com.archite.piecesoflife.data.UserItem
 import com.archite.piecesoflife.databinding.ActivityMainBinding
 import com.archite.piecesoflife.util.SpriteDef
@@ -74,7 +75,12 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
-            refresh(RefreshOptions(resetFocus = true, clearKeyword = true, scrollTarget = ScrollTarget.BOTTOM))
+            val resultId = result.data?.getLongExtra(LogEditorActivity.EXTRA_RESULT_ID, 0L) ?: 0L
+            refresh(RefreshOptions(
+                resetFocus = resultId > 0,
+                clearKeyword = resultId > 0,
+                scrollTarget = if (resultId > 0) ScrollTarget.BOTTOM else ScrollTarget.NONE
+            ))
         }
     }
 
@@ -170,6 +176,38 @@ class MainActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     viewModel.completeQuestSync(log.id, false)
                     refresh(RefreshOptions())
+                }
+            },
+            onItemLongClick = { log ->
+                when (log.logType) {
+                    LogType.HINT -> { }
+                    LogType.DEBUG, LogType.ERROR -> {
+                        if (viewModel.debugMode) {
+                            PixelDialog(this)
+                                .setTitle("删除调试日志")
+                                .setMessage("确定要永久删除这条调试日志吗？")
+                                .setButtons(PixelDialog.ButtonMode.DUAL_DELETE_CANCEL)
+                                .onConfirm {
+                                    lifecycleScope.launch {
+                                        viewModel.permanentlyDeleteLog(log.id)
+                                        refresh(RefreshOptions())
+                                    }
+                                }
+                                .show()
+                        } else{
+                            lifecycleScope.launch {
+                                viewModel.permanentlyDeleteLog(log.id)
+                                refresh(RefreshOptions())
+                            }
+                        }
+                    }
+                    else -> {
+                        logEditorLauncher.launch(
+                            Intent(this, LogEditorActivity::class.java).apply {
+                                putExtra(LogEditorActivity.EXTRA_LOG_ID, log.id)
+                            }
+                        )
+                    }
                 }
             },
         )

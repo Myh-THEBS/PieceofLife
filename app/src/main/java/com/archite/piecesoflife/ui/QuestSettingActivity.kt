@@ -104,12 +104,14 @@ class QuestSettingActivity : AppCompatActivity() {
     }
 
     private fun initData() {
-        initialDate = intent.getIntExtra("focusDate", TimeUtil.getTimeInt())
+        val deadline = intent.getIntExtra(EXTRA_DEADLINE, 0)
+        isUnlimited = deadline == UNLIMITED_DATE
+        initialDate = if (isUnlimited) TimeUtil.getTimeInt() else deadline
+        if (initialDate == 0) initialDate = TimeUtil.getTimeInt()
         selectedDate = initialDate
         savedDate = initialDate
-        currentRepeat = -1
-        isUnlimited = false
-        isMinusType = false
+        isMinusType = intent.getIntExtra(EXTRA_QUEST_TYPE_FLAG, 0) == 1
+        currentRepeat = intent.getIntExtra(EXTRA_REPEAT_MODE, -1)
     }
 
     private fun initCalendar() {

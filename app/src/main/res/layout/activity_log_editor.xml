@@ -40,7 +40,6 @@
             android:clickable="true"
             android:focusable="true"
             android:background="@drawable/click_background"
-            android:visibility="gone"
             android:contentDescription="@string/empty_string" />
 
         <TextView
