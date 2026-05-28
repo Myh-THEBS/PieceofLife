@@ -16,7 +16,7 @@ import androidx.core.graphics.toColorInt
 class SelectorDialog(context: Context) : Dialog(context) {
 
     private val binding: DialogSelectorBinding = DialogSelectorBinding.inflate(layoutInflater)
-    private var onItemSelectedAction: ((String, Int) -> Unit)? = null
+    private var onItemSelectedAction: ((String, String) -> Unit)? = null
 
     init {
         setContentView(binding.root)
@@ -49,7 +49,7 @@ class SelectorDialog(context: Context) : Dialog(context) {
         return this
     }
 
-    fun onItemSelected(callback: (value: String, index: Int) -> Unit): SelectorDialog {
+    fun onItemSelected(callback: (value: String, remark: String) -> Unit): SelectorDialog {
         onItemSelectedAction = callback
         return this
     }
@@ -100,7 +100,7 @@ class SelectorDialog(context: Context) : Dialog(context) {
             itemView.findViewById<TextView>(R.id.itemTitle).text = item
             itemView.findViewById<TextView>(R.id.itemRemark).visibility = android.view.View.GONE
             itemView.setOnClickListener {
-                onItemSelectedAction?.invoke(item, index)
+                onItemSelectedAction?.invoke(item, "")
                 dismiss()
             }
             binding.listContainer.addView(itemView)
@@ -117,7 +117,7 @@ class SelectorDialog(context: Context) : Dialog(context) {
             titleView.gravity = Gravity.CENTER
             itemView.findViewById<TextView>(R.id.itemRemark).visibility = android.view.View.GONE
             itemView.setOnClickListener {
-                onItemSelectedAction?.invoke(item, index)
+                onItemSelectedAction?.invoke(item, "")
                 dismiss()
             }
             binding.listContainer.addView(itemView)
@@ -134,11 +134,11 @@ class SelectorDialog(context: Context) : Dialog(context) {
             titleView.gravity = Gravity.CENTER
             val hashIdx = item.indexOf("#")
             if (hashIdx >= 0) {
-                try { titleView.setTextColor(Color.parseColor(item.substring(hashIdx))) } catch (_: Exception) {}
+                try { titleView.setTextColor(item.substring(hashIdx).toColorInt()) } catch (_: Exception) {}
             }
             itemView.findViewById<TextView>(R.id.itemRemark).visibility = android.view.View.GONE
             itemView.setOnClickListener {
-                onItemSelectedAction?.invoke(item, index)
+                onItemSelectedAction?.invoke(item, "")
                 dismiss()
             }
             binding.listContainer.addView(itemView)
@@ -156,7 +156,7 @@ class SelectorDialog(context: Context) : Dialog(context) {
             remarkView.text = remark
             remarkView.visibility = android.view.View.VISIBLE
             itemView.setOnClickListener {
-                onItemSelectedAction?.invoke(title, index)
+                onItemSelectedAction?.invoke(title, remark)
                 dismiss()
             }
             binding.listContainer.addView(itemView)

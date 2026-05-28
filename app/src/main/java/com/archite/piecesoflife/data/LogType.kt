@@ -6,7 +6,9 @@ object LogType {
     const val HINT = 0
     const val DEFAULT = 1
     const val QUEST = 2
-    const val TEMPLATE = 3
+    const val PICTURE = 3
+    const val DOCUMENT = 4
+
 }
 
 object QuestType {

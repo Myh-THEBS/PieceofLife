@@ -2,6 +2,7 @@ package com.archite.piecesoflife.ui
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -21,6 +22,15 @@ class AddonToolActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityAddonToolBinding
+
+    private val fileLogLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            setResult(RESULT_OK, Intent().apply { putExtra(EXTRA_EDIT_RESULT, RESULT_LOGS_CHANGED) })
+            finish()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,24 +104,20 @@ class AddonToolActivity : AppCompatActivity() {
                 .show()
         }
         binding.toolPanel2.setOnClickListener {
-            PixelDialog(this)
-                .setType(PixelDialog.DialogType.WARN)
-                .setTitle("警告")
-                .setMessage("操作前请确认当前数据已备份！\n此操作不可撤销。")
-                .setConfirmText("确认执行")
-                .setCancelText("取消")
-                .onConfirm { /* 执行操作 */ }
-                .show()
+            fileLogLauncher.launch(
+                Intent(this, FileLogActivity::class.java).apply {
+                    putExtra(FileLogActivity.EXTRA_LOG_ID, FileLogActivity.NEW_LOG_FILE)
+                    putExtra(FileLogActivity.EXTRA_LOG_MODE, FileLogActivity.MODE_DOCUMENT)
+                }
+            )
         }
         binding.toolPanel3.setOnClickListener {
-            PixelDialog(this)
-                .setType(PixelDialog.DialogType.ERROR)
-                .setTitle("错误")
-                .setMessage("文件格式不兼容，无法读取。\n请检查文件格式后重试。")
-                .setConfirmText("重试")
-                .setCancelText("关闭")
-                .onConfirm { /* 执行操作 */ }
-                .show()
+            fileLogLauncher.launch(
+                Intent(this, FileLogActivity::class.java).apply {
+                    putExtra(FileLogActivity.EXTRA_LOG_ID, FileLogActivity.NEW_LOG_FILE)
+                    putExtra(FileLogActivity.EXTRA_LOG_MODE, FileLogActivity.MODE_IMAGE)
+                }
+            )
         }
     }
 }

@@ -39,13 +39,14 @@ class LogRepository(private val dao: LogDao) {
 
     suspend fun completeQuest(logId: Long, isSuccess: Boolean) {
         val today = com.archite.piecesoflife.util.TimeUtil.getTimeInt()
+        val nowTime = com.archite.piecesoflife.util.TimeUtil.getTimeInt(com.archite.piecesoflife.util.TimeUtil.TIME_TYPE_SECOND)
         dao.getById(logId)?.let { quest ->
             val newFlag0 = if (isSuccess) {
                 if (QuestFlag.isDefaultType(quest.flag0)) QuestFlag.DEFAULT_FINISHED else QuestFlag.MINUS_FINISHED
             } else {
                 if (QuestFlag.isDefaultType(quest.flag0)) QuestFlag.DEFAULT_FAILED else QuestFlag.MINUS_FAILED
             }
-            dao.completeQuest(logId, newFlag0, today)
+            dao.completeQuest(logId, newFlag0, today, nowTime)
         }
     }
 

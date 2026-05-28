@@ -57,7 +57,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     suspend fun runNewDayCheck(): NewDayChecker.NewDayResult {
-        return NewDayChecker.check(logRepo, userRepo)
+        val today = TimeUtil.getTimeInt()
+        val lastDate = userRepo.getLastDate()
+        if (today <= lastDate) return NewDayChecker.NewDayResult(isNewDay = false)
+        userRepo.setLastDate(today)
+        val userName = userRepo.getUserName()
+        val items = userRepo.getItems()
+        return NewDayChecker.check(logRepo, today, userName, items)
     }
 
     fun refresh(callback: (MainUiState) -> Unit) {

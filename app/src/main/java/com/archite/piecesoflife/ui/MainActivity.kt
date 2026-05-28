@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
             refresh(RefreshOptions(
                 resetFocus = resultId > 0,
                 clearKeyword = resultId > 0,
-                scrollTarget = if (resultId > 0) ScrollTarget.BOTTOM else ScrollTarget.NONE
+                scrollTarget = ScrollTarget.NONE
             ))
         }
     }
@@ -184,6 +184,7 @@ class MainActivity : AppCompatActivity() {
                     LogType.DEBUG, LogType.ERROR -> {
                         if (viewModel.debugMode) {
                             PixelDialog(this)
+                                .setType(PixelDialog.DialogType.WARN)
                                 .setTitle("删除调试日志")
                                 .setMessage("确定要永久删除这条调试日志吗？")
                                 .setButtons(PixelDialog.ButtonMode.DUAL_DELETE_CANCEL)

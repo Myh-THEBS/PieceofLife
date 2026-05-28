@@ -46,7 +46,7 @@ class NoteContentEditText : androidx.appcompat.widget.AppCompatEditText {
                 val value = match.groupValues[4]
                 when (type) {
                     "B" -> sb.setSpan(StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-                    "U" -> sb.setSpan(UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    "L" -> sb.setSpan(UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                     "T" -> sb.setSpan(StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                     "C" -> {
                         val color = value.toIntOrNull()

@@ -31,9 +31,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-
-        android:textColor="@color/TEXT_white1"
+        android:textColor="@color/white"
         android:fontFamily="@font/wqy_12px"
-        android:textSize="20dp" />
+        android:textSize="20sp" />
 
 </LinearLayout>

@@ -52,6 +52,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.FileLogActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.LogEditorActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

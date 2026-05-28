@@ -69,6 +69,28 @@
     <string name="quest_setting_type_minus">惩罚类型</string>
     <string name="quest_setting_repeat_label">重复模式</string>
 
+    <!-- PictureLog -->
+    <string name="picture_log_title">图片日志</string>
+    <string name="picture_log_desc_label">描述</string>
+    <string name="picture_log_preview_label">预览图</string>
+    <string name="picture_log_upload_hint">点击上传图片</string>
+    <string name="picture_log_mode_label">图片模式</string>
+    <string name="picture_log_mode_large">大图模式</string>
+    <string name="picture_log_mode_small">小图模式</string>
+    <string name="picture_log_delete">删除图片</string>
+    <string name="picture_log_edit_title">编辑图片日志</string>
+
+    <!-- DocumentLog -->
+    <string name="document_log_title">文档上传</string>
+    <string name="document_log_desc_label">描述</string>
+    <string name="document_log_preview_label">文档预览</string>
+    <string name="document_log_upload_hint">点击上传文档</string>
+    <string name="document_log_delete">删除文档</string>
+    <string name="document_log_filename">文件名</string>
+    <string name="document_log_edit_title">编辑文档</string>
+    <string name="document_log_preview_text">预览</string>
+    <string name="document_log_open_hint">点击文件名使用其他应用打开</string>
+
     <!-- MainActivity -->
     <string name="main_today">显示最新</string>
     <string name="main_search">日志查询</string>

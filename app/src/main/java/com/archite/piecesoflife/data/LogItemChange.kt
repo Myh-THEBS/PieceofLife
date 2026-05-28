@@ -135,7 +135,7 @@ enum class ApplyMode {
 
     fun inverse(): ApplyMode = when (this) {
         ALL -> DELETE_ALL
-        DEFAULT_SUCCESS -> DEFAULT_FAILURE
+        DEFAULT_SUCCESS -> DELETE_ALL
         DEFAULT_FAILURE -> DEFAULT_SUCCESS
         PENALTY_SUCCESS -> PENALTY_FAILURE
         PENALTY_FAILURE -> PENALTY_SUCCESS

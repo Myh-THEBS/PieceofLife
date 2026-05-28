@@ -67,7 +67,7 @@ interface LogDao {
     suspend fun searchByKeyword(
         keyword: String,
         endDate: Int,
-        searchTypes: List<Int> = listOf(LogType.DEFAULT, LogType.QUEST),
+        searchTypes: List<Int> = listOf(LogType.DEFAULT, LogType.QUEST, LogType.PICTURE),
         limit: Int = 100
     ): List<LogEntity>
 
@@ -99,8 +99,8 @@ interface LogDao {
     @Query("SELECT * FROM log_data WHERE is_deleted = 0 AND build_date BETWEEN :startDate AND :endDate ORDER BY build_date ASC, build_time ASC")
     suspend fun getLogsInDateRange(startDate: Int, endDate: Int): List<LogEntity>
 
-    @Query("UPDATE log_data SET flag0 = :flag0, build_date = :buildDate, updated_at = :now WHERE id = :id")
-    suspend fun completeQuest(id: Long, flag0: Int, buildDate: Int, now: Long = System.currentTimeMillis())
+    @Query("UPDATE log_data SET flag0 = :flag0, build_date = :buildDate, build_time = :buildTime, updated_at = :now WHERE id = :id")
+    suspend fun completeQuest(id: Long, flag0: Int, buildDate: Int, buildTime: Int, now: Long = System.currentTimeMillis())
 
     @Query("SELECT * FROM log_data WHERE is_deleted = 1 ORDER BY updated_at DESC")
     suspend fun getDeletedLogs(): List<LogEntity>

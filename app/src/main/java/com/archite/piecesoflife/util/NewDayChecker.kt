@@ -5,7 +5,7 @@ import com.archite.piecesoflife.data.LogType
 import com.archite.piecesoflife.data.LogRepository
 import com.archite.piecesoflife.data.QuestFlag
 import com.archite.piecesoflife.data.QuestType
-import com.archite.piecesoflife.data.UserPreferencesRepository
+import com.archite.piecesoflife.data.UserItem
 
 object NewDayChecker {
 
@@ -20,15 +20,10 @@ object NewDayChecker {
 
     suspend fun check(
         logRepo: LogRepository,
-        userPrefRepo: UserPreferencesRepository,
+        today: Int,
+        userName: String,
+        items: List<UserItem>,
     ): NewDayResult {
-        val today = TimeUtil.getTimeInt()
-        val lastDate = userPrefRepo.getLastDate()
-
-        if (today <= lastDate) return NewDayResult(isNewDay = false)
-
-        userPrefRepo.setLastDate(today)
-
         val dateStampText = "\n${TimeUtil.getTimeString(TimeUtil.TIME_TYPE_DATE_WEEK)}"
         logRepo.saveLog(LogEntity(
             logType = LogType.HINT,
@@ -38,6 +33,15 @@ object NewDayChecker {
             changeDate = 99990000,
             flag0 = 999,
         ))
+
+        val attrs = items.filter { it.type != UserItem.TYPE_PHRASES }
+        val itemSummary = attrs.take(3).joinToString("，") { "${it.iconEmoji}${it.name} ${it.value}" }
+        val welcomeText = buildString {
+            append("欢迎回来，$userName！")
+            if (itemSummary.isNotEmpty()) {
+                append("您当前的属性为：$itemSummary。")
+            }
+        }
 
         val deletedCount = deleteExpiredLogs(logRepo, today)
 
@@ -49,6 +53,21 @@ object NewDayChecker {
             val diff = TimeUtil.dateIntMinus(today, it.changeDate)
             diff in 1..3
         }
+
+        val welcomeTextFull = buildString {
+            append(welcomeText)
+            if (questResult.failedCount > 0) append("有${questResult.failedCount}个任务已失败。")
+            if (pendingCount > 0) append("您目前还有${pendingCount}个未完成的任务。")
+            if (expiringCount > 0) append("有${expiringCount}个任务即将到期。")
+        }
+        logRepo.saveLog(LogEntity(
+            logType = LogType.HINT,
+            logText = welcomeTextFull,
+            buildDate = today,
+            buildTime = 1,
+            changeDate = today,
+            flag0 = 0,
+        ))
 
         val debugText = "【系统日志】完成新一天日志检定！删除了${deletedCount}条过期日志！" +
                 "存在${questResult.failedCount}个失败任务，新建了${questResult.newCount}个周期任务。"

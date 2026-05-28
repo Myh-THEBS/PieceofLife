@@ -14,14 +14,13 @@ import androidx.core.graphics.toColorInt
 
 object SpanTextBuilder {
 
-    private val FORMAT_REGEX = Regex("""(\d+)\+(\d+)\+(\w+)\+?(.*)""")
+    private val FORMAT_REGEX = Regex("""(\d+)\+(\d+)\+(\w)\+?(.*)""")
 
     fun buildDisplayText(log: LogEntity, lastDate: Int, itemAbbrMap: Map<String, String> = emptyMap()): SpannableStringBuilder {
         val sb = SpannableStringBuilder()
 
         if (log.logType == LogType.HINT && log.flag0 == 999) {
-            val dateStr = TimeUtil.dateInt2String(log.buildDate)
-            sb.append(dateStr)
+            sb.append(log.logText)
             sb.setSpan(StyleSpan(android.graphics.Typeface.BOLD), 0, sb.length, 0)
             sb.setSpan(RelativeSizeSpan(1.2f), 0, sb.length, 0)
             return sb
@@ -47,17 +46,23 @@ object SpanTextBuilder {
         }
 
         val bodyStart = sb.length
-        val bodyText = if (itemAbbrMap.isNotEmpty()) {
-            var text = log.logText
-            for ((abbr, emoji) in itemAbbrMap) {
-                text = text.replace(Regex("""(?<![a-zA-Z])${abbr}(?=[+\-*/=\s]|$)""")) { "${emoji}${it.value}" }
-            }
-            text
-        } else {
-            log.logText
-        }
-        sb.append(bodyText)
+        sb.append(log.logText)
         applyRemarkFormats(sb, bodyStart, log.remark)
+
+        if (itemAbbrMap.isNotEmpty()) {
+            for ((abbr, emoji) in itemAbbrMap) {
+                val pattern = Regex("""(?<![a-zA-Z])${Regex.escape(abbr)}(?=[+\-*/=\s]|$)""")
+                var searchFrom = bodyStart
+                while (searchFrom < sb.length) {
+                    val textAfter = sb.substring(searchFrom)
+                    val match = pattern.find(textAfter) ?: break
+                    val absStart = searchFrom + match.range.first
+                    val absEnd = searchFrom + match.range.last + 1
+                    sb.replace(absStart, absEnd, "$emoji${match.value}")
+                    searchFrom = absStart + (emoji.length + match.value.length)
+                }
+            }
+        }
         return sb
     }
 
@@ -88,15 +93,15 @@ object SpanTextBuilder {
             val value = match.groupValues[4]
             when (type) {
                 "B" -> sb.setSpan(StyleSpan(android.graphics.Typeface.BOLD), start, end, 0)
-                "U" -> sb.setSpan(UnderlineSpan(), start, end, 0)
-                "S" -> sb.setSpan(StrikethroughSpan(), start, end, 0)
+                "L" -> sb.setSpan(UnderlineSpan(), start, end, 0)
+                "T" -> sb.setSpan(StrikethroughSpan(), start, end, 0)
                 "C" -> {
                     val color = value.toIntOrNull()
                     if (color != null) sb.setSpan(ForegroundColorSpan(color), start, end, 0)
                 }
-                "SIZE" -> {
-                    val size = value.toFloatOrNull()
-                    if (size != null) sb.setSpan(RelativeSizeSpan(size), start, end, 0)
+                "S" -> {
+                    val size = value.toIntOrNull()
+                    if (size != null) sb.setSpan(RelativeSizeSpan(size / 20f), start, end, 0)
                 }
             }
         }
