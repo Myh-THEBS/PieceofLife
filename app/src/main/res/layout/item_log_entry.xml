@@ -16,4 +16,49 @@
         android:fontFamily="@font/wqy_12px"
         android:textSize="20sp" />
 
+    <LinearLayout
+        android:id="@+id/containerPicture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/ivPictureLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="fitStart"
+            android:adjustViewBounds="true"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="@string/picture_log_preview_label" />
+
+        <ImageView
+            android:id="@+id/ivPictureSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxHeight="140dp"
+            android:scaleType="fitStart"
+            android:adjustViewBounds="true"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone"
+            android:contentDescription="@string/picture_log_preview_label" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvDocPreview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:padding="8dp"
+        android:textColor="@color/TEXT_black"
+        android:fontFamily="@font/wqy_12px"
+        android:textSize="20sp"
+        android:background="@drawable/background_input"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone" />
+
 </LinearLayout>

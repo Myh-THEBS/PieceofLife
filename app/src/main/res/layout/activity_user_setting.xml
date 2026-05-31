@@ -86,7 +86,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="70dp"
-        android:layout_marginBottom="64dp"
+        android:layout_marginBottom="74dp"
         android:scrollbars="none"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
@@ -155,7 +155,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:textColor="@color/deppDark"
+                    android:textColor="@color/deepDark"
                     android:fontFamily="@font/wqy_12px"
                     android:paddingBottom="6dp"
                     android:textSize="20dp" />
@@ -173,7 +173,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="8dp"
-                android:background="@color/deppDark" />
+                android:background="@color/deepDark" />
 
             <!-- ===== 数值属性 ===== -->
             <LinearLayout
@@ -222,7 +222,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="8dp"
-                android:background="@color/deppDark" />
+                android:background="@color/deepDark" />
 
             <!-- ===== 技能属性 ===== -->
             <LinearLayout
@@ -270,7 +270,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="8dp"
-                android:background="@color/deppDark" />
+                android:background="@color/deepDark" />
 
             <!-- ===== 常用短语 ===== -->
             <LinearLayout

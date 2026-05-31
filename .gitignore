@@ -17,3 +17,7 @@ local.properties
 /.vscode
 第三阶段_UI层重构开发计划.md
 开发者总结报告.md
+
+# Kotlin compiler error logs
+.kotlin/errors/
+.trae/

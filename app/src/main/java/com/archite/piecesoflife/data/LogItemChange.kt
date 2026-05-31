@@ -99,6 +99,9 @@ object LogItemChange {
                 ApplyMode.DEFAULT_FAILURE -> 0
                 ApplyMode.PENALTY_SUCCESS -> d.inc
                 ApplyMode.PENALTY_FAILURE -> -d.dec
+                // 冲正模式
+                ApplyMode.PENALTY_SUCCESS_REVERSE -> -d.inc -d.dec
+                ApplyMode.PENALTY_FAILURE_REVERSE -> +d.inc +d.dec 
                 ApplyMode.DELETE_ALL -> -d.inc + d.dec
                 ApplyMode.UNFINISH_QUEST -> 0
             }
@@ -131,16 +134,20 @@ enum class ApplyMode {
     DEFAULT_FAILURE,
     PENALTY_SUCCESS,
     PENALTY_FAILURE,
-    UNFINISH_QUEST;
+    UNFINISH_QUEST,
+    PENALTY_SUCCESS_REVERSE,
+    PENALTY_FAILURE_REVERSE;
 
     fun inverse(): ApplyMode = when (this) {
         ALL -> DELETE_ALL
         DEFAULT_SUCCESS -> DELETE_ALL
         DEFAULT_FAILURE -> DEFAULT_SUCCESS
-        PENALTY_SUCCESS -> PENALTY_FAILURE
-        PENALTY_FAILURE -> PENALTY_SUCCESS
+        PENALTY_SUCCESS -> PENALTY_SUCCESS_REVERSE
+        PENALTY_FAILURE -> PENALTY_FAILURE_REVERSE
         DELETE_ALL -> DELETE_ALL
         UNFINISH_QUEST -> UNFINISH_QUEST
+        PENALTY_SUCCESS_REVERSE -> PENALTY_SUCCESS_REVERSE
+        PENALTY_FAILURE_REVERSE -> PENALTY_FAILURE_REVERSE
     }
 
     companion object {

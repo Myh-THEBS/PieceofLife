@@ -26,6 +26,8 @@ class PixelDialog(context: Context) : Dialog(context) {
         DUAL_DELETE_CANCEL,
         DUAL_IMPORT_CONFIRM,
         TRIPLE_RETURN_FAIL_SUCCESS,
+
+        TRIPLE_RETURN_NEW_UPLOAD,
     }
 
     private val binding: DialogPixelBinding = DialogPixelBinding.inflate(layoutInflater)
@@ -177,6 +179,16 @@ class PixelDialog(context: Context) : Dialog(context) {
                     SpriteDef.B36x24.RES, SpriteDef.B36x24.frame(2), 5)
                 SpriteLoader.setButton(binding.btnRight,
                     SpriteDef.B36x24.RES, SpriteDef.B36x24.frame(4), 5)
+            }
+
+            ButtonMode.TRIPLE_RETURN_NEW_UPLOAD -> {
+                binding.btnRowTriple.visibility = View.VISIBLE
+                SpriteLoader.setButton(binding.btnLeft,
+                    SpriteDef.B36x24.RES, SpriteDef.B36x24.frame(8), 5)
+                SpriteLoader.setButton(binding.btnCenter,
+                    SpriteDef.B36x24.RES, SpriteDef.B36x24.frame(12), 5)
+                SpriteLoader.setButton(binding.btnRight,
+                    SpriteDef.B36x24.RES, SpriteDef.B36x24.frame(14), 5)
             }
         }
     }

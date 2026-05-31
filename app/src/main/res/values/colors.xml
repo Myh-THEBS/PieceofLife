@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
-    <color name="deppDark">#FF777777</color>
+    <color name="deepDark">#FF777777</color>
     <color name="trans">#00000000</color>
     <color name="background_gray">#bcbcbc</color>
     <color name="white">#FFFFFFFF</color>

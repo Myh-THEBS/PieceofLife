@@ -12,15 +12,23 @@ import com.archite.piecesoflife.util.SpriteLoader
 
 class InputDialog(context: Context) : Dialog(context) {
 
+    enum class InputMode { USERNAME, FILENAME }
+
     private val binding: DialogInputBinding = DialogInputBinding.inflate(layoutInflater)
 
     private var onConfirmAction: ((String) -> Unit)? = null
     private var onCancelAction: (() -> Unit)? = null
+    private var inputMode = InputMode.USERNAME
 
     init {
         setContentView(binding.root)
         setupWindow()
         renderBackgrounds()
+    }
+
+    fun setMode(mode: InputMode): InputDialog {
+        inputMode = mode
+        return this
     }
 
     fun setTitle(text: String): InputDialog {
@@ -29,8 +37,16 @@ class InputDialog(context: Context) : Dialog(context) {
     }
 
     fun setInitialText(text: String): InputDialog {
-        binding.dialogInput.setText(text)
-        binding.dialogInput.setSelection(text.length)
+        when (inputMode) {
+            InputMode.USERNAME -> {
+                binding.dialogInput.setText(text)
+                binding.dialogInput.setSelection(text.length)
+            }
+            InputMode.FILENAME -> {
+                binding.dialogInputMultiline.setText(text)
+                binding.dialogInputMultiline.setSelection(text.length)
+            }
+        }
         return this
     }
 
@@ -45,6 +61,16 @@ class InputDialog(context: Context) : Dialog(context) {
     }
 
     override fun show() {
+        when (inputMode) {
+            InputMode.USERNAME -> {
+                binding.dialogInput.visibility = android.view.View.VISIBLE
+                binding.dialogInputMultiline.visibility = android.view.View.GONE
+            }
+            InputMode.FILENAME -> {
+                binding.dialogInput.visibility = android.view.View.GONE
+                binding.dialogInputMultiline.visibility = android.view.View.VISIBLE
+            }
+        }
         renderSprites()
         bindEvents()
         super.show()
@@ -78,7 +104,10 @@ class InputDialog(context: Context) : Dialog(context) {
 
     private fun bindEvents() {
         binding.btnConfirm.setOnClickListener {
-            val text = binding.dialogInput.text.toString().trim().ifEmpty { "默认用户" }
+            val text = when (inputMode) {
+                InputMode.USERNAME -> binding.dialogInput.text.toString().trim().ifEmpty { "默认用户" }
+                InputMode.FILENAME -> binding.dialogInputMultiline.text.toString().trim().ifEmpty { "untitled" }
+            }
             onConfirmAction?.invoke(text)
             dismiss()
         }

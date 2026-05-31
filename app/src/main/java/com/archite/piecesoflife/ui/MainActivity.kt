@@ -13,6 +13,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.archite.piecesoflife.R
 import com.archite.piecesoflife.data.LogType
 import com.archite.piecesoflife.data.UserItem
@@ -26,6 +27,7 @@ data class RefreshOptions(
     val resetFocus: Boolean = false,
     val clearKeyword: Boolean = false,
     val scrollTarget: ScrollTarget = ScrollTarget.NONE,
+    val fadeAnimation: Boolean = true,
 )
 
 enum class ScrollTarget { NONE, BOTTOM, FIRST_OF_FOCUS_DATE }
@@ -37,8 +39,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: LogAdapter
     private lateinit var layoutManager: androidx.recyclerview.widget.LinearLayoutManager
     private var isLoading = false
-    private var lastIntervalStart = 0
-    private var lastIntervalEnd = 0
+    private var lastEditorIsNewLog = false
 
     private val logQueryLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -49,13 +50,13 @@ class MainActivity : AppCompatActivity() {
             val kw = data?.getStringExtra(LogQueryActivity.EXTRA_KEYWORD) ?: ""
             if (newDate > 0) viewModel.focusDate = newDate
             viewModel.keyword = kw
-            refresh(RefreshOptions(scrollTarget = ScrollTarget.FIRST_OF_FOCUS_DATE))
+            refresh(RefreshOptions(scrollTarget = ScrollTarget.FIRST_OF_FOCUS_DATE, fadeAnimation = true))
         }
     }
 
     private val settingsLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
-    ) { refresh(RefreshOptions()) }
+    ) { refresh(RefreshOptions(fadeAnimation = false)) }
 
     private val addonToolLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -63,9 +64,12 @@ class MainActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             val editResult = result.data?.getIntExtra(AddonToolActivity.EXTRA_EDIT_RESULT, 0) ?: 0
             val options = when (editResult) {
-                AddonToolActivity.RESULT_LOGS_CHANGED -> RefreshOptions(resetFocus = true, clearKeyword = true, scrollTarget = ScrollTarget.BOTTOM)
-                AddonToolActivity.RESULT_SETTINGS_CHANGED -> RefreshOptions()
-                else -> RefreshOptions()
+                AddonToolActivity.RESULT_LOGS_CHANGED -> RefreshOptions(
+                    resetFocus = true, clearKeyword = true,
+                    scrollTarget = ScrollTarget.BOTTOM, fadeAnimation = true
+                )
+                AddonToolActivity.RESULT_SETTINGS_CHANGED -> RefreshOptions(fadeAnimation = false)
+                else -> RefreshOptions(fadeAnimation = false)
             }
             refresh(options)
         }
@@ -75,12 +79,16 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
-            val resultId = result.data?.getLongExtra(LogEditorActivity.EXTRA_RESULT_ID, 0L) ?: 0L
-            refresh(RefreshOptions(
-                resetFocus = resultId > 0,
-                clearKeyword = resultId > 0,
-                scrollTarget = ScrollTarget.NONE
-            ))
+            if (lastEditorIsNewLog) {
+                refresh(RefreshOptions(
+                    resetFocus = true, clearKeyword = true,
+                    scrollTarget = ScrollTarget.BOTTOM, fadeAnimation = true
+                ))
+            } else {
+                refresh(RefreshOptions(fadeAnimation = false))
+            }
+        } else if (result.resultCode == LogEditorActivity.RESULT_DELETED) {
+            refresh(RefreshOptions(fadeAnimation = false))
         }
     }
 
@@ -169,13 +177,13 @@ class MainActivity : AppCompatActivity() {
             onQuestComplete = { log ->
                 lifecycleScope.launch {
                     viewModel.completeQuestSync(log.id, true)
-                    refresh(RefreshOptions())
+                    refresh(RefreshOptions(fadeAnimation = false))
                 }
             },
             onQuestFail = { log ->
                 lifecycleScope.launch {
                     viewModel.completeQuestSync(log.id, false)
-                    refresh(RefreshOptions())
+                    refresh(RefreshOptions(fadeAnimation = false))
                 }
             },
             onItemLongClick = { log ->
@@ -191,18 +199,19 @@ class MainActivity : AppCompatActivity() {
                                 .onConfirm {
                                     lifecycleScope.launch {
                                         viewModel.permanentlyDeleteLog(log.id)
-                                        refresh(RefreshOptions())
+                                        refresh(RefreshOptions(fadeAnimation = false))
                                     }
                                 }
                                 .show()
-                        } else{
+                        } else {
                             lifecycleScope.launch {
                                 viewModel.permanentlyDeleteLog(log.id)
-                                refresh(RefreshOptions())
+                                refresh(RefreshOptions(fadeAnimation = false))
                             }
                         }
                     }
                     else -> {
+                        lastEditorIsNewLog = false
                         logEditorLauncher.launch(
                             Intent(this, LogEditorActivity::class.java).apply {
                                 putExtra(LogEditorActivity.EXTRA_LOG_ID, log.id)
@@ -215,9 +224,11 @@ class MainActivity : AppCompatActivity() {
 
         binding.recyclerView.layoutManager = layoutManager
         binding.recyclerView.adapter = adapter
-        (binding.recyclerView.itemAnimator as? androidx.recyclerview.widget.SimpleItemAnimator)?.apply {
-            addDuration = 300
-            removeDuration = 300
+        (binding.recyclerView.itemAnimator as? SimpleItemAnimator)?.apply {
+            addDuration = 0
+            removeDuration = 0
+            moveDuration = 0
+            changeDuration = 0
         }
     }
 
@@ -251,9 +262,10 @@ class MainActivity : AppCompatActivity() {
             addonToolLauncher.launch(Intent(this, AddonToolActivity::class.java))
         }
         binding.btnTool4.setOnClickListener {
-            startActivity(Intent(this, AppSettingActivity::class.java))
+            settingsLauncher.launch(Intent(this, AppSettingActivity::class.java))
         }
         binding.btnNewLog.setOnClickListener {
+            lastEditorIsNewLog = true
             logEditorLauncher.launch(
                 Intent(this, LogEditorActivity::class.java).apply {
                     putExtra(LogEditorActivity.EXTRA_LOG_ID, LogEditorActivity.NEW_LOG_DEFAULT)
@@ -261,6 +273,7 @@ class MainActivity : AppCompatActivity() {
             )
         }
         binding.btnNewLog.setOnLongClickListener {
+            lastEditorIsNewLog = true
             logEditorLauncher.launch(
                 Intent(this, LogEditorActivity::class.java).apply {
                     putExtra(LogEditorActivity.EXTRA_LOG_ID, LogEditorActivity.NEW_LOG_QUEST)
@@ -274,50 +287,38 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val result = viewModel.runNewDayCheck()
             if (result.isNewDay) {
-                refresh(RefreshOptions())
+                refresh(RefreshOptions(fadeAnimation = false))
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        refresh(RefreshOptions())
     }
 
     private fun refresh(options: RefreshOptions) {
         if (isLoading) return
         isLoading = true
 
-        val oldFocusDate = viewModel.focusDate
-
         if (options.resetFocus) viewModel.focusDate = TimeUtil.getTimeInt()
         if (options.clearKeyword) viewModel.keyword = ""
 
-        val sameInterval = lastIntervalEnd > 0 &&
-            viewModel.focusDate in lastIntervalStart..lastIntervalEnd &&
-            oldFocusDate in lastIntervalStart..lastIntervalEnd &&
-            oldFocusDate != viewModel.focusDate
-
-        if (sameInterval) {
+        if (options.fadeAnimation && binding.recyclerView.alpha == 1f) {
             binding.recyclerView.animate()
-                .alpha(0f).setDuration(100)
+                .alpha(0f).setDuration(150)
                 .withEndAction { doRefresh(options) }
                 .start()
         } else {
+            binding.recyclerView.alpha = 0f
             doRefresh(options)
         }
     }
 
     private fun doRefresh(options: RefreshOptions) {
         viewModel.refresh { state ->
-            val interval = TimeUtil.calDateInterval(viewModel.focusDate, state.dayGroup)
-            lastIntervalStart = interval[0]
-            lastIntervalEnd = interval[1]
-
             binding.tvUsername.text = state.userName
             renderTopBar(state.items)
             adapter.itemAbbrMap = state.itemAbbrMap
-            adapter.submitList(state.logs)
 
             val fabParams = binding.btnNewLog.layoutParams as? android.widget.RelativeLayout.LayoutParams
             if (state.leftMode) {
@@ -343,25 +344,25 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            binding.recyclerView.post {
-                if (state.logs.isNotEmpty()) {
-                    when (options.scrollTarget) {
-                        ScrollTarget.BOTTOM -> binding.recyclerView.scrollToPosition(state.logs.size - 1)
-                        ScrollTarget.FIRST_OF_FOCUS_DATE -> {
-                            val idx = state.logs.indexOfFirst { it.buildDate >= viewModel.focusDate }
-                            if (idx >= 0) layoutManager.scrollToPositionWithOffset(idx, 0)
+            adapter.submitList(state.logs) {
+                binding.recyclerView.post {
+                    if (state.logs.isNotEmpty()) {
+                        when (options.scrollTarget) {
+                            ScrollTarget.BOTTOM -> binding.recyclerView.scrollToPosition(state.logs.size - 1)
+                            ScrollTarget.FIRST_OF_FOCUS_DATE -> {
+                                val idx = state.logs.indexOfFirst { it.buildDate >= viewModel.focusDate }
+                                if (idx >= 0) layoutManager.scrollToPositionWithOffset(idx, 0)
+                            }
+                            ScrollTarget.NONE -> {}
                         }
-                        ScrollTarget.NONE -> {}
                     }
-                }
 
-                if (binding.recyclerView.alpha < 1f) {
                     binding.recyclerView.animate()
                         .alpha(1f).setDuration(200)
                         .start()
-                }
 
-                isLoading = false
+                    isLoading = false
+                }
             }
         }
     }

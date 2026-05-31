@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:textColor="@color/deppDark"
+        android:textColor="@color/deepDark"
         android:fontFamily="@font/wqy_12px"
         android:paddingBottom="6dp"
         android:textSize="20dp" />

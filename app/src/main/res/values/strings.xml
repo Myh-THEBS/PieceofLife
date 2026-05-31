@@ -8,7 +8,7 @@
     <string name="addon_confirm">确认</string>
     <string name="addon_cancel">取消</string>
     <string name="addon_tool1">添加任务</string>
-    <string name="addon_tool2">添加长文</string>
+    <string name="addon_tool2">添加文档</string>
     <string name="addon_tool3">添加图片</string>
     <string name="addon_tool4">随机一下</string>
     <string name="addon_tool5">问答精灵</string>
@@ -91,6 +91,47 @@
     <string name="document_log_preview_text">预览</string>
     <string name="document_log_open_hint">点击文件名使用其他应用打开</string>
 
+    <!-- LogInfo -->
+    <string name="log_info_title">日志信息</string>
+    <string name="log_info_type">类型</string>
+    <string name="log_info_quest_reversal">任务冲正</string>
+    <string name="log_info_file_management">文件管理</string>
+    <string name="log_info_rename">- 重命名</string>
+    <string name="log_info_reupload">- 覆盖上传</string>
+    <string name="log_info_export">- 文件导出</string>
+    <string name="log_info_confirm_reversal">确认冲正该任务？</string>
+    <string name="log_info_confirm_upload">确认重新上传文件？该操作会覆盖现有文件且不可撤销。</string>
+    <string name="log_info_rename_hint">请输入新文件名（不含扩展名）</string>
+    <string name="log_info_success">操作成功</string>
+    <string name="log_info_failed">操作失败</string>
+    <string name="log_info_type_default">普通日志</string>
+    <string name="log_info_type_quest">任务日志</string>
+    <string name="log_info_type_picture">图片日志</string>
+    <string name="log_info_type_document">文档日志</string>
+    <string name="log_info_id">编号</string>
+    <string name="log_info_create_time">创建</string>
+    <string name="log_info_modify_time">修改</string>
+    <string name="log_info_complete_time">完成时间</string>
+    <string name="log_info_deadline">截止时间</string>
+    <string name="log_info_no_deadline">无任务期限</string>
+    <string name="log_info_quest_type">任务类型</string>
+    <string name="log_info_quest_status">完成情况</string>
+    <string name="log_info_repeat">重复时间</string>
+    <string name="log_info_no_repeat">不重复或已完成重复</string>
+    <string name="log_info_word_count">字数</string>
+    <string name="log_info_default_type">默认型</string>
+    <string name="log_info_penalty_type">惩罚型</string>
+    <string name="log_info_completed">✅已完成</string>
+    <string name="log_info_failed_status">❎已失败</string>
+    <string name="log_info_long_term">长期任务</string>
+    <string name="log_info_file_size">文件大小</string>
+    <string name="log_info_file_type">文件类型</string>
+    <string name="log_info_editor_unsaved_title">尚未保存</string>
+    <string name="log_info_editor_unsaved_msg">此操作会保存当前日志内容与属性变更，是否继续？</string>
+
+    <!-- ImagePreview -->
+    <string name="image_preview_title">图片预览</string>
+
     <!-- MainActivity -->
     <string name="main_today">显示最新</string>
     <string name="main_search">日志查询</string>
@@ -112,5 +153,6 @@
     <string name="item_hint_level_exp">每升一级所需经验值，默认为1000。</string>
     <string name="item_new_title">新建</string>
     <string name="item_edit_title">编辑</string>
+    <string name="log_editor_hint">请输入文档内容，文档编辑器不支持快捷插入操作，属性变更也不会生效。</string>
 
 </resources>

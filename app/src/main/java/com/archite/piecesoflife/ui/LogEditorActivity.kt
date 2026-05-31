@@ -1,15 +1,20 @@
 package com.archite.piecesoflife.ui
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import com.archite.piecesoflife.R
 import com.archite.piecesoflife.data.AppDatabase
 import com.archite.piecesoflife.data.ApplyMode
@@ -21,14 +26,19 @@ import com.archite.piecesoflife.data.QuestFlag
 import com.archite.piecesoflife.data.UserItem
 import com.archite.piecesoflife.data.UserPreferencesRepository
 import com.archite.piecesoflife.databinding.ActivityLogEditorBinding
+import com.archite.piecesoflife.util.ImageUtil
 import com.archite.piecesoflife.util.SpriteDef
 import com.archite.piecesoflife.util.SpriteLoader
 import com.archite.piecesoflife.util.TimeUtil
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.core.graphics.toColorInt
+import java.io.File
+
+enum class LogEditorMode {
+    DEFAULT, PICTURE, DOCUMENT
+}
 
 class LogEditorActivity : AppCompatActivity() {
 
@@ -45,11 +55,12 @@ class LogEditorActivity : AppCompatActivity() {
             LogType.DEFAULT to "日志",
             LogType.QUEST  to "任务",
             LogType.HINT   to "提示",
+            LogType.PICTURE to "图片",
+            LogType.DOCUMENT to "文档",
         )
     }
 
     private lateinit var binding: ActivityLogEditorBinding
-    private val ioScope = CoroutineScope(Dispatchers.IO)
     private lateinit var userRepo: UserPreferencesRepository
     private lateinit var logRepo: LogRepository
 
@@ -59,6 +70,19 @@ class LogEditorActivity : AppCompatActivity() {
     private var colorList: List<String> = emptyList()
     private var currentLogId = NEW_LOG_DEFAULT
     private var originalLogEntity: LogEntity? = null
+    private var currentMode = LogEditorMode.DEFAULT
+    private var currentLogType = LogType.DEFAULT
+    private var documentContent: String = ""
+    private var isDocPreviewMode = false
+    private var isImmersiveMode = false
+    private var documentFileName: String = ""
+    private val wordCountHandler = Handler(Looper.getMainLooper())
+    private val wordCountRunnable = object : Runnable {
+        override fun run() {
+            updateWordCount()
+            wordCountHandler.postDelayed(this, 3000)
+        }
+    }
 
     // 任务设置 窗口 intent
     private var questDeadline = 0
@@ -72,6 +96,19 @@ class LogEditorActivity : AppCompatActivity() {
             questDeadline = data?.getIntExtra(QuestSettingActivity.EXTRA_DEADLINE, 0) ?: 0
             questTypeFlag = data?.getIntExtra(QuestSettingActivity.EXTRA_QUEST_TYPE_FLAG, 0) ?: 0
             questRepeat = data?.getIntExtra(QuestSettingActivity.EXTRA_REPEAT_MODE, -1) ?: -1
+        }
+    }
+
+    private val logInfoLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == LogInfoActivity.RESULT_REVERSED) {
+            setResult(RESULT_DELETED)
+            finish()
+            return@registerForActivityResult
+        }
+        lifecycleScope.launch(Dispatchers.IO) {
+            reloadAfterLogInfo()
         }
     }
 
@@ -108,8 +145,6 @@ class LogEditorActivity : AppCompatActivity() {
         binding.btnContinue.setImageBitmap(SpriteLoader.button16(18, scale = 5))
         SpriteLoader.setButton(binding.btnFCB, SpriteDef.B72x72.RES, SpriteDef.B72x72.frame(4), scale = 5)
 
-        // btnTool1/btnTool2 的绘制在加载数据时
-
         val editorIndices = listOf(
             binding.btnUndo to 1, binding.btnRedo to 2, binding.btnBold to 4,
             binding.btnUnderline to 5, binding.btnStrikethrough to 16,
@@ -120,8 +155,10 @@ class LogEditorActivity : AppCompatActivity() {
             binding.fastTagBtn to 29, binding.fastShortBtn to 20, binding.fastAbbrBtn to 9,
         )
         for ((v, i) in fastIndices) v.setImageBitmap(SpriteLoader.button16(i, scale = 5))
-    }
 
+        binding.btnEditToggle.setImageBitmap(SpriteLoader.button16(25, scale = 5))
+        binding.btnImmersive.setImageBitmap(SpriteLoader.button16(30, scale = 5))
+    }
 
     private fun setupEditorListener() {
         binding.noteContent.setOnSelectionChangedListener { _, _ ->
@@ -137,7 +174,7 @@ class LogEditorActivity : AppCompatActivity() {
     }
 
     private fun loadAllData() {
-        ioScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             val items = userRepo.getItems()
             sizeList = userRepo.getSizeList()
             colorList = userRepo.getColorList()
@@ -166,10 +203,41 @@ class LogEditorActivity : AppCompatActivity() {
                 logType = LogType.QUEST
             }
 
+            currentLogType = logType
+            currentMode = when (logType) {
+                LogType.PICTURE -> LogEditorMode.PICTURE
+                LogType.DOCUMENT -> LogEditorMode.DOCUMENT
+                else -> LogEditorMode.DEFAULT
+            }
+
+            if (currentMode == LogEditorMode.DOCUMENT && logRemark.isNotEmpty()) {
+                documentFileName = File(logRemark).name
+                documentContent = ImageUtil.readDocumentContent(this@LogEditorActivity, documentFileName) ?: ""
+            }
+
             withContext(Dispatchers.Main) {
-                binding.noteContent.loadFromLog(logText, logRemark)
                 val prefix = if (isNewMode(currentLogId)) "新建" else "编辑"
-                binding.tvTitle.text = "$prefix${TYPE_NAME_MAP[logType] ?: "日志"}"
+                val typeName = TYPE_NAME_MAP[logType] ?: "日志"
+                binding.tvTitle.text = "$prefix$typeName"
+                configureForMode()
+
+                if (currentMode == LogEditorMode.DOCUMENT) {
+                    binding.etDocumentEditor.setText(documentContent)
+                    binding.etDocumentEditor.setSelection(documentContent.length)
+                    binding.tvDocPreview.text = ImageUtil.extractPreview(documentContent)
+                    isDocPreviewMode = false
+                    showDocEditor()
+                    updateWordCount()
+                } else if (currentMode == LogEditorMode.PICTURE) {
+                    if (logRemark.isNotEmpty()) {
+                        val imageFileName = File(logRemark).name
+                        loadAndDisplayPicture(imageFileName)
+                    }
+                    binding.noteContent.loadFromLog(logText, logRemark)
+                } else {
+                    binding.noteContent.loadFromLog(logText, logRemark)
+                }
+
                 binding.fastAbbrBtn.isEnabled = abbrPairs.isNotEmpty()
                 binding.fastShortBtn.isEnabled = phrasePairs.isNotEmpty()
                 binding.fastTagBtn.isEnabled = false
@@ -180,8 +248,8 @@ class LogEditorActivity : AppCompatActivity() {
                 applyGrayOverlay(binding.fastTagBtn)
                 if (sizeList.isEmpty()) applyGrayOverlay(binding.btnFontSize)
                 if (colorList.isEmpty()) applyGrayOverlay(binding.btnFontColor)
-                // 绘制顶部工具按钮
-                if (!isNewMode(currentLogId)){
+
+                if (!isNewMode(currentLogId)) {
                     SpriteLoader.setButton(binding.btnTool1, SpriteDef.B24.RES, SpriteDef.B24.frame(6), scale = 5)
                     binding.btnTool1.isEnabled = true
                 } else {
@@ -192,12 +260,12 @@ class LogEditorActivity : AppCompatActivity() {
                     (originalLogEntity != null && QuestFlag.isUnfinished(originalLogEntity!!.flag0)))
                 if (isQuestUnfinished) {
                     SpriteLoader.setButton(binding.btnTool2, SpriteDef.B24.RES, SpriteDef.B24.frame(14), scale = 5)
-                    binding.btnTool2.visibility = android.view.View.VISIBLE
+                    binding.btnTool2.visibility = View.VISIBLE
                 } else if (!isNewMode(currentLogId)) {
                     SpriteLoader.setButton(binding.btnTool2, SpriteDef.B24.RES, SpriteDef.B24.frame(22), scale = 5)
-                    binding.btnTool2.visibility = android.view.View.VISIBLE
+                    binding.btnTool2.visibility = View.VISIBLE
                 } else {
-                    binding.btnTool2.visibility = android.view.View.GONE
+                    binding.btnTool2.visibility = View.GONE
                 }
 
                 val fcbParams = binding.btnFCB.layoutParams as? android.widget.RelativeLayout.LayoutParams
@@ -216,6 +284,129 @@ class LogEditorActivity : AppCompatActivity() {
         }
     }
 
+    private fun configureForMode() {
+        when (currentMode) {
+            LogEditorMode.DEFAULT -> {
+                binding.noteContent.visibility = View.VISIBLE
+                binding.ivPicturePreview.visibility = View.GONE
+                binding.etDocumentEditor.visibility = View.GONE
+                binding.tvDocPreview.visibility = View.GONE
+                binding.btnEditToggle.visibility = View.GONE
+                binding.btnImmersive.visibility = View.GONE
+                binding.editorToolsContainer.visibility = View.VISIBLE
+                binding.itemToolContainer.visibility = View.VISIBLE
+                binding.tvWordCount.visibility = View.GONE
+                binding.btnUndo.visibility = View.VISIBLE
+                binding.btnRedo.visibility = View.VISIBLE
+                binding.noteContent.hint = "请输入文字："
+                resetImmersiveMode()
+                stopWordCount()
+            }
+            LogEditorMode.PICTURE -> {
+                binding.noteContent.visibility = View.VISIBLE
+                binding.ivPicturePreview.visibility = View.VISIBLE
+                binding.etDocumentEditor.visibility = View.GONE
+                binding.tvDocPreview.visibility = View.GONE
+                binding.btnEditToggle.visibility = View.GONE
+                binding.btnImmersive.visibility = View.GONE
+                binding.editorToolsContainer.visibility = View.GONE
+                binding.itemToolContainer.visibility = View.VISIBLE
+                binding.tvWordCount.visibility = View.GONE
+                binding.btnUndo.visibility = View.VISIBLE
+                binding.btnRedo.visibility = View.VISIBLE
+                binding.noteContent.hint = "请输入图片描述"
+                resetImmersiveMode()
+                stopWordCount()
+            }
+            LogEditorMode.DOCUMENT -> {
+                binding.noteContent.visibility = View.GONE
+                binding.ivPicturePreview.visibility = View.GONE
+                binding.btnEditToggle.visibility = View.VISIBLE
+                binding.btnImmersive.visibility = View.VISIBLE
+                binding.editorToolsContainer.visibility = View.GONE
+                binding.itemToolContainer.visibility = View.GONE
+                binding.tvWordCount.visibility = View.VISIBLE
+                binding.btnUndo.visibility = View.GONE
+                binding.btnRedo.visibility = View.GONE
+                startWordCount()
+            }
+        }
+    }
+
+    private fun updateWordCount() {
+        val text = binding.etDocumentEditor.text?.toString() ?: ""
+        val count = text.length
+        binding.tvWordCount.text = "${count}字"
+    }
+
+    private fun startWordCount() {
+        updateWordCount()
+        wordCountHandler.removeCallbacks(wordCountRunnable)
+        wordCountHandler.postDelayed(wordCountRunnable, 3000)
+    }
+
+    private fun stopWordCount() {
+        wordCountHandler.removeCallbacks(wordCountRunnable)
+    }
+
+    private fun showDocEditor() {
+        isDocPreviewMode = false
+        binding.etDocumentEditor.visibility = View.VISIBLE
+        binding.tvDocPreview.visibility = View.GONE
+        binding.btnEditToggle.setBackgroundResource(R.drawable.button_16x16_bg)
+    }
+
+    private fun showDocPreview() {
+        isDocPreviewMode = true
+        val content = binding.etDocumentEditor.text?.toString() ?: ""
+        binding.tvDocPreview.text = ImageUtil.renderMarkdownToSpannable(content)
+        binding.etDocumentEditor.visibility = View.GONE
+        binding.tvDocPreview.visibility = View.VISIBLE
+        binding.btnEditToggle.setBackgroundResource(R.drawable.click_background_edit_tool)
+    }
+
+    private fun toggleDocMode() {
+        if (isDocPreviewMode) {
+            showDocEditor()
+        } else {
+            showDocPreview()
+        }
+    }
+
+    private fun toggleImmersiveMode() {
+        isImmersiveMode = !isImmersiveMode
+        if (isImmersiveMode) {
+            binding.btnImmersive.setBackgroundResource(R.drawable.button_16x16_bg)
+            binding.btnFCB.animate().alpha(0f).setDuration(300).withEndAction {
+                binding.btnFCB.visibility = View.GONE
+            }.start()
+        } else {
+            binding.btnImmersive.setBackgroundResource(R.drawable.click_background_edit_tool)
+            binding.btnFCB.alpha = 0f
+            binding.btnFCB.visibility = View.VISIBLE
+            binding.btnFCB.animate().alpha(1f).setDuration(300).start()
+        }
+    }
+
+    private fun resetImmersiveMode() {
+        if (isImmersiveMode) {
+            isImmersiveMode = false
+            binding.btnImmersive.setBackgroundResource(R.drawable.click_background_edit_tool)
+            binding.btnFCB.alpha = 0f
+            binding.btnFCB.visibility = View.VISIBLE
+            binding.btnFCB.animate().alpha(1f).setDuration(200).start()
+        }
+    }
+
+    private fun loadAndDisplayPicture(imageFileName: String) {
+        val bitmap = ImageUtil.loadThumbnail(this, imageFileName)
+        if (bitmap != null) {
+            val rounded = ImageUtil.drawRoundCornerBitmap(bitmap, 16f)
+            binding.ivPicturePreview.setImageBitmap(rounded)
+            binding.ivPicturePreview.visibility = View.VISIBLE
+        }
+    }
+
     private fun updateToolbarState() {
         val canUndo = binding.noteContent.canUndo()
         val canRedo = binding.noteContent.canRedo()
@@ -227,7 +418,6 @@ class LogEditorActivity : AppCompatActivity() {
         setToggleSelected(binding.btnUnderline, binding.noteContent.isUnderline())
         setToggleSelected(binding.btnStrikethrough, binding.noteContent.isStrikethrough())
     }
-
 
     private fun setToggleSelected(view: android.widget.ImageView, selected: Boolean) {
         if (selected) {
@@ -255,6 +445,8 @@ class LogEditorActivity : AppCompatActivity() {
 
         binding.btnTool1.setOnClickListener { onTool1Click() }
         binding.btnTool2.setOnClickListener { onTool2Click() }
+        binding.btnEditToggle.setOnClickListener { toggleDocMode() }
+        binding.btnImmersive.setOnClickListener { toggleImmersiveMode() }
 
         binding.btnUndo.setOnClickListener {
             binding.noteContent.applyCommand(NoteContentEditText.EDIT_OP_UNDO)
@@ -293,13 +485,53 @@ class LogEditorActivity : AppCompatActivity() {
     }
 
     private fun onTool2Click() {
-        val logType = originalLogEntity?.logType
-            ?: if (currentLogId == NEW_LOG_QUEST) LogType.QUEST else LogType.DEFAULT
-        if (logType == LogType.QUEST) {
+        if (currentLogType == LogType.QUEST) {
             val isUnfinished = originalLogEntity == null || QuestFlag.isUnfinished(originalLogEntity!!.flag0)
-            if (isUnfinished) openQuestSetting() else openLogInfo()
+            if (isUnfinished) {
+                openQuestSetting()
+            } else {
+                checkUnsavedAndNavigate()
+            }
+        } else {
+            checkUnsavedAndNavigate()
+        }
+    }
+
+    private fun checkUnsavedAndNavigate() {
+        val hasChanges = when (currentMode) {
+            LogEditorMode.DEFAULT -> {
+                val currentText = binding.noteContent.text?.toString() ?: ""
+                currentText != (originalLogEntity?.logText ?: "")
+            }
+            LogEditorMode.PICTURE -> {
+                val currentText = binding.noteContent.text?.toString() ?: ""
+                currentText != (originalLogEntity?.logText ?: "")
+            }
+            LogEditorMode.DOCUMENT -> {
+                val currentDocText = binding.etDocumentEditor.text?.toString() ?: ""
+                currentDocText != documentContent
+            }
+        }
+        if (hasChanges) {
+            PixelDialog(this)
+                .setType(PixelDialog.DialogType.INFO)
+                .setTitle(getString(R.string.log_info_editor_unsaved_title))
+                .setMessage(getString(R.string.log_info_editor_unsaved_msg))
+                .setButtons(PixelDialog.ButtonMode.DUAL_CONFIRM_CANCEL)
+                .onConfirm {
+                    lifecycleScope.launch(Dispatchers.IO) { saveDocContent(); openLogInfo() }
+                }
+                .show()
         } else {
             openLogInfo()
+        }
+    }
+
+    private fun saveDocContent() {
+        if (currentMode == LogEditorMode.DOCUMENT && documentFileName.isNotEmpty()) {
+            val content = binding.etDocumentEditor.text?.toString() ?: ""
+            ImageUtil.writeDocumentContent(this, documentFileName, content)
+            documentContent = content
         }
     }
 
@@ -311,7 +543,7 @@ class LogEditorActivity : AppCompatActivity() {
                 .setMessage("此日志已在回收站中，确定要永久删除吗？此操作不可撤销。")
                 .setButtons(PixelDialog.ButtonMode.DUAL_DELETE_CANCEL)
                 .onConfirm {
-                    ioScope.launch {
+                    lifecycleScope.launch(Dispatchers.IO) {
                         logRepo.permanentlyDeleteLog(currentLogId)
                         withContext(Dispatchers.Main) {
                             setResult(RESULT_DELETED)
@@ -326,7 +558,7 @@ class LogEditorActivity : AppCompatActivity() {
                 .setMessage("确定要删除这篇日志吗？删除后可在回收站恢复。")
                 .setButtons(PixelDialog.ButtonMode.DUAL_DELETE_CANCEL)
                 .onConfirm {
-                    ioScope.launch {
+                    lifecycleScope.launch(Dispatchers.IO) {
                         val items = userRepo.getItems().toMutableList()
                         val deltas = LogItemChange.fromJson(originalLogEntity?.itemsJson ?: "[]")
                         val mode = ApplyMode.fromQuest(
@@ -356,26 +588,74 @@ class LogEditorActivity : AppCompatActivity() {
     }
 
     private fun openLogInfo() {
-        // Phase 7 实现 LogInfoActivity
+        val intent = Intent(this, LogInfoActivity::class.java).apply {
+            putExtra(LogInfoActivity.EXTRA_LOG_ID, currentLogId)
+        }
+        logInfoLauncher.launch(intent)
+    }
+
+    private suspend fun reloadAfterLogInfo() {
+        val log = logRepo.getLogById(currentLogId) ?: return
+        originalLogEntity = log
+        withContext(Dispatchers.Main) {
+            when (currentMode) {
+                LogEditorMode.DOCUMENT -> {
+                    if (log.remark.isNotEmpty()) {
+                        documentFileName = File(log.remark).name
+                        documentContent = ImageUtil.readDocumentContent(this@LogEditorActivity, documentFileName) ?: ""
+                        binding.etDocumentEditor.setText(documentContent)
+                        binding.etDocumentEditor.setSelection(documentContent.length)
+                        binding.tvDocPreview.text = ImageUtil.extractPreview(documentContent)
+                        showDocEditor()
+                    }
+                }
+                LogEditorMode.PICTURE -> {
+                    binding.noteContent.loadFromLog(log.logText, log.remark)
+                    if (log.remark.isNotEmpty()) {
+                        val imageFileName = File(log.remark).name
+                        loadAndDisplayPicture(imageFileName)
+                    }
+                }
+                LogEditorMode.DEFAULT -> {
+                    binding.noteContent.loadFromLog(log.logText, log.remark)
+                }
+            }
+        }
     }
 
     private fun saveAndFinish() {
-        ioScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             val now = TimeUtil.getTimeInt()
             val nowTime = TimeUtil.getTimeInt(TimeUtil.TIME_TYPE_SECOND)
 
-            // 1. 从编辑器获取当前文本和 remark
-            val logText = binding.noteContent.text?.toString() ?: ""
-            val remark = binding.noteContent.getSpanFormatString()
+            var logText = ""
+            var remark = ""
 
-            // 2. 解析属性变更
+            when (currentMode) {
+                LogEditorMode.DOCUMENT -> {
+                    saveDocContent()
+                    if (documentFileName.isNotEmpty()) {
+                        val preview = ImageUtil.extractPreview(documentContent)
+                        logText = preview
+                        remark = "documents/$documentFileName"
+                    }
+                }
+                LogEditorMode.PICTURE -> {
+                    logText = binding.noteContent.text?.toString() ?: ""
+                    remark = originalLogEntity?.remark ?: ""
+                }
+                LogEditorMode.DEFAULT -> {
+                    logText = binding.noteContent.text?.toString() ?: ""
+                    remark = binding.noteContent.getSpanFormatString()
+                }
+            }
+
             val knownAbbrs = abbrPairs.map { it.second }
             val newDeltas = LogItemChange.parseLogText(logText, knownAbbrs)
             val newItemsJson = LogItemChange.toJson(newDeltas)
 
-            // 3. 构建 LogEntity
             val baseLog = originalLogEntity ?: LogEntity(
-                logType = if (currentLogId == NEW_LOG_QUEST) LogType.QUEST else LogType.DEFAULT,
+                logType = currentLogType,
                 buildDate = now,
                 buildTime = nowTime,
                 flag1 = -1,
@@ -384,7 +664,7 @@ class LogEditorActivity : AppCompatActivity() {
             val questFlag0 = if (baseLog.logType == LogType.QUEST &&
                 !QuestFlag.isFinished(baseLog.flag0) &&
                 !QuestFlag.isFailed(baseLog.flag0)) {
-                questTypeFlag  // 0=DEFAULT_UNFINISHED, 1=MINUS_UNFINISHED
+                questTypeFlag
             } else {
                 baseLog.flag0
             }
@@ -400,21 +680,18 @@ class LogEditorActivity : AppCompatActivity() {
                 updatedAt = System.currentTimeMillis(),
             )
 
-            // 4. 保存到数据库
             val savedId = logRepo.saveLog(toSave)
 
-            // 5. 属性生效（UNFINISH_QUEST 时 delta=0，无操作）
-            val items = userRepo.getItems().toMutableList()
-            val oldDeltas = LogItemChange.fromJson(baseLog.itemsJson)
-            val applyMode = ApplyMode.fromQuest(baseLog.logType, baseLog.flag0)
-
-            if (!isNewMode(currentLogId)) {
-                LogItemChange.apply(oldDeltas, applyMode.inverse(), items)
+            if (currentMode != LogEditorMode.DOCUMENT) {
+                val items = userRepo.getItems().toMutableList()
+                val oldDeltas = LogItemChange.fromJson(baseLog.itemsJson)
+                val applyMode = ApplyMode.fromQuest(baseLog.logType, baseLog.flag0)
+                if (!isNewMode(currentLogId)) {
+                    LogItemChange.apply(oldDeltas, applyMode.inverse(), items)
+                }
+                LogItemChange.apply(newDeltas, applyMode, items)
+                userRepo.setItems(items)
             }
-            LogItemChange.apply(newDeltas, applyMode, items)
-
-            // 6. 保存属性
-            userRepo.setItems(items)
 
             withContext(Dispatchers.Main) {
                 setResult(RESULT_OK, intent.apply { putExtra(EXTRA_RESULT_ID, savedId) })
@@ -498,5 +775,10 @@ class LogEditorActivity : AppCompatActivity() {
             val imm = getSystemService(InputMethodManager::class.java)
             imm?.showSoftInput(binding.noteContent, InputMethodManager.SHOW_IMPLICIT)
         }, 150)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        wordCountHandler.removeCallbacks(wordCountRunnable)
     }
 }

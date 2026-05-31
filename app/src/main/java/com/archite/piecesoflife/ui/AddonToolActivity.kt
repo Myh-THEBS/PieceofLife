@@ -1,6 +1,7 @@
 package com.archite.piecesoflife.ui
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -8,10 +9,20 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.archite.piecesoflife.R
+import com.archite.piecesoflife.data.AppDatabase
+import com.archite.piecesoflife.data.LogEntity
+import com.archite.piecesoflife.data.LogRepository
+import com.archite.piecesoflife.data.LogType
 import com.archite.piecesoflife.databinding.ActivityAddonToolBinding
+import com.archite.piecesoflife.util.ImageUtil
 import com.archite.piecesoflife.util.SpriteDef
 import com.archite.piecesoflife.util.SpriteLoader
+import com.archite.piecesoflife.util.TimeUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddonToolActivity : AppCompatActivity() {
 
@@ -22,8 +33,25 @@ class AddonToolActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityAddonToolBinding
+    private lateinit var logRepo: LogRepository
 
-    private val fileLogLauncher = registerForActivityResult(
+    private val imagePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            handleImagePicked(uri)
+        }
+    }
+
+    private val filePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            handleDocumentPicked(uri)
+        }
+    }
+
+    private val editorLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
@@ -36,6 +64,7 @@ class AddonToolActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAddonToolBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        logRepo = LogRepository(AppDatabase.getInstance(this).logDao())
 
         setupSystemBars()
         renderBackgrounds()
@@ -62,16 +91,10 @@ class AddonToolActivity : AppCompatActivity() {
     }
 
     private fun renderSprites() {
-        // 顶部返回按钮：B24 帧 0/1（偶弹起，奇按下）
         SpriteLoader.setButton(binding.btnReturn, SpriteDef.B16.RES, SpriteDef.B16.frame(17), downFrame = SpriteDef.B16.frame(17), scale = 5)
-
-        // 底部取消按钮：B72x32 帧 0/1
         SpriteLoader.setButton(binding.btnCancel, SpriteDef.B72x32.RES, SpriteDef.B72x32.frame(2), scale = 5)
-
-        // 底部确认按钮：B72x32 帧 2/3
         SpriteLoader.setButton(binding.btnConfirm, SpriteDef.B72x32.RES, SpriteDef.B72x32.frame(0), scale = 5)
 
-        // 7 个工具图标（Icons 24x24，scale=2 → 48x48dp）
         val toolIcons = listOf(
             binding.toolIcon1, binding.toolIcon2, binding.toolIcon3,
             binding.toolIcon4, binding.toolIcon5, binding.toolIcon6, binding.toolIcon7,
@@ -93,31 +116,86 @@ class AddonToolActivity : AppCompatActivity() {
             finish()
         }
 
-        // PixelDialog 集成测试：工具 1~3 分别展示信息/警告/错误弹窗
         binding.toolPanel1.setOnClickListener {
+            editorLauncher.launch(
+                Intent(this, LogEditorActivity::class.java).apply {
+                    putExtra(LogEditorActivity.EXTRA_LOG_ID, LogEditorActivity.NEW_LOG_QUEST)
+                }
+            )
+        }
+
+        binding.toolPanel2.setOnClickListener {
             PixelDialog(this)
                 .setType(PixelDialog.DialogType.INFO)
-                .setTitle("信息")
-                .setMessage("这是一条信息提示。\n可以包含多行文本。")
-                .setConfirmText("知道了")
-                .onConfirm { /* 可执行操作 */ }
+                .setTitle("添加文档")
+                .setMessage("请选择文档创建方式：")
+                .setButtons(PixelDialog.ButtonMode.TRIPLE_RETURN_NEW_UPLOAD)
+                .onCancel { }
+                .onFail {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val fileName = ImageUtil.createEmptyDocument(this@AddonToolActivity)
+                        if (fileName != null) {
+                            saveAndOpenEditor(LogType.DOCUMENT, fileName)
+                        }
+                    }
+                }
+                .onConfirm {
+                    filePickerLauncher.launch("text/*")
+                }
                 .show()
         }
-        binding.toolPanel2.setOnClickListener {
-            fileLogLauncher.launch(
-                Intent(this, FileLogActivity::class.java).apply {
-                    putExtra(FileLogActivity.EXTRA_LOG_ID, FileLogActivity.NEW_LOG_FILE)
-                    putExtra(FileLogActivity.EXTRA_LOG_MODE, FileLogActivity.MODE_DOCUMENT)
-                }
-            )
-        }
+
         binding.toolPanel3.setOnClickListener {
-            fileLogLauncher.launch(
-                Intent(this, FileLogActivity::class.java).apply {
-                    putExtra(FileLogActivity.EXTRA_LOG_ID, FileLogActivity.NEW_LOG_FILE)
-                    putExtra(FileLogActivity.EXTRA_LOG_MODE, FileLogActivity.MODE_IMAGE)
-                }
-            )
+            imagePickerLauncher.launch("image/*")
+        }
+    }
+
+    private fun handleImagePicked(uri: Uri) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val fileName = ImageUtil.copyImageFromUri(this@AddonToolActivity, uri)
+            if (fileName != null) {
+                ImageUtil.generateThumbnail(this@AddonToolActivity, fileName)
+                saveAndOpenEditor(LogType.PICTURE, fileName)
+            }
+        }
+    }
+
+    private fun handleDocumentPicked(uri: Uri) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val fileName = ImageUtil.copyDocumentFromUri(this@AddonToolActivity, uri)
+            if (fileName != null) {
+                val content = ImageUtil.readDocumentContent(this@AddonToolActivity, fileName) ?: ""
+                val preview = ImageUtil.extractPreview(content)
+                saveAndOpenEditor(LogType.DOCUMENT, fileName, preview)
+            }
+        }
+    }
+
+    private suspend fun saveAndOpenEditor(logType: Int, fileName: String, previewText: String = "") {
+        val now = TimeUtil.getTimeInt()
+        val nowTime = TimeUtil.getTimeInt(TimeUtil.TIME_TYPE_SECOND)
+        val subDir = if (logType == LogType.PICTURE) "images" else "documents"
+        val remark = "$subDir/$fileName"
+        val logText = if (logType == LogType.PICTURE) "" else previewText
+
+        val entity = LogEntity(
+            logType = logType,
+            logText = logText,
+            remark = remark,
+            buildDate = now,
+            buildTime = nowTime,
+            changeDate = now,
+            changeTime = nowTime,
+            flag1 = -1,
+            itemsJson = "[]",
+        )
+        val savedId = logRepo.saveLog(entity)
+
+        withContext(Dispatchers.Main) {
+            val intent = Intent(this@AddonToolActivity, LogEditorActivity::class.java).apply {
+                putExtra(LogEditorActivity.EXTRA_LOG_ID, savedId)
+            }
+            editorLauncher.launch(intent)
         }
     }
 }

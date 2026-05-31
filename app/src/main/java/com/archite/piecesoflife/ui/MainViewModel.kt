@@ -130,7 +130,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     logType = LogType.HINT,
                     flag0 = 999,
                     buildDate = lastDate,
-                    logText = "",
+                    logText = "\n${TimeUtil.getTimeString(TimeUtil.TIME_TYPE_DATE_WEEK)}",
                 ))
             }
             result.add(log)

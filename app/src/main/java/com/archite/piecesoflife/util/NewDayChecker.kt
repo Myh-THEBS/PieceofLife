@@ -35,7 +35,15 @@ object NewDayChecker {
         ))
 
         val attrs = items.filter { it.type != UserItem.TYPE_PHRASES }
-        val itemSummary = attrs.take(3).joinToString("，") { "${it.iconEmoji}${it.name} ${it.value}" }
+        val itemSummary = attrs.take(4).joinToString("，") { item ->
+            val displayValue = if (item.type == UserItem.TYPE_SKILL) {
+                val level = item.value / item.levelExp
+                if (level >= 99) "Lv99+" else "Lv$level"
+            } else {
+                "${item.value}"
+            }
+            "${item.iconEmoji}${item.name} $displayValue"
+        }
         val welcomeText = buildString {
             append("欢迎回来，$userName！")
             if (itemSummary.isNotEmpty()) {

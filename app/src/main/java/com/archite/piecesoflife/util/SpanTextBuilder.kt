@@ -41,12 +41,18 @@ object SpanTextBuilder {
                 LogType.QUEST -> {
                     if (QuestFlag.isFinished(log.flag0)) sb.setSpan(ForegroundColorSpan("#2E7D32".toColorInt()), 0, sb.length, 0)
                     else if (QuestFlag.isFailed(log.flag0)) sb.setSpan(ForegroundColorSpan("#C62828".toColorInt()), 0, sb.length, 0)
+                    else sb.setSpan(ForegroundColorSpan("#F3E8A4".toColorInt()), 0, sb.length, 0)
                 }
+                else -> sb.setSpan(ForegroundColorSpan(Color.LTGRAY), 0, sb.length, 0)
             }
         }
 
         val bodyStart = sb.length
         sb.append(log.logText)
+        if (log.logType == LogType.DEBUG || log.logType == LogType.ERROR) {
+            sb.setSpan(ForegroundColorSpan("#777777".toColorInt()), bodyStart, sb.length, 0)
+        }
+
         applyRemarkFormats(sb, bodyStart, log.remark)
 
         if (itemAbbrMap.isNotEmpty()) {

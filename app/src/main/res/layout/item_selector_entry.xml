@@ -30,7 +30,7 @@
         android:maxLines="1"
         android:ellipsize="end"
         android:text="测试"
-        android:textColor="@color/deppDark"
+        android:textColor="@color/deepDark"
         android:fontFamily="@font/fonsung"
         android:textSize="20dp"
         android:minWidth="60dp" />
