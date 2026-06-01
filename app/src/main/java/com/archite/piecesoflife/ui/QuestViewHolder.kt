@@ -42,10 +42,10 @@ class QuestViewHolder(
         }
     }
 
-    fun bind(log: LogEntity, itemAbbrMap: Map<String, String> = emptyMap()) {
+    fun bind(log: LogEntity, itemAbbrMap: Map<String, String> = emptyMap(), labelNames: Set<String> = emptySet()) {
         currentLog = log
         val lastDate = TimeUtil.getTimeInt()
-        val spannable = SpanTextBuilder.buildDisplayText(log, lastDate, itemAbbrMap)
+        val spannable = SpanTextBuilder.buildDisplayText(log, lastDate, itemAbbrMap, labelNames)
         tvQuestText.text = spannable
 
         if (QuestFlag.isFinished(log.flag0) || QuestFlag.isFailed(log.flag0)) {

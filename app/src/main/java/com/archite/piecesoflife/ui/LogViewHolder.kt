@@ -25,7 +25,7 @@ class LogViewHolder(
     private val tvDocPreview: TextView = itemView.findViewById(R.id.tvDocPreview)
     private var currentLog: LogEntity? = null
 
-    fun bind(log: LogEntity, itemAbbrMap: Map<String, String> = emptyMap()) {
+    fun bind(log: LogEntity, itemAbbrMap: Map<String, String> = emptyMap(), labelNames: Set<String> = emptySet()) {
         currentLog = log
         val lastDate = TimeUtil.getTimeInt()
 
@@ -36,7 +36,7 @@ class LogViewHolder(
 
         when (log.logType) {
             LogType.PICTURE -> {
-                val spannable = SpanTextBuilder.buildDisplayText(log, lastDate, itemAbbrMap)
+                val spannable = SpanTextBuilder.buildDisplayText(log, lastDate, itemAbbrMap, labelNames)
                 tvLogText.text = spannable
                 containerPicture.visibility = View.VISIBLE
                 loadPictureThumbnail(log.remark)
@@ -44,14 +44,14 @@ class LogViewHolder(
             LogType.DOCUMENT -> {
                 val displayName = extractDisplayName(log.remark)
                 val displayLog = log.copy(logText = "📄 $displayName")
-                val spannable = SpanTextBuilder.buildDisplayText(displayLog, lastDate, itemAbbrMap)
+                val spannable = SpanTextBuilder.buildDisplayText(displayLog, lastDate, itemAbbrMap, labelNames)
                 tvLogText.text = spannable
                 tvDocPreview.visibility = View.VISIBLE
                 tvDocPreview.text = log.logText.ifEmpty { "(空文档)" }
                 tvDocPreview.setOnClickListener { openDocEditor(log) }
             }
             else -> {
-                val spannable = SpanTextBuilder.buildDisplayText(log, lastDate, itemAbbrMap)
+                val spannable = SpanTextBuilder.buildDisplayText(log, lastDate, itemAbbrMap, labelNames)
                 tvLogText.text = spannable
             }
         }

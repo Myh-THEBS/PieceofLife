@@ -66,6 +66,7 @@ class LogEditorActivity : AppCompatActivity() {
 
     private var abbrPairs: List<Pair<String, String>> = emptyList()
     private var phrasePairs: List<Pair<String, String>> = emptyList()
+    private var labelPairs: List<Pair<String, String>> = emptyList()
     private var sizeList: List<Int> = emptyList()
     private var colorList: List<String> = emptyList()
     private var currentLogId = NEW_LOG_DEFAULT
@@ -181,8 +182,10 @@ class LogEditorActivity : AppCompatActivity() {
 
             val attrs = items.filter { it.type == UserItem.TYPE_ATTRIBUTES || it.type == UserItem.TYPE_SKILL }
             val phrases = items.filter { it.type == UserItem.TYPE_PHRASES }
+            val labels = items.filter { it.type == UserItem.TYPE_LABEL }
             abbrPairs = attrs.map { "${it.iconEmoji}${it.name}" to it.abbr }
             phrasePairs = phrases.map { it.rule.ifEmpty { it.name } to it.name }
+            labelPairs = labels.map { "#${it.name}" to it.name }
 
             var logText = ""
             var logRemark = ""
@@ -240,12 +243,12 @@ class LogEditorActivity : AppCompatActivity() {
 
                 binding.fastAbbrBtn.isEnabled = abbrPairs.isNotEmpty()
                 binding.fastShortBtn.isEnabled = phrasePairs.isNotEmpty()
-                binding.fastTagBtn.isEnabled = false
+                binding.fastTagBtn.isEnabled = labelPairs.isNotEmpty()
                 binding.btnFontSize.isEnabled = sizeList.isNotEmpty()
                 binding.btnFontColor.isEnabled = colorList.isNotEmpty()
                 if (abbrPairs.isEmpty()) applyGrayOverlay(binding.fastAbbrBtn)
                 if (phrasePairs.isEmpty()) applyGrayOverlay(binding.fastShortBtn)
-                applyGrayOverlay(binding.fastTagBtn)
+                if (labelPairs.isEmpty()) applyGrayOverlay(binding.fastTagBtn)
                 if (sizeList.isEmpty()) applyGrayOverlay(binding.btnFontSize)
                 if (colorList.isEmpty()) applyGrayOverlay(binding.btnFontColor)
 
@@ -473,7 +476,7 @@ class LogEditorActivity : AppCompatActivity() {
 
         binding.fastAbbrBtn.setOnClickListener { if (abbrPairs.isNotEmpty()) showAbbrSelector() }
         binding.fastShortBtn.setOnClickListener { if (phraseItems.isNotEmpty()) showPhraseSelector() }
-        binding.fastTagBtn.setOnClickListener { }
+        binding.fastTagBtn.setOnClickListener { if (labelPairs.isNotEmpty()) showTagSelector() }
     }
 
     private val phraseItems: List<String> get() = phrasePairs.map { it.first }
@@ -766,7 +769,21 @@ class LogEditorActivity : AppCompatActivity() {
     }
 
     private fun showTagSelector() {
-        binding.noteContent.resetTrigger()
+        if (labelPairs.isEmpty()) {
+            binding.noteContent.resetTrigger()
+            return
+        }
+        SelectorDialog(this)
+            .setTitle("选择标签")
+            .setCenteredItems(labelPairs.map { it.first })
+            .onItemSelected { value, _ ->
+                binding.noteContent.insertAtCursor("$value ")
+                updateToolbarState()
+                refocusEditText()
+            }
+            .setCancelableOutside(true)
+            .setOnDismissListener { binding.noteContent.resetTrigger() }
+            .show()
     }
 
     private fun refocusEditText() {

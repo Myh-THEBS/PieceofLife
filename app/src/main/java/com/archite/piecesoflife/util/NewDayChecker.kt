@@ -34,7 +34,7 @@ object NewDayChecker {
             flag0 = 999,
         ))
 
-        val attrs = items.filter { it.type != UserItem.TYPE_PHRASES }
+        val attrs = items.filter { it.type != UserItem.TYPE_PHRASES && it.type != UserItem.TYPE_LABEL }
         val itemSummary = attrs.take(4).joinToString("，") { item ->
             val displayValue = if (item.type == UserItem.TYPE_SKILL) {
                 val level = item.value / item.levelExp

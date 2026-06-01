@@ -24,6 +24,7 @@ data class MainUiState(
     val items: List<UserItem> = emptyList(),
     val logs: List<LogEntity> = emptyList(),
     val itemAbbrMap: Map<String, String> = emptyMap(),
+    val labelNames: Set<String> = emptySet(),
     val debugMode: Boolean = false,
     val leftMode: Boolean = false,
 )
@@ -95,6 +96,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                 val itemAbbrMap = items.filter { it.abbr.isNotEmpty() }
                     .associate { it.abbr to it.iconEmoji }
+                val labelNames = items.filter { it.type == UserItem.TYPE_LABEL }
+                    .map { it.name }.toSet()
 
                 val displayLogs = if (keyword.isNotEmpty()) {
                     insertDateHeaders(logs)
@@ -108,6 +111,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     items = items,
                     logs = displayLogs,
                     itemAbbrMap = itemAbbrMap,
+                    labelNames = labelNames,
                     debugMode = debugMode,
                     leftMode = leftMode,
                 )

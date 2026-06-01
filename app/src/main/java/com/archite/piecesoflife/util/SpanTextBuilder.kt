@@ -2,6 +2,7 @@ package com.archite.piecesoflife.util
 
 import android.graphics.Color
 import android.text.SpannableStringBuilder
+import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StrikethroughSpan
@@ -16,7 +17,12 @@ object SpanTextBuilder {
 
     private val FORMAT_REGEX = Regex("""(\d+)\+(\d+)\+(\w)\+?(.*)""")
 
-    fun buildDisplayText(log: LogEntity, lastDate: Int, itemAbbrMap: Map<String, String> = emptyMap()): SpannableStringBuilder {
+    fun buildDisplayText(
+        log: LogEntity,
+        lastDate: Int,
+        itemAbbrMap: Map<String, String> = emptyMap(),
+        labelNames: Set<String> = emptySet(),
+    ): SpannableStringBuilder {
         val sb = SpannableStringBuilder()
 
         if (log.logType == LogType.HINT && log.flag0 == 999) {
@@ -70,7 +76,30 @@ object SpanTextBuilder {
                 }
             }
         }
+
+        if (labelNames.isNotEmpty()) {
+            applyLabelSpans(sb, bodyStart, labelNames)
+        }
+
         return sb
+    }
+
+    private fun applyLabelSpans(sb: SpannableStringBuilder, bodyStart: Int, labelNames: Set<String>) {
+        val sorted = labelNames.sortedByDescending { it.length }
+        val punctCharClass = "])\\t\\n\\r，。、；：！？） #."
+        for (label in sorted) {
+            val pattern = Regex("#${Regex.escape(label)}(?=[$punctCharClass]|$)")
+            var searchFrom = bodyStart
+            while (searchFrom < sb.length) {
+                val textAfter = sb.substring(searchFrom)
+                val match = pattern.find(textAfter) ?: break
+                val absStart = searchFrom + match.range.first
+                val absEnd = searchFrom + match.range.last + 1
+                sb.setSpan(BackgroundColorSpan(Color.argb(20, 255, 255, 255)), absStart, absEnd, 0)
+                sb.setSpan(ForegroundColorSpan("#FF62BFFC".toColorInt()), absStart, absEnd, 0)
+                searchFrom = absEnd
+            }
+        }
     }
 
     private fun buildQuestPrefix(log: LogEntity, lastDate: Int): String {

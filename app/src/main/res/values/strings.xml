@@ -46,6 +46,7 @@
     <string name="section_attributes">属性列表</string>
     <string name="section_skills">技能列表</string>
     <string name="section_phrases">常用短语</string>
+    <string name="section_labels">日志标签</string>
     <string name="section_add">新增</string>
     <string name="app_setting_user">用户设置</string>
     <string name="app_setting_user_enter">进入</string>

@@ -14,5 +14,6 @@ data class UserItem(
         const val TYPE_ATTRIBUTES = "Attributes"
         const val TYPE_SKILL = "Skill"
         const val TYPE_PHRASES = "Phrases"
+        const val TYPE_LABEL = "Label"
     }
 }

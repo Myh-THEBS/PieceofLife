@@ -95,6 +95,7 @@ class ItemEditActivity : AppCompatActivity() {
             UserItem.TYPE_ATTRIBUTES -> "属性"
             UserItem.TYPE_SKILL -> "技能"
             UserItem.TYPE_PHRASES -> "短语"
+            UserItem.TYPE_LABEL -> "标签"
             else -> "属性"
         }
         binding.tvTitle.text = "$titlePrefix$typeName"
@@ -121,16 +122,15 @@ class ItemEditActivity : AppCompatActivity() {
         }
 
         val isPhrases = itemType == UserItem.TYPE_PHRASES
+        val isLabel = itemType == UserItem.TYPE_LABEL
         val isSkill = itemType == UserItem.TYPE_SKILL
         val isAttrOrSkill = itemType == UserItem.TYPE_ATTRIBUTES || isSkill
 
-        //禁用行
         binding.rowAbbr.visibility = if (isAttrOrSkill) View.VISIBLE else View.GONE
         binding.rowIcon.visibility = if (isAttrOrSkill) View.VISIBLE else View.GONE
         binding.rowValue.visibility = if (isAttrOrSkill) View.VISIBLE else View.GONE
         binding.rowLevelExp.visibility = if (isSkill) View.VISIBLE else View.GONE
 
-        //修改字段名称
         binding.labelName.text = "${typeName}名称"
         binding.labelAbbr.text = "${typeName}简写"
         binding.labelIcon.text = "${typeName}图标"
@@ -144,6 +144,8 @@ class ItemEditActivity : AppCompatActivity() {
 
         if (isPhrases) {
             binding.labelRule.text = "短语内容"
+        } else if (isLabel) {
+            binding.labelRule.text = "标签描述"
         }
 
     }
@@ -187,7 +189,7 @@ class ItemEditActivity : AppCompatActivity() {
                 .setType(PixelDialog.DialogType.WARN)
                 .setButtons(PixelDialog.ButtonMode.DUAL_DELETE_CANCEL)
                 .setTitle("删除确认")
-                .setMessage("确定要删除此${if (itemType == UserItem.TYPE_PHRASES) "短语" else "属性/技能"}吗？此操作不可撤销。")
+                .setMessage("确定要删除此${when (itemType) { UserItem.TYPE_PHRASES -> "短语"; UserItem.TYPE_LABEL -> "标签"; else -> "属性/技能" }}吗？此操作不可撤销。")
                 .onConfirm {
                     setResult(RESULT_DELETED, Intent().apply {
                         putExtra(EXTRA_INDEX, editIndex)
@@ -214,7 +216,7 @@ class ItemEditActivity : AppCompatActivity() {
             return false
         }
 
-        if (itemType != UserItem.TYPE_PHRASES) {
+        if (itemType != UserItem.TYPE_PHRASES && itemType != UserItem.TYPE_LABEL) {
             val abbr = binding.etAbbr.text.toString().trim()
             if (abbr.isEmpty()) {
                 showHint("输入错误", "属性简写不能为空。")
@@ -255,7 +257,7 @@ class ItemEditActivity : AppCompatActivity() {
     private fun saveAndReturn() {
         val name = binding.etName.text.toString().trim()
         val abbr = binding.etAbbr.text.toString().trim()
-        val iconEmoji = binding.etIcon.text.toString().trim().ifEmpty { "" }
+        val iconEmoji = if (itemType == UserItem.TYPE_LABEL) "" else binding.etIcon.text.toString().trim().ifEmpty { "" }
         val value = binding.etValue.text.toString().trim().toIntOrNull() ?: 0
         val levelExp = binding.etLevelExp.text.toString().trim().toIntOrNull() ?: 1000
         val priority = binding.etPriority.text.toString().trim().toIntOrNull() ?: 0

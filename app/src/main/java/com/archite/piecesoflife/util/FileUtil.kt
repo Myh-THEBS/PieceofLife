@@ -175,7 +175,7 @@ object FileUtil {
                             items.add(UserItem(
                                 name = obj.optString("name", ""),
                                 type = obj.optString("type", UserItem.TYPE_ATTRIBUTES),
-                                iconEmoji = obj.optString("iconEmoji", if (obj.has("icon")) "\u2699" else "⚙"),
+                                iconEmoji = obj.optString("iconEmoji", ""),
                                 value = obj.optInt("value", 0),
                                 abbr = obj.optString("abbr", ""),
                                 rule = obj.optString("rule", ""),

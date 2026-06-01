@@ -45,6 +45,7 @@ class UserSettingActivity : AppCompatActivity() {
         private const val REQ_ATTR = 1001
         private const val REQ_SKILL = 1002
         private const val REQ_PHRASE = 1003
+        private const val REQ_LABEL = 1004
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,6 +92,7 @@ class UserSettingActivity : AppCompatActivity() {
         SpriteLoader.setButton(binding.btnAddAttr, SpriteDef.B24.RES, SpriteDef.B24.frame(18), scale = 5)
         SpriteLoader.setButton(binding.btnAddSkill, SpriteDef.B24.RES, SpriteDef.B24.frame(18), scale = 5)
         SpriteLoader.setButton(binding.btnAddPhrase, SpriteDef.B24.RES, SpriteDef.B24.frame(18), scale = 5)
+        SpriteLoader.setButton(binding.btnAddLabel, SpriteDef.B24.RES, SpriteDef.B24.frame(18), scale = 5)
 
     }
 
@@ -118,10 +120,12 @@ class UserSettingActivity : AppCompatActivity() {
         val attrs = currentItems.filter { it.type == UserItem.TYPE_ATTRIBUTES }.sortedByDescending { it.priority }
         val skills = currentItems.filter { it.type == UserItem.TYPE_SKILL }.sortedByDescending { it.priority }
         val phrases = currentItems.filter { it.type == UserItem.TYPE_PHRASES }.sortedByDescending { it.priority }
+        val labels = currentItems.filter { it.type == UserItem.TYPE_LABEL }.sortedByDescending { it.priority }
 
         renderItemList(binding.containerAttributes, attrs, UserItem.TYPE_ATTRIBUTES)
         renderItemList(binding.containerSkills, skills, UserItem.TYPE_SKILL)
         renderItemList(binding.containerPhrases, phrases, UserItem.TYPE_PHRASES)
+        renderItemList(binding.containerLabels, labels, UserItem.TYPE_LABEL)
 
         updateStarMarkers()
     }
@@ -140,7 +144,11 @@ class UserSettingActivity : AppCompatActivity() {
         val tvValue = row.findViewById<TextView>(R.id.tvItemValue)
         val btnArrow = row.findViewById<ImageView>(R.id.btnItemArrow)
 
-        val displayEmoji = if (type == UserItem.TYPE_PHRASES) "💬" else item.iconEmoji
+        val displayEmoji = when (type) {
+            UserItem.TYPE_PHRASES -> "💬"
+            UserItem.TYPE_LABEL -> "🏷️"
+            else -> item.iconEmoji
+        }
         tvName.text = "$displayEmoji ${item.name}"
 
         when (type) {
@@ -152,6 +160,7 @@ class UserSettingActivity : AppCompatActivity() {
                 tvValue.text = "$levelStr  ${"%.1f".format(progress)}%"
             }
             UserItem.TYPE_PHRASES -> tvValue.visibility = android.view.View.GONE
+            UserItem.TYPE_LABEL -> tvValue.visibility = android.view.View.GONE
         }
 
         btnArrow.setImageBitmap(SpriteLoader.button16(18, scale = 5))
@@ -169,11 +178,13 @@ class UserSettingActivity : AppCompatActivity() {
         val attrChanged = itemsChanged(UserItem.TYPE_ATTRIBUTES)
         val skillChanged = itemsChanged(UserItem.TYPE_SKILL)
         val phraseChanged = itemsChanged(UserItem.TYPE_PHRASES)
+        val labelChanged = itemsChanged(UserItem.TYPE_LABEL)
 
         binding.tvUserStar.text = if (userChanged) " *" else ""
         binding.tvAttrStar.text = if (attrChanged) " *" else ""
         binding.tvSkillStar.text = if (skillChanged) " *" else ""
         binding.tvPhraseStar.text = if (phraseChanged) " *" else ""
+        binding.tvLabelStar.text = if (labelChanged) " *" else ""
     }
 
     private fun itemsChanged(type: String): Boolean {
@@ -189,37 +200,54 @@ class UserSettingActivity : AppCompatActivity() {
     private fun buildChangeLog(): String {
         val lines = mutableListOf<String>()
         if (currentUserName != initialUserName) {
-            lines.add("用户名：$initialUserName -> $currentUserName")
+            lines.add("· 用户名：$initialUserName -> $currentUserName")
         }
 
-        val currentAttrs = currentItems.filter { it.type != UserItem.TYPE_PHRASES }
-        val initialAttrs = initialItems.filter { it.type != UserItem.TYPE_PHRASES }
+        val currentAttrs = currentItems.filter { it.type != UserItem.TYPE_PHRASES && it.type != UserItem.TYPE_LABEL }
+        val initialAttrs = initialItems.filter { it.type != UserItem.TYPE_PHRASES && it.type != UserItem.TYPE_LABEL }
 
+        var hasAttrChanges = false
         for (item in currentAttrs) {
             val key = item.abbr
             val old = initialAttrs.find { it.abbr == key }
             if (old == null) {
-                lines.add("新增：${item.abbr}")
+                lines.add(" · 新增：${item.abbr}")
+                hasAttrChanges = true
             } else if (old != item) {
-                lines.add("${item.abbr}：${old.value} -> ${item.value}")
+                lines.add(" · ${item.abbr}：${old.value} -> ${item.value}")
+                hasAttrChanges = true
             }
         }
 
         for (item in initialAttrs) {
             if (currentAttrs.none { it.abbr == item.abbr }) {
-                lines.add("删除：${item.abbr}")
+                lines.add(" · 删除：${item.abbr}")
+                hasAttrChanges = true
             }
         }
 
-        return "APP属性调整：\n" + lines.joinToString("\n")
+        val currentLabels = currentItems.filter { it.type == UserItem.TYPE_LABEL }
+        val initialLabels = initialItems.filter { it.type == UserItem.TYPE_LABEL }
+        val hasLabelChanges = currentLabels != initialLabels
+
+        if (hasLabelChanges) {
+            lines.add(" · 日志标签变更")
+            hasAttrChanges = true 
+        }
+
+        if (hasAttrChanges) {
+            return "用户属性调整：\n" + lines.joinToString("\n")
+        } else {
+            return lines.joinToString("\n")
+        }
     }
 
     private fun buildChangeSummary(): String {
         val lines = mutableListOf<String>()
         if (currentUserName != initialUserName) lines.add(" · 用户名")
 
-        val currentAttrs = currentItems.filter { it.type != UserItem.TYPE_PHRASES }
-        val initialAttrs = initialItems.filter { it.type != UserItem.TYPE_PHRASES }
+        val currentAttrs = currentItems.filter { it.type != UserItem.TYPE_PHRASES && it.type != UserItem.TYPE_LABEL }
+        val initialAttrs = initialItems.filter { it.type != UserItem.TYPE_PHRASES && it.type != UserItem.TYPE_LABEL }
 
         for (item in currentAttrs) {
             val key = item.abbr
@@ -241,6 +269,12 @@ class UserSettingActivity : AppCompatActivity() {
         val initialPhrases = initialItems.filter { it.type == UserItem.TYPE_PHRASES }
         if (currentPhrases != initialPhrases) {
             lines.add(" · 快捷短语变更")
+        }
+
+        val currentLabels = currentItems.filter { it.type == UserItem.TYPE_LABEL }
+        val initialLabels = initialItems.filter { it.type == UserItem.TYPE_LABEL }
+        if (currentLabels != initialLabels) {
+            lines.add(" · 日志标签变更")
         }
 
         val showLines = if (lines.size > 3) lines.take(3) + listOf(" · ···") else lines
@@ -335,6 +369,7 @@ class UserSettingActivity : AppCompatActivity() {
         startActivityForResult(intent, when (type) {
             UserItem.TYPE_ATTRIBUTES -> REQ_ATTR
             UserItem.TYPE_SKILL -> REQ_SKILL
+            UserItem.TYPE_LABEL -> REQ_LABEL
             else -> REQ_PHRASE
         })
     }
@@ -349,6 +384,7 @@ class UserSettingActivity : AppCompatActivity() {
         startActivityForResult(intent, when (type) {
             UserItem.TYPE_ATTRIBUTES -> REQ_ATTR
             UserItem.TYPE_SKILL -> REQ_SKILL
+            UserItem.TYPE_LABEL -> REQ_LABEL
             else -> REQ_PHRASE
         })
     }
@@ -414,5 +450,6 @@ class UserSettingActivity : AppCompatActivity() {
         binding.btnAddAttr.setOnClickListener { launchNewItem(UserItem.TYPE_ATTRIBUTES) }
         binding.btnAddSkill.setOnClickListener { launchNewItem(UserItem.TYPE_SKILL) }
         binding.btnAddPhrase.setOnClickListener { launchNewItem(UserItem.TYPE_PHRASES) }
+        binding.btnAddLabel.setOnClickListener { launchNewItem(UserItem.TYPE_LABEL) }
     }
 }

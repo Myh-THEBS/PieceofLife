@@ -314,6 +314,54 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="8dp"
+                android:background="@color/deepDark" />
+
+            <!-- ===== 日志标签 ===== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvSectionLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_labels"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:textSize="26dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvLabelStar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="#D24C4C"
+                    android:fontFamily="@font/wqy_12px"
+                    android:textSize="26dp"
+                    android:textStyle="bold"/>
+
+                <ImageView
+                    android:id="@+id/btnAddLabel"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/section_add" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/containerLabels"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
         </LinearLayout>
     </ScrollView>
 

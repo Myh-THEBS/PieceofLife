@@ -319,6 +319,7 @@ class MainActivity : AppCompatActivity() {
             binding.tvUsername.text = state.userName
             renderTopBar(state.items)
             adapter.itemAbbrMap = state.itemAbbrMap
+            adapter.labelNames = state.labelNames
 
             val fabParams = binding.btnNewLog.layoutParams as? android.widget.RelativeLayout.LayoutParams
             if (state.leftMode) {
