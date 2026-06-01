@@ -169,6 +169,53 @@
                     android:contentDescription="@string/user_setting_edit" />
             </LinearLayout>
 
+            <!-- 用户头像 -->
+            <LinearLayout
+                android:id="@+id/rowAvatar"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="@drawable/click_background">
+
+                <ImageView
+                    android:id="@+id/iconAvatarPreview"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@string/user_setting_avatar" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:paddingBottom="4dp"
+                    android:text="@string/user_setting_avatar"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:textSize="24dp" />
+
+                <TextView
+                    android:id="@+id/tvAvatarStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:textColor="@color/deepDark"
+                    android:fontFamily="@font/wqy_12px"
+                    android:paddingBottom="6dp"
+                    android:textSize="20dp" />
+
+                <ImageView
+                    android:id="@+id/btnAvatarPicker"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/user_setting_avatar_pick" />
+            </LinearLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"

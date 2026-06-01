@@ -32,6 +32,10 @@ class UserPreferencesRepository(private val context: Context) {
         private val KEY_LEFT_MODE = booleanPreferencesKey("left_mode")
         private val KEY_SIZE_LIST = stringPreferencesKey("size_list")
         private val KEY_COLOR_LIST = stringPreferencesKey("color_list")
+        private val KEY_QUEST_REMINDER = booleanPreferencesKey("quest_reminder")
+        private val KEY_REMINDER_TIME = intPreferencesKey("reminder_time")
+        private val KEY_PIXEL_FONT = booleanPreferencesKey("pixel_font")
+        private val KEY_IMAGE_DISPLAY_MODE = booleanPreferencesKey("image_display_mode")
 
         // 默认字号列表（相对比例 * 20）
         private val DEFAULT_SIZE_LIST = listOf(10, 12, 16, 18, 20, 24, 36, 48)
@@ -74,6 +78,18 @@ class UserPreferencesRepository(private val context: Context) {
         prefs[KEY_USER_AVATAR] ?: 0
     }
 
+    val pixelFontFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[KEY_PIXEL_FONT] ?: true
+    }
+
+    val questReminderFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[KEY_QUEST_REMINDER] ?: false
+    }
+
+    val imageDisplayModeFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[KEY_IMAGE_DISPLAY_MODE] ?: true
+    }
+
     /**
      * 观察设备唯一标识。首次启动时由 [getOrCreateUserId] 自动生成。
      * 用户也可通过 [setUserUuid] 手动配置（例如服务端分发的固定 UUID）。
@@ -97,6 +113,10 @@ class UserPreferencesRepository(private val context: Context) {
     suspend fun getDayGroup(): Int = context.dataStore.data.first()[KEY_DAY_GROUP] ?: 2
     suspend fun getUserAvatar(): Int = context.dataStore.data.first()[KEY_USER_AVATAR] ?: 0
     suspend fun getLeftMode(): Boolean = context.dataStore.data.first()[KEY_LEFT_MODE] ?: false
+    suspend fun getQuestReminderEnabled(): Boolean = context.dataStore.data.first()[KEY_QUEST_REMINDER] ?: false
+    suspend fun getReminderTime(): Int = context.dataStore.data.first()[KEY_REMINDER_TIME] ?: 2200
+    suspend fun getPixelFont(): Boolean = context.dataStore.data.first()[KEY_PIXEL_FONT] ?: true
+    suspend fun getImageDisplayMode(): Boolean = context.dataStore.data.first()[KEY_IMAGE_DISPLAY_MODE] ?: true
 
     /**
      * 获取设备唯一标识。首次调用时自动生成一个随机 UUID 并持久化，
@@ -129,6 +149,10 @@ class UserPreferencesRepository(private val context: Context) {
     suspend fun setDayGroup(group: Int) = context.dataStore.edit { it[KEY_DAY_GROUP] = group }
     suspend fun setUserAvatar(avatarIndex: Int) = context.dataStore.edit { it[KEY_USER_AVATAR] = avatarIndex }
     suspend fun setLeftMode(enabled: Boolean) = context.dataStore.edit { it[KEY_LEFT_MODE] = enabled }
+    suspend fun setQuestReminderEnabled(enabled: Boolean) = context.dataStore.edit { it[KEY_QUEST_REMINDER] = enabled }
+    suspend fun setReminderTime(time: Int) = context.dataStore.edit { it[KEY_REMINDER_TIME] = time }
+    suspend fun setPixelFont(enabled: Boolean) = context.dataStore.edit { it[KEY_PIXEL_FONT] = enabled }
+    suspend fun setImageDisplayMode(largeMode: Boolean) = context.dataStore.edit { it[KEY_IMAGE_DISPLAY_MODE] = largeMode }
 
     suspend fun setItems(items: List<UserItem>) = context.dataStore.edit {
         it[KEY_ITEMS_JSON] = itemsToJson(items)
@@ -183,6 +207,10 @@ class UserPreferencesRepository(private val context: Context) {
         prefs[KEY_LEFT_MODE] = false
         prefs[KEY_USER_UUID] = UUID.randomUUID().toString()
         prefs[KEY_ITEMS_JSON] = DEFAULT_ITEMS_JSON
+        prefs[KEY_QUEST_REMINDER] = false
+        prefs[KEY_REMINDER_TIME] = 2200
+        prefs[KEY_PIXEL_FONT] = true
+        prefs[KEY_IMAGE_DISPLAY_MODE] = true
     }
 
     suspend fun validateUserData(): Int {

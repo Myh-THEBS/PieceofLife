@@ -1,6 +1,9 @@
 package com.archite.piecesoflife.ui
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -9,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.archite.piecesoflife.R
 import com.archite.piecesoflife.data.AppDatabase
 import com.archite.piecesoflife.data.LogEntity
@@ -16,12 +20,12 @@ import com.archite.piecesoflife.data.LogRepository
 import com.archite.piecesoflife.data.LogType
 import com.archite.piecesoflife.data.UserPreferencesRepository
 import com.archite.piecesoflife.databinding.ActivityAppSettingBinding
-import com.archite.piecesoflife.ui.UserSettingActivity
+import com.archite.piecesoflife.ui.NumberPickerDialog.PickerMode
 import com.archite.piecesoflife.util.FileUtil
+import com.archite.piecesoflife.util.QuestNotificationScheduler
 import com.archite.piecesoflife.util.SpriteDef
 import com.archite.piecesoflife.util.SpriteLoader
 import com.archite.piecesoflife.util.TimeUtil
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,25 +33,49 @@ import kotlinx.coroutines.withContext
 class AppSettingActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAppSettingBinding
-    private val ioScope = CoroutineScope(Dispatchers.IO)
     private lateinit var userRepo: UserPreferencesRepository
     private lateinit var logRepo: LogRepository
 
     private var currentDebug = false
     private var currentLeft = false
     private var currentDayGroup = 2
+    private var currentPixelFont = true
+    private var currentQuestReminder = false
+    private var currentReminderTime = 2200
+    private var currentImageDisplayMode = true
 
     private var initialDebug = false
     private var initialLeft = false
     private var initialDayGroup = 2
+    private var initialPixelFont = false
+    private var initialQuestReminder = false
+    private var initialReminderTime = 2200
+    private var initialImageDisplayMode = true
 
     private val exportLauncher = registerForActivityResult(
         ActivityResultContracts.CreateDocument("application/octet-stream")
     ) { uri ->
         if (uri == null) return@registerForActivityResult
-        ioScope.launch {
-            FileUtil.exportToUri(this@AppSettingActivity, uri).let { result ->
+        val progressDialog = ProgressDialog(this)
+            .setTitle("导出数据")
+            .setMessage("正在准备导出...")
+            .setCancellable(false)
+        progressDialog.show()
+
+        lifecycleScope.launch {
+            FileUtil.exportToUri(this@AppSettingActivity, uri) { current, total, info ->
+                (this@AppSettingActivity as? android.app.Activity)?.runOnUiThread {
+                    if (progressDialog.isShowing) {
+                        if (total > 0) {
+                            progressDialog.updateProgress(current, total, info)
+                        } else {
+                            progressDialog.setIndeterminate(info)
+                        }
+                    }
+                }
+            }.let { result ->
                 withContext(Dispatchers.Main) {
+                    progressDialog.dismiss()
                     if (result.isSuccess) {
                         PixelDialog(this@AppSettingActivity)
                             .setType(PixelDialog.DialogType.INFO)
@@ -72,9 +100,26 @@ class AppSettingActivity : AppCompatActivity() {
         ActivityResultContracts.OpenDocument()
     ) { uri ->
         if (uri == null) return@registerForActivityResult
-        ioScope.launch {
-            FileUtil.importFromUri(this@AppSettingActivity, uri).let { result ->
+        val progressDialog = ProgressDialog(this)
+            .setTitle("导入数据")
+            .setMessage("正在准备导入...")
+            .setCancellable(false)
+        progressDialog.show()
+
+        lifecycleScope.launch {
+            FileUtil.importFromUri(this@AppSettingActivity, uri) { current, total, info ->
+                (this@AppSettingActivity as? android.app.Activity)?.runOnUiThread {
+                    if (progressDialog.isShowing) {
+                        if (total > 0) {
+                            progressDialog.updateProgress(current, total, info)
+                        } else {
+                            progressDialog.setIndeterminate(info)
+                        }
+                    }
+                }
+            }.let { result ->
                 withContext(Dispatchers.Main) {
+                    progressDialog.dismiss()
                     if (result.isSuccess) {
                         Toast.makeText(this@AppSettingActivity, "恢复成功，正在重启...", Toast.LENGTH_SHORT).show()
                         android.os.Handler(mainLooper).postDelayed({
@@ -90,6 +135,22 @@ class AppSettingActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            currentQuestReminder = true
+            updateQuestReminderButton()
+        } else {
+            PixelDialog(this)
+                .setType(PixelDialog.DialogType.INFO)
+                .setButtons(PixelDialog.ButtonMode.SINGLE_KNOWN)
+                .setTitle("权限被拒绝")
+                .setMessage("通知权限已被拒绝，开启任务提醒后无法发送通知。\n\n如需授权，请前往 系统设置 → 应用 → PiecesOfLife → 权限 → 通知 手动开启。")
+                .show()
         }
     }
 
@@ -127,20 +188,30 @@ class AppSettingActivity : AppCompatActivity() {
         userRepo = UserPreferencesRepository(this)
         logRepo = LogRepository(AppDatabase.getInstance(this).logDao())
 
-        ioScope.launch {
+        lifecycleScope.launch {
             initialDebug = userRepo.getDebugMode()
             initialLeft = userRepo.getLeftMode()
             initialDayGroup = userRepo.getDayGroup()
+            initialPixelFont = userRepo.getPixelFont()
+            initialQuestReminder = userRepo.getQuestReminderEnabled()
+            initialReminderTime = userRepo.getReminderTime()
+            initialImageDisplayMode = userRepo.getImageDisplayMode()
 
             currentDebug = initialDebug
             currentLeft = initialLeft
             currentDayGroup = initialDayGroup
+            currentPixelFont = initialPixelFont
+            currentQuestReminder = initialQuestReminder
+            currentReminderTime = initialReminderTime
+            currentImageDisplayMode = initialImageDisplayMode
 
-            withContext(Dispatchers.Main) {
-                updateDebugButtons()
-                updateLeftButtons()
-                updateDisplayButtons()
-            }
+            updateDebugButtons()
+            updateLeftButtons()
+            updateDisplayButtons()
+            updatePixelFontButton()
+            updateQuestReminderButton()
+            updateReminderTimeDisplay()
+            updateImageDisplayButton()
         }
     }
 
@@ -166,6 +237,17 @@ class AppSettingActivity : AppCompatActivity() {
 
         SpriteLoader.setButton(binding.btnBackupSave, SpriteDef.B48x32.RES, SpriteDef.B48x32.frame(4), scale = 5)
         SpriteLoader.setButton(binding.btnBackupLoad, SpriteDef.B48x32.RES, SpriteDef.B48x32.frame(6), scale = 5)
+
+        binding.iconPixelFont.setImageBitmap(SpriteLoader.button16(33, scale = 5))
+        SpriteLoader.setButton(binding.btnPixelFontToggle, SpriteDef.B96x32.RES, SpriteDef.B96x32.frame(0), scale = 5)
+
+        binding.iconQuestReminder.setImageBitmap(SpriteLoader.button16(32, scale = 5))
+        SpriteLoader.setButton(binding.btnQuestReminderToggle, SpriteDef.B96x32.RES, SpriteDef.B96x32.frame(0), scale = 5)
+
+        binding.iconReminderTime.setImageBitmap(SpriteLoader.button16(31, scale = 5))
+
+        binding.iconImageDisplay.setImageBitmap(SpriteLoader.button16(27, scale = 5))
+        SpriteLoader.setButton(binding.btnImageDisplayToggle, SpriteDef.B96x32.RES, SpriteDef.B96x32.frame(0), scale = 5)
     }
 
     private fun updateDebugButtons() {
@@ -182,23 +264,58 @@ class AppSettingActivity : AppCompatActivity() {
         binding.btnDisplayDay.setImageBitmap(SpriteLoader.button32(if (currentDayGroup == 2) 11 else 10))
     }
 
+    private fun updatePixelFontButton() {
+        binding.btnPixelFontToggle.setImageBitmap(SpriteLoader.button96x32(if (currentPixelFont) 1 else 0))
+    }
+
+    private fun updateQuestReminderButton() {
+        binding.btnQuestReminderToggle.setImageBitmap(SpriteLoader.button96x32(if (currentQuestReminder) 1 else 0))
+    }
+
+    private fun updateReminderTimeDisplay() {
+        val display = String.format("%02d:%02d", currentReminderTime / 100, currentReminderTime % 100)
+        binding.tvReminderTimeValue.text = display
+    }
+
+    private fun updateImageDisplayButton() {
+        binding.btnImageDisplayToggle.setImageBitmap(SpriteLoader.button96x32(if (currentImageDisplayMode) 1 else 0))
+    }
+
     private fun hasChanges(): Boolean {
         return currentDebug != initialDebug ||
                 currentLeft != initialLeft ||
-                currentDayGroup != initialDayGroup
+                currentDayGroup != initialDayGroup ||
+                currentPixelFont != initialPixelFont ||
+                currentQuestReminder != initialQuestReminder ||
+                currentReminderTime != initialReminderTime ||
+                currentImageDisplayMode != initialImageDisplayMode
     }
 
     private fun buildChangeLog(): String {
         val lines = mutableListOf<String>()
         if (currentDebug != initialDebug) {
-            lines.add("调试模式：${if (initialDebug) "开" else "关"} -> ${if (currentDebug) "开" else "关"}")
+            lines.add(" · 调试模式：${if (initialDebug) "开" else "关"} -> ${if (currentDebug) "开" else "关"}")
         }
         if (currentLeft != initialLeft) {
-            lines.add("左手主键：${if (initialLeft) "开" else "关"} -> ${if (currentLeft) "开" else "关"}")
+            lines.add(" · 左手主键：${if (initialLeft) "开" else "关"} -> ${if (currentLeft) "开" else "关"}")
         }
         if (currentDayGroup != initialDayGroup) {
             val names = mapOf(0 to "月", 1 to "周", 2 to "日")
-            lines.add("显示模式：${names[initialDayGroup]} -> ${names[currentDayGroup]}")
+            lines.add(" · 显示模式：${names[initialDayGroup]} -> ${names[currentDayGroup]}")
+        }
+        if (currentPixelFont != initialPixelFont) {
+            lines.add(" · 像素字体：${if (initialPixelFont) "开" else "关"} -> ${if (currentPixelFont) "开" else "关"}")
+        }
+        if (currentQuestReminder != initialQuestReminder) {
+            lines.add(" · 任务提醒：${if (initialQuestReminder) "开" else "关"} -> ${if (currentQuestReminder) "开" else "关"}")
+        }
+        if (currentReminderTime != initialReminderTime) {
+            val oldStr = String.format("%02d:%02d", initialReminderTime / 100, initialReminderTime % 100)
+            val newStr = String.format("%02d:%02d", currentReminderTime / 100, currentReminderTime % 100)
+            lines.add(" · 提醒时间：$oldStr -> $newStr")
+        }
+        if (currentImageDisplayMode != initialImageDisplayMode) {
+            lines.add(" · 大图模式：${if (initialImageDisplayMode) "开" else "关"} -> ${if (currentImageDisplayMode) "开" else "关"}")
         }
         return "APP属性调整：\n" + lines.joinToString("\n")
     }
@@ -208,15 +325,28 @@ class AppSettingActivity : AppCompatActivity() {
         if (currentDebug != initialDebug) lines.add(" · 调试模式")
         if (currentLeft != initialLeft) lines.add(" · 左手主键")
         if (currentDayGroup != initialDayGroup) lines.add(" · 显示模式")
+        if (currentPixelFont != initialPixelFont) lines.add(" · 像素字体")
+        if (currentQuestReminder != initialQuestReminder) lines.add(" · 任务提醒")
+        if (currentReminderTime != initialReminderTime) lines.add(" · 提醒时间")
+        if (currentImageDisplayMode != initialImageDisplayMode) lines.add(" · 大图模式")
         val showLines = if (lines.size > 3) lines.take(3) + listOf(" · …") else lines
         return showLines.joinToString("\n")
     }
 
     private fun applyAndLog() {
-        ioScope.launch {
+        lifecycleScope.launch {
             userRepo.setDebugMode(currentDebug)
             userRepo.setLeftMode(currentLeft)
             userRepo.setDayGroup(currentDayGroup)
+            userRepo.setPixelFont(currentPixelFont)
+            userRepo.setQuestReminderEnabled(currentQuestReminder)
+            userRepo.setReminderTime(currentReminderTime)
+            userRepo.setImageDisplayMode(currentImageDisplayMode)
+
+            // 更新任务提醒调度（开启/关闭或修改时间后即时生效）
+            QuestNotificationScheduler.scheduleDailyReminder(
+                this@AppSettingActivity, currentQuestReminder, currentReminderTime
+            )
 
             if (hasChanges()) {
                 val now = TimeUtil.getTimeInt()
@@ -235,6 +365,10 @@ class AppSettingActivity : AppCompatActivity() {
             initialDebug = currentDebug
             initialLeft = currentLeft
             initialDayGroup = currentDayGroup
+            initialPixelFont = currentPixelFont
+            initialQuestReminder = currentQuestReminder
+            initialReminderTime = currentReminderTime
+            initialImageDisplayMode = currentImageDisplayMode
 
             withContext(Dispatchers.Main) {
                 setResult(RESULT_OK)
@@ -325,6 +459,45 @@ class AppSettingActivity : AppCompatActivity() {
                 currentDayGroup = 2
                 updateDisplayButtons()
             }
+        }
+
+        binding.btnPixelFontToggle.setOnClickListener {
+            currentPixelFont = !currentPixelFont
+            updatePixelFontButton()
+        }
+
+        binding.btnQuestReminderToggle.setOnClickListener {
+            val newState = !currentQuestReminder
+            if (newState && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    == PackageManager.PERMISSION_GRANTED
+                ) {
+                    currentQuestReminder = true
+                    updateQuestReminderButton()
+                } else {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            } else {
+                currentQuestReminder = newState
+                updateQuestReminderButton()
+            }
+        }
+
+        binding.btnImageDisplayToggle.setOnClickListener {
+            currentImageDisplayMode = !currentImageDisplayMode
+            updateImageDisplayButton()
+        }
+
+        binding.rowReminderTime.setOnClickListener {
+            NumberPickerDialog(this)
+                .setMode(PickerMode.TIME)
+                .setTitle("设置提醒时间")
+                .setInitialTime(currentReminderTime / 100, currentReminderTime % 100)
+                .onConfirm { value ->
+                    currentReminderTime = value
+                    updateReminderTimeDisplay()
+                }
+                .show()
         }
 
         binding.btnBackupSave.setOnClickListener {

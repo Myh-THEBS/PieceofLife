@@ -1,9 +1,11 @@
 package com.archite.piecesoflife.ui
 
+import android.graphics.Typeface
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.archite.piecesoflife.R
 import com.archite.piecesoflife.data.LogEntity
@@ -42,11 +44,20 @@ class QuestViewHolder(
         }
     }
 
-    fun bind(log: LogEntity, itemAbbrMap: Map<String, String> = emptyMap(), labelNames: Set<String> = emptySet()) {
+    fun bind(
+        log: LogEntity,
+        itemAbbrMap: Map<String, String> = emptyMap(),
+        labelNames: Set<String> = emptySet(),
+        pixelFont: Boolean = false,
+    ) {
         currentLog = log
         val lastDate = TimeUtil.getTimeInt()
         val spannable = SpanTextBuilder.buildDisplayText(log, lastDate, itemAbbrMap, labelNames)
         tvQuestText.text = spannable
+
+        val pixelTypeface = if (pixelFont) ResourcesCompat.getFont(itemView.context, R.font.wqy_12px) else null
+        tvQuestText.typeface = pixelTypeface
+        tvQuestText.textSize = if (pixelFont) 20f else 18f
 
         if (QuestFlag.isFinished(log.flag0) || QuestFlag.isFailed(log.flag0)) {
             btnColumn.visibility = View.GONE

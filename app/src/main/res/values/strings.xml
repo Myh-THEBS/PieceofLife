@@ -11,8 +11,8 @@
     <string name="addon_tool2">添加文档</string>
     <string name="addon_tool3">添加图片</string>
     <string name="addon_tool4">随机一下</string>
-    <string name="addon_tool5">出勤记录</string>
-    <string name="addon_tool6">文字坟墓</string>
+    <string name="addon_tool5">数据统计</string>
+    <string name="addon_tool6">最近删除</string>
     <string name="addon_tool7">属性账单</string>
 
     <!-- AppSetting -->
@@ -47,6 +47,9 @@
     <string name="section_skills">技能列表</string>
     <string name="section_phrases">常用短语</string>
     <string name="section_labels">日志标签</string>
+    <string name="user_setting_avatar">自定义头像</string>
+    <string name="user_setting_avatar_pick">修改</string>
+    <string name="user_setting_avatar_reset">重置</string>
     <string name="section_add">新增</string>
     <string name="app_setting_user">用户设置</string>
     <string name="app_setting_user_enter">进入</string>
@@ -138,6 +141,23 @@
     <string name="data_stats_max_day">单日最高条数</string>
     <string name="data_stats_max_words">单日最高字数</string>
     <string name="data_stats_max_single">单条最高字数</string>
+
+    <!-- NumberPicker -->
+    <string name="time_unit_hour">时</string>
+    <string name="time_unit_minute">分</string>
+
+    <!-- Notification Channels -->
+    <string name="channel_quest_reminder">任务提醒</string>
+    <string name="channel_quest_reminder_desc">每日任务到期提醒通知</string>
+
+    <!-- AppSetting -->
+    <string name="app_setting_section_common">常规设置</string>
+    <string name="app_setting_section_quest">任务设置</string>
+    <string name="app_setting_section_backup">数据备份</string>
+    <string name="app_setting_quest_reminder">任务提醒</string>
+    <string name="app_setting_reminder_time">提醒时间</string>
+    <string name="app_setting_pixel_font">首页像素字体</string>
+    <string name="app_setting_image_mode">大图模式</string>
 
     <!-- ImagePreview -->
     <string name="image_preview_title">图片预览</string>

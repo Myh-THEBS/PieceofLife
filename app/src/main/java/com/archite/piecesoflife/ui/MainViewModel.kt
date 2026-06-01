@@ -27,6 +27,8 @@ data class MainUiState(
     val labelNames: Set<String> = emptySet(),
     val debugMode: Boolean = false,
     val leftMode: Boolean = false,
+    val pixelFont: Boolean = true,
+    val imageDisplayMode: Boolean = true,
 )
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -37,6 +39,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var focusDate: Int = TimeUtil.getTimeInt()
     var keyword: String = ""
     var debugMode: Boolean = false
+    var showDeleted: Boolean = false
 
     suspend fun completeQuestSync(logId: Long, isSuccess: Boolean) {
         logRepo.completeQuest(logId, isSuccess)
@@ -64,7 +67,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         userRepo.setLastDate(today)
         val userName = userRepo.getUserName()
         val items = userRepo.getItems()
-        return NewDayChecker.check(logRepo, today, userName, items)
+        return NewDayChecker.check(logRepo, today, userName, items, getApplication())
     }
 
     fun refresh(callback: (MainUiState) -> Unit) {
@@ -76,12 +79,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val debugMode = userRepo.getDebugMode()
                 this@MainViewModel.debugMode = debugMode
                 val leftMode = userRepo.getLeftMode()
+                val pixelFont = userRepo.getPixelFont()
+                val imageDisplayMode = userRepo.getImageDisplayMode()
+
+                val showDeletedLogs = showDeleted
+                showDeleted = false
 
                 val dateInterval = TimeUtil.calDateInterval(focusDate, dayGroup)
                 val rangeStart = dateInterval[0]
                 val rangeEnd = dateInterval[1]
 
-                val rangeLogs = if (keyword.isNotEmpty()) {
+                val rangeLogs = if (showDeletedLogs) {
+                    logRepo.getDeletedLogs()
+                } else if (keyword.isNotEmpty()) {
                     logRepo.searchLogs(keyword, rangeEnd)
                 } else {
                     logRepo.getLogsInDateRange(rangeStart, rangeEnd)
@@ -99,7 +109,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val labelNames = items.filter { it.type == UserItem.TYPE_LABEL }
                     .map { it.name }.toSet()
 
-                val displayLogs = if (keyword.isNotEmpty()) {
+                val displayLogs = if (showDeletedLogs || keyword.isNotEmpty()) {
                     insertDateHeaders(logs)
                 } else {
                     logs
@@ -114,6 +124,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     labelNames = labelNames,
                     debugMode = debugMode,
                     leftMode = leftMode,
+                    pixelFont = pixelFont,
+                    imageDisplayMode = imageDisplayMode,
                 )
             }
 
@@ -134,7 +146,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     logType = LogType.HINT,
                     flag0 = 999,
                     buildDate = lastDate,
-                    logText = "\n${TimeUtil.getTimeString(TimeUtil.TIME_TYPE_DATE_WEEK)}",
+                    logText = "\n${TimeUtil.dateInt2String(lastDate)}",
                 ))
             }
             result.add(log)

@@ -37,6 +37,19 @@ object ImageUtil {
         return File(context.filesDir, "documents").also { it.mkdirs() }
     }
 
+    fun getAvatarFile(context: Context): File {
+        return File(getImagesDir(context), "avatar.jpg")
+    }
+
+    fun hasAvatar(context: Context): Boolean {
+        return getAvatarFile(context).exists()
+    }
+
+    fun cropSquareTopLeft(source: Bitmap): Bitmap {
+        val size = minOf(source.width, source.height)
+        return Bitmap.createBitmap(source, 0, 0, size, size)
+    }
+
     fun sanitizeFileName(name: String): String {
         val cleaned = name.replace(Regex("""[\\/:*?"<>|]"""), "")
             .replace(Regex("""\s+"""), " ")

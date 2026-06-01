@@ -2,11 +2,14 @@ package com.archite.piecesoflife.ui
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -20,6 +23,7 @@ import com.archite.piecesoflife.data.LogType
 import com.archite.piecesoflife.data.UserItem
 import com.archite.piecesoflife.data.UserPreferencesRepository
 import com.archite.piecesoflife.databinding.ActivityUserSettingBinding
+import com.archite.piecesoflife.util.ImageUtil
 import com.archite.piecesoflife.util.SpriteDef
 import com.archite.piecesoflife.util.SpriteLoader
 import com.archite.piecesoflife.util.TimeUtil
@@ -27,6 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.FileOutputStream
 
 class UserSettingActivity : AppCompatActivity() {
 
@@ -40,6 +45,36 @@ class UserSettingActivity : AppCompatActivity() {
     private var initialUserName: String = ""
     private var currentUserName: String = ""
     private var initialDebug: Boolean = false
+
+    private val avatarPickerLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri == null) return@registerForActivityResult
+        ioScope.launch {
+            val inputStream = contentResolver.openInputStream(uri) ?: return@launch
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream.close()
+            if (bitmap == null) return@launch
+            val cropped = ImageUtil.cropSquareTopLeft(bitmap)
+            val avatarFile = ImageUtil.getAvatarFile(this@UserSettingActivity)
+            FileOutputStream(avatarFile).use { out ->
+                cropped.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, out)
+            }
+            val now = TimeUtil.getTimeInt()
+            val nowTime = TimeUtil.getTimeInt(TimeUtil.TIME_TYPE_SECOND)
+            logRepo.saveLog(LogEntity(
+                logType = LogType.DEBUG,
+                logText = "📷 自定义头像已更新",
+                buildDate = now,
+                buildTime = nowTime,
+                changeDate = now,
+                changeTime = nowTime,
+            ))
+            withContext(Dispatchers.Main) {
+                updateAvatarPreview()
+            }
+        }
+    }
 
     companion object {
         private const val REQ_ATTR = 1001
@@ -88,6 +123,9 @@ class UserSettingActivity : AppCompatActivity() {
         SpriteLoader.setButton(binding.btnEditUserName, SpriteDef.B24.RES, SpriteDef.B24.frame(20), scale = 5)
         binding.iconUserName.setImageBitmap(SpriteLoader.button16(11, scale = 4))
 
+        // 头像按钮
+        SpriteLoader.setButton(binding.btnAvatarPicker, SpriteDef.B24.RES, SpriteDef.B24.frame(26), downFrame = SpriteDef.B24.frame(27), scale = 5)
+
         // 新增属性、技能、短语 按钮
         SpriteLoader.setButton(binding.btnAddAttr, SpriteDef.B24.RES, SpriteDef.B24.frame(18), scale = 5)
         SpriteLoader.setButton(binding.btnAddSkill, SpriteDef.B24.RES, SpriteDef.B24.frame(18), scale = 5)
@@ -111,7 +149,19 @@ class UserSettingActivity : AppCompatActivity() {
             withContext(Dispatchers.Main) {
                 binding.tvUserName.text = currentUserName
                 renderAllItems()
+                updateAvatarPreview()
             }
+        }
+    }
+
+    private fun updateAvatarPreview() {
+        val hasAvatar = ImageUtil.hasAvatar(this)
+        if (hasAvatar) {
+            binding.iconAvatarPreview.setImageBitmap(SpriteLoader.button16(24, scale = 4))
+            binding.tvAvatarStatus.text = "预览头像"
+        } else {
+            binding.iconAvatarPreview.setImageBitmap(SpriteLoader.button16(25, scale = 4))
+            binding.tvAvatarStatus.text = "无头像"
         }
     }
 
@@ -447,6 +497,20 @@ class UserSettingActivity : AppCompatActivity() {
         binding.btnConfirm.setOnClickListener { doConfirm() }
 
         binding.btnEditUserName.setOnClickListener { editUserName() }
+
+        binding.rowAvatar.setOnClickListener {
+            val avatarFile = ImageUtil.getAvatarFile(this)
+            if (!avatarFile.exists()) return@setOnClickListener
+            val intent = Intent(this, ImagePreviewActivity::class.java).apply {
+                putExtra(ImagePreviewActivity.EXTRA_IMAGE_FILE_NAME, "avatar.jpg")
+            }
+            startActivity(intent)
+        }
+
+        binding.btnAvatarPicker.setOnClickListener {
+            avatarPickerLauncher.launch("image/*")
+        }
+
         binding.btnAddAttr.setOnClickListener { launchNewItem(UserItem.TYPE_ATTRIBUTES) }
         binding.btnAddSkill.setOnClickListener { launchNewItem(UserItem.TYPE_SKILL) }
         binding.btnAddPhrase.setOnClickListener { launchNewItem(UserItem.TYPE_PHRASES) }

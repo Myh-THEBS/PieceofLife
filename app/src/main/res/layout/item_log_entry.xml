@@ -13,7 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/white"
-        android:fontFamily="@font/wqy_12px"
         android:textSize="20sp" />
 
     <LinearLayout
@@ -54,7 +53,6 @@
         android:layout_marginTop="4dp"
         android:padding="8dp"
         android:textColor="@color/TEXT_black"
-        android:fontFamily="@font/wqy_12px"
         android:textSize="20sp"
         android:background="@drawable/background_input"
         android:clickable="true"

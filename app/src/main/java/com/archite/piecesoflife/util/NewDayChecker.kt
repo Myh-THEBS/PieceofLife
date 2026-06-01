@@ -1,11 +1,13 @@
 package com.archite.piecesoflife.util
 
+import android.content.Context
 import com.archite.piecesoflife.data.LogEntity
 import com.archite.piecesoflife.data.LogType
 import com.archite.piecesoflife.data.LogRepository
 import com.archite.piecesoflife.data.QuestFlag
 import com.archite.piecesoflife.data.QuestType
 import com.archite.piecesoflife.data.UserItem
+import java.io.File
 
 object NewDayChecker {
 
@@ -23,6 +25,7 @@ object NewDayChecker {
         today: Int,
         userName: String,
         items: List<UserItem>,
+        context: Context? = null,
     ): NewDayResult {
         val dateStampText = "\n${TimeUtil.getTimeString(TimeUtil.TIME_TYPE_DATE_WEEK)}"
         logRepo.saveLog(LogEntity(
@@ -53,6 +56,8 @@ object NewDayChecker {
 
         val deletedCount = deleteExpiredLogs(logRepo, today)
 
+        val purgedCount = context?.let { purgeOldDeletedLogs(logRepo, today, it) } ?: 0
+
         val questResult = processQuestLog(logRepo, today)
 
         val activeQuests = logRepo.getActiveQuests()
@@ -78,6 +83,7 @@ object NewDayChecker {
         ))
 
         val debugText = "【系统日志】完成新一天日志检定！删除了${deletedCount}条过期日志！" +
+                "永久删除了${purgedCount}条超14天的软删除日志。" +
                 "存在${questResult.failedCount}个失败任务，新建了${questResult.newCount}个周期任务。"
         logRepo.saveLog(LogEntity(
             logType = LogType.DEBUG,
@@ -108,6 +114,24 @@ object NewDayChecker {
             logRepo.softDeleteLog(log.id)
         }
         return toDelete.size
+    }
+
+    private suspend fun purgeOldDeletedLogs(logRepo: LogRepository, today: Int, context: Context): Int {
+        val allDeleted = logRepo.getDeletedLogs()
+        val cutoff = today - 14
+        val toPurge = allDeleted.filter { it.changeDate < cutoff && it.changeDate > 0 }
+        val imagesDir = ImageUtil.getImagesDir(context)
+        val documentsDir = ImageUtil.getDocumentsDir(context)
+
+        for (log in toPurge) {
+            if (log.logType == LogType.PICTURE && log.remark.isNotEmpty()) {
+                File(imagesDir, log.remark.removePrefix("images/")).delete()
+            } else if (log.logType == LogType.DOCUMENT && log.remark.isNotEmpty()) {
+                File(documentsDir, log.remark.removePrefix("documents/")).delete()
+            }
+            logRepo.permanentlyDeleteLog(log.id)
+        }
+        return toPurge.size
     }
 
     private data class QuestProcessResult(val failedCount: Int, val newCount: Int)
@@ -145,6 +169,8 @@ object NewDayChecker {
             val expiredQuest = quest.copy(
                 flag0 = if (QuestFlag.isDefaultType(quest.flag0)) QuestFlag.DEFAULT_FAILED else QuestFlag.MINUS_FAILED,
                 flag1 = QuestType.DEFAULT,
+                changeDate = today,
+                changeTime = TimeUtil.getTimeInt(TimeUtil.TIME_TYPE_SECOND),
             )
             logRepo.saveLog(expiredQuest)
             failedCount++

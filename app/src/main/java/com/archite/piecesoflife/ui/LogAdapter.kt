@@ -15,6 +15,8 @@ class LogAdapter(
     private val onItemLongClick: (LogEntity) -> Unit,
     var itemAbbrMap: Map<String, String> = emptyMap(),
     var labelNames: Set<String> = emptySet(),
+    var pixelFont: Boolean = true,
+    var imageDisplayMode: Boolean = true,
 ) : ListAdapter<LogEntity, RecyclerView.ViewHolder>(LogDiffCallback()) {
 
     companion object {
@@ -46,8 +48,8 @@ class LogAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
         when (holder) {
-            is LogViewHolder -> holder.bind(item, itemAbbrMap, labelNames)
-            is QuestViewHolder -> holder.bind(item, itemAbbrMap, labelNames)
+            is LogViewHolder -> holder.bind(item, itemAbbrMap, labelNames, pixelFont, imageDisplayMode)
+            is QuestViewHolder -> holder.bind(item, itemAbbrMap, labelNames, pixelFont)
         }
     }
 }

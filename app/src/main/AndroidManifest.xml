@@ -6,13 +6,21 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <!-- 允许广播接收器唤醒设备，用于定时任务提醒 -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- 允许在设备重启后重新调度提醒闹钟（Android 8.0+） -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- 发送通知权限（Android 13+ 运行时权限） -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
 
     <application
         android:name=".PieceOfLifeApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/newlogo"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.PiecesOfLife"
@@ -66,6 +74,14 @@
         <activity
             android:name=".ui.LogInfoActivity"
             android:exported="false" />
+
+        <receiver
+            android:name=".util.QuestReminderReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.archite.piecesoflife.ACTION_QUEST_REMINDER" />
+            </intent-filter>
+        </receiver>
 
         <provider
             android:name="androidx.core.content.FileProvider"

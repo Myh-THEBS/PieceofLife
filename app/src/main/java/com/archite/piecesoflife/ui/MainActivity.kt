@@ -1,6 +1,7 @@
 package com.archite.piecesoflife.ui
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MotionEvent
@@ -21,6 +22,7 @@ import com.archite.piecesoflife.databinding.ActivityMainBinding
 import com.archite.piecesoflife.util.SpriteDef
 import com.archite.piecesoflife.util.SpriteLoader
 import com.archite.piecesoflife.util.TimeUtil
+import com.archite.piecesoflife.util.ImageUtil
 import kotlinx.coroutines.launch
 
 data class RefreshOptions(
@@ -50,6 +52,7 @@ class MainActivity : AppCompatActivity() {
             val kw = data?.getStringExtra(LogQueryActivity.EXTRA_KEYWORD) ?: ""
             if (newDate > 0) viewModel.focusDate = newDate
             viewModel.keyword = kw
+            viewModel.showDeleted = false
             refresh(RefreshOptions(scrollTarget = ScrollTarget.FIRST_OF_FOCUS_DATE, fadeAnimation = true))
         }
     }
@@ -69,6 +72,10 @@ class MainActivity : AppCompatActivity() {
                     scrollTarget = ScrollTarget.BOTTOM, fadeAnimation = true
                 )
                 AddonToolActivity.RESULT_SETTINGS_CHANGED -> RefreshOptions(fadeAnimation = false)
+                AddonToolActivity.RESULT_SHOW_DELETED -> {
+                    viewModel.showDeleted = true
+                    RefreshOptions(fadeAnimation = false)
+                }
                 else -> RefreshOptions(fadeAnimation = false)
             }
             refresh(options)
@@ -124,6 +131,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initAvatar() {
+        val avatarFile = ImageUtil.getAvatarFile(this)
+        if (avatarFile.exists()) {
+            val bitmap = BitmapFactory.decodeFile(avatarFile.absolutePath)
+            if (bitmap != null) {
+                binding.ivAvatar.setImageBitmap(bitmap)
+                binding.ivAvatar.visibility = View.VISIBLE
+                return
+            }
+        }
         binding.ivAvatar.setImageDrawable(null)
         binding.ivAvatar.visibility = View.VISIBLE
     }
@@ -254,6 +270,7 @@ class MainActivity : AppCompatActivity() {
             refresh(RefreshOptions(resetFocus = true, clearKeyword = true, scrollTarget = ScrollTarget.BOTTOM))
         }
         binding.btnTool2.setOnClickListener {
+            viewModel.showDeleted = false
             val intent = Intent(this, LogQueryActivity::class.java)
             intent.putExtra(LogQueryActivity.EXTRA_FOCUS_DATE, viewModel.focusDate)
             logQueryLauncher.launch(intent)
@@ -301,7 +318,10 @@ class MainActivity : AppCompatActivity() {
         isLoading = true
 
         if (options.resetFocus) viewModel.focusDate = TimeUtil.getTimeInt()
-        if (options.clearKeyword) viewModel.keyword = ""
+        if (options.clearKeyword) {
+            viewModel.keyword = ""
+            viewModel.showDeleted = false
+        }
 
         if (options.fadeAnimation && binding.recyclerView.alpha == 1f) {
             binding.recyclerView.animate()
@@ -318,8 +338,11 @@ class MainActivity : AppCompatActivity() {
         viewModel.refresh { state ->
             binding.tvUsername.text = state.userName
             renderTopBar(state.items)
+            initAvatar()
             adapter.itemAbbrMap = state.itemAbbrMap
             adapter.labelNames = state.labelNames
+            adapter.pixelFont = state.pixelFont
+            adapter.imageDisplayMode = state.imageDisplayMode
 
             val fabParams = binding.btnNewLog.layoutParams as? android.widget.RelativeLayout.LayoutParams
             if (state.leftMode) {
@@ -346,6 +369,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             adapter.submitList(state.logs) {
+                adapter.notifyDataSetChanged()
                 binding.recyclerView.post {
                     if (state.logs.isNotEmpty()) {
                         when (options.scrollTarget) {

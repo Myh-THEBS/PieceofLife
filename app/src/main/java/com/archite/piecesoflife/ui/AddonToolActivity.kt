@@ -30,6 +30,7 @@ class AddonToolActivity : AppCompatActivity() {
         const val EXTRA_EDIT_RESULT = "editResult"
         const val RESULT_LOGS_CHANGED = 1
         const val RESULT_SETTINGS_CHANGED = 2
+        const val RESULT_SHOW_DELETED = 3
     }
 
     private lateinit var binding: ActivityAddonToolBinding
@@ -147,6 +148,33 @@ class AddonToolActivity : AppCompatActivity() {
 
         binding.toolPanel3.setOnClickListener {
             imagePickerLauncher.launch("image/*")
+        }
+
+        binding.toolPanel4.setOnClickListener {
+            lifecycleScope.launch {
+                val now = TimeUtil.getTimeInt()
+                val nowTime = TimeUtil.getTimeInt(TimeUtil.TIME_TYPE_SECOND)
+                val randomPoints = (0..99).random()
+                logRepo.saveLog(LogEntity(
+                    logType = LogType.HINT,
+                    logText = "🎲 随机点数：$randomPoints",
+                    buildDate = now,
+                    buildTime = nowTime,
+                    changeDate = now,
+                    changeTime = nowTime,
+                ))
+                PixelDialog(this@AddonToolActivity)
+                    .setType(PixelDialog.DialogType.INFO)
+                    .setButtons(PixelDialog.ButtonMode.SINGLE_CLOSE)
+                    .setTitle("随机结果")
+                    .setMessage("🎲 本次随机点数为：$randomPoints")
+                    .show()
+            }
+        }
+
+        binding.toolPanel6.setOnClickListener {
+            setResult(RESULT_OK, Intent().apply { putExtra(EXTRA_EDIT_RESULT, RESULT_SHOW_DELETED) })
+            finish()
         }
 
         binding.toolPanel5.setOnClickListener {

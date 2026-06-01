@@ -1,9 +1,11 @@
 package com.archite.piecesoflife.ui
 
 import android.content.Intent
+import android.graphics.Typeface
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.archite.piecesoflife.R
 import com.archite.piecesoflife.data.LogEntity
@@ -25,9 +27,22 @@ class LogViewHolder(
     private val tvDocPreview: TextView = itemView.findViewById(R.id.tvDocPreview)
     private var currentLog: LogEntity? = null
 
-    fun bind(log: LogEntity, itemAbbrMap: Map<String, String> = emptyMap(), labelNames: Set<String> = emptySet()) {
+    fun bind(
+        log: LogEntity,
+        itemAbbrMap: Map<String, String> = emptyMap(),
+        labelNames: Set<String> = emptySet(),
+        pixelFont: Boolean = false,
+        imageDisplayMode: Boolean = true,
+    ) {
         currentLog = log
         val lastDate = TimeUtil.getTimeInt()
+        val context = itemView.context
+
+        val pixelTypeface = if (pixelFont) ResourcesCompat.getFont(context, R.font.wqy_12px) else null
+        tvLogText.typeface = pixelTypeface
+        tvLogText.textSize = if (pixelFont) 20f else 18f
+        tvDocPreview.typeface = pixelTypeface
+        tvDocPreview.textSize = if (pixelFont) 20f else 18f
 
         containerPicture.visibility = View.GONE
         tvDocPreview.visibility = View.GONE
@@ -39,7 +54,7 @@ class LogViewHolder(
                 val spannable = SpanTextBuilder.buildDisplayText(log, lastDate, itemAbbrMap, labelNames)
                 tvLogText.text = spannable
                 containerPicture.visibility = View.VISIBLE
-                loadPictureThumbnail(log.remark)
+                loadPictureThumbnail(log.remark, imageDisplayMode)
             }
             LogType.DOCUMENT -> {
                 val displayName = extractDisplayName(log.remark)
@@ -62,7 +77,7 @@ class LogViewHolder(
         }
     }
 
-    private fun loadPictureThumbnail(remark: String) {
+    private fun loadPictureThumbnail(remark: String, largeMode: Boolean) {
         if (remark.isEmpty()) return
         val imageFileName = File(remark).name
         val context = itemView.context
@@ -71,7 +86,11 @@ class LogViewHolder(
             val rounded = ImageUtil.drawRoundCornerBitmap(bitmap, 16f)
             ivPictureLarge.setImageBitmap(rounded)
             ivPictureSmall.setImageBitmap(rounded)
-            ivPictureLarge.visibility = View.VISIBLE
+            if (largeMode) {
+                ivPictureLarge.visibility = View.VISIBLE
+            } else {
+                ivPictureSmall.visibility = View.VISIBLE
+            }
             ivPictureLarge.setOnClickListener { openImagePreview(imageFileName, currentLog?.id ?: -1L) }
             ivPictureSmall.setOnClickListener { openImagePreview(imageFileName, currentLog?.id ?: -1L) }
         }
@@ -98,11 +117,7 @@ class LogViewHolder(
         if (remark.isEmpty()) return "文档"
         val fileName = File(remark).name
         val nameWithoutExt = fileName.substringBeforeLast(".")
-        val parts = nameWithoutExt.split("_")
-        return if (parts.size >= 3) {
-            parts.drop(2).joinToString("_") + "." + fileName.substringAfterLast(".")
-        } else {
-            fileName
-        }
+        val parts = nameWithoutExt.split("_", limit = 3)
+        return if (parts.size >= 3) parts[2] else nameWithoutExt
     }
 }

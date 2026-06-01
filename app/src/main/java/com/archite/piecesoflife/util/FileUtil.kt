@@ -21,25 +21,27 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
+fun interface FileProgressCallback {
+    fun onProgress(current: Int, total: Int, info: String)
+}
+
 object FileUtil {
 
     private const val BACKUP_FILENAME = "pieces_of_life.db"
     private const val MANIFEST_NAME = "manifest.json"
+    private const val IMAGES_DIR = "images/"
+    private const val DOCUMENTS_DIR = "documents/"
 
-    /**
-     * 使用 SAF 将完整备份导出到用户选择的位置。
-     *
-     * 备份包为 ZIP 格式，后缀名建议为 `.piecesbackup`，包含：
-     * - manifest.json：所有用户偏好（JSON，可直接编辑）+ 元信息
-     * - pieces_of_life.db：Room 数据库（导出前执行 WAL checkpoint）
-     *
-     * 设计考量：用户配置写入 JSON 而非二进制格式，便于用户直接编辑 manifest.json
-     * 修改配置（如 UUID、昵称、属性值），导入时通过 DataStore API 写回。
-     */
-    suspend fun exportToUri(context: Context, uri: Uri): Result<Unit> = withContext(Dispatchers.IO) {
+    suspend fun exportToUri(
+        context: Context,
+        uri: Uri,
+        progress: FileProgressCallback? = null,
+    ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             checkpointWal(context)
             val dbFile = context.getDatabasePath(BACKUP_FILENAME)
+            val imagesDir = ImageUtil.getImagesDir(context)
+            val documentsDir = ImageUtil.getDocumentsDir(context)
             val prefRepo = UserPreferencesRepository(context)
             val userId = prefRepo.getOrCreateUserId()
 
@@ -47,11 +49,24 @@ object FileUtil {
             val debugMode = prefRepo.getDebugMode()
             val lastDate = prefRepo.getLastDate()
             val dayGroup = prefRepo.getDayGroup()
-            val userAvatar = prefRepo.getUserAvatar()
+            val questReminder = prefRepo.getQuestReminderEnabled()
+            val reminderTime = prefRepo.getReminderTime()
+            val pixelFont = prefRepo.getPixelFont()
+            val imageDisplayMode = prefRepo.getImageDisplayMode()
+            val leftMode = prefRepo.getLeftMode()
             val items = prefRepo.getItems()
+
+            // 统计需要打包的文件
+            val imageFiles = imagesDir.listFiles()?.filter { it.isFile } ?: emptyList()
+            val docFiles = documentsDir.listFiles()?.filter { it.isFile } ?: emptyList()
+            val totalFiles = 1 + (if (dbFile.exists()) 1 else 0) + imageFiles.size + docFiles.size
+            var processed = 0
+
+            progress?.onProgress(processed, totalFiles, "正在创建备份包...")
 
             context.contentResolver.openOutputStream(uri)?.use { outputStream ->
                 ZipOutputStream(outputStream).use { zip ->
+                    // manifest.json
                     val itemsArr = JSONArray()
                     for (item in items) {
                         itemsArr.put(JSONObject().apply {
@@ -67,68 +82,148 @@ object FileUtil {
                     }
 
                     val manifest = JSONObject().apply {
-                        put("app_version", "1.3")
+                        put("app_version", "1.4")
                         put("user_uuid", userId)
                         put("created_at", System.currentTimeMillis())
-                        put("schema_version", 3)
+                        put("schema_version", 4)
                         put("preferences", JSONObject().apply {
                             put("user_name", userName)
                             put("debug_mode", debugMode)
                             put("last_date", lastDate)
                             put("day_group", dayGroup)
-                            put("user_avatar", userAvatar)
+                            put("quest_reminder", questReminder)
+                            put("reminder_time", reminderTime)
+                            put("pixel_font", pixelFont)
+                            put("image_display_mode", imageDisplayMode)
+                            put("left_mode", leftMode)
                             put("items", itemsArr)
                             put("size_list", JSONArray(prefRepo.getSizeList()))
                             put("color_list", JSONArray(prefRepo.getColorList()))
+                        })
+                        put("file_manifest", JSONObject().apply {
+                            put("total_images", imageFiles.size)
+                            put("total_docs", docFiles.size)
+                            put("exported_images", imageFiles.size)
+                            put("exported_docs", docFiles.size)
                         })
                     }
 
                     zip.putNextEntry(ZipEntry(MANIFEST_NAME))
                     zip.write(manifest.toString(2).toByteArray())
                     zip.closeEntry()
+                    processed++
+                    progress?.onProgress(processed, totalFiles, "正在备份数据库...")
 
+                    // 数据库
                     if (dbFile.exists()) {
                         zip.putNextEntry(ZipEntry(BACKUP_FILENAME))
                         FileInputStream(dbFile).use { it.copyTo(zip) }
                         zip.closeEntry()
                     }
+                    processed++
+                    progress?.onProgress(processed, totalFiles, "正在备份图片文件...")
+
+                    // 图片文件
+                    for (imgFile in imageFiles) {
+                        zip.putNextEntry(ZipEntry("$IMAGES_DIR${imgFile.name}"))
+                        FileInputStream(imgFile).use { it.copyTo(zip) }
+                        zip.closeEntry()
+                        processed++
+                        progress?.onProgress(processed, totalFiles, "图片: ${imgFile.name}")
+                    }
+
+                    progress?.onProgress(processed, totalFiles, "正在备份文档文件...")
+
+                    // 文档文件
+                    for (docFile in docFiles) {
+                        zip.putNextEntry(ZipEntry("$DOCUMENTS_DIR${docFile.name}"))
+                        FileInputStream(docFile).use { it.copyTo(zip) }
+                        zip.closeEntry()
+                        processed++
+                        progress?.onProgress(processed, totalFiles, "文档: ${docFile.name}")
+                    }
                 }
             }
+            progress?.onProgress(totalFiles, totalFiles, "导出完成")
             Result.success(Unit)
         } catch (e: Exception) {
+            progress?.onProgress(0, 0, "导出失败: ${e.message}")
             Result.failure(e)
         }
     }
 
-    /**
-     * 使用 SAF 从用户选择的备份文件恢复数据。
-     *
-     * 解析 ZIP 包：
-     * 1. 读取 manifest.json，校验 JSON 合法性和 UUID 格式
-     * 2. 覆盖恢复 pieces_of_life.db
-     * 3. 通过 DataStore API 写回所有偏好（非文件覆盖，保证格式正确）
-     *
-     * 如果 manifest.json 解析失败或 UUID 格式不合法，拒绝导入并返回失败原因。
-     */
-    suspend fun importFromUri(context: Context, uri: Uri): Result<String> = withContext(Dispatchers.IO) {
+    suspend fun importFromUri(
+        context: Context,
+        uri: Uri,
+        progress: FileProgressCallback? = null,
+    ): Result<String> = withContext(Dispatchers.IO) {
         try {
             var dbRestored = false
             var manifestText: String? = null
+            val imagesDir = ImageUtil.getImagesDir(context)
+            val documentsDir = ImageUtil.getDocumentsDir(context)
+            val missingImages = mutableListOf<String>()
+            val missingDocs = mutableListOf<String>()
+            val entries = mutableListOf<String>()
+
+            progress?.onProgress(0, 0, "正在读取备份包...")
 
             AppDatabase.getInstance(context).close()
+
+            // 先遍历 ZIP 收集所有 entry 名称
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                ZipInputStream(inputStream).use { zip ->
+                    var entry: ZipEntry? = zip.nextEntry
+                    while (entry != null) {
+                        entries.add(entry.name)
+                        entry = zip.nextEntry
+                    }
+                }
+            }
+
+            val totalSteps = entries.size
+            var done = 0
 
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
                 ZipInputStream(inputStream).use { zip ->
                     var entry: ZipEntry? = zip.nextEntry
                     while (entry != null) {
+                        val name = entry.name
                         when {
-                            entry.name == MANIFEST_NAME -> {
+                            name == MANIFEST_NAME -> {
                                 manifestText = BufferedReader(InputStreamReader(zip)).readText()
+                                progress?.onProgress(++done, totalSteps, "解析 manifest...")
                             }
-                            entry.name == BACKUP_FILENAME -> {
+                            name == BACKUP_FILENAME -> {
                                 context.getDatabasePath(BACKUP_FILENAME).parentFile?.mkdirs()
                                 FileOutputStream(context.getDatabasePath(BACKUP_FILENAME)).use { zip.copyTo(it) }
                                 dbRestored = true
+                                progress?.onProgress(++done, totalSteps, "恢复数据库...")
+                            }
+                            name.startsWith(IMAGES_DIR) -> {
+                                val fileName = name.removePrefix(IMAGES_DIR)
+                                val targetFile = File(imagesDir, fileName)
+                                try {
+                                    targetFile.parentFile?.mkdirs()
+                                    FileOutputStream(targetFile).use { zip.copyTo(it) }
+                                } catch (_: Exception) {
+                                    missingImages.add(fileName)
+                                }
+                                progress?.onProgress(++done, totalSteps, "恢复图片: $fileName")
+                            }
+                            name.startsWith(DOCUMENTS_DIR) -> {
+                                val fileName = name.removePrefix(DOCUMENTS_DIR)
+                                val targetFile = File(documentsDir, fileName)
+                                try {
+                                    targetFile.parentFile?.mkdirs()
+                                    FileOutputStream(targetFile).use { zip.copyTo(it) }
+                                } catch (_: Exception) {
+                                    missingDocs.add(fileName)
+                                }
+                                progress?.onProgress(++done, totalSteps, "恢复文档: $fileName")
+                            }
+                            else -> {
+                                progress?.onProgress(++done, totalSteps, "跳过: $name")
                             }
                         }
                         zip.closeEntry()
@@ -144,15 +239,17 @@ object FileUtil {
             val manifest = try {
                 JSONObject(manifestText)
             } catch (e: Exception) {
-                return@withContext Result.failure(IllegalArgumentException("manifest.json 格式错误，请检查 JSON 语法"))
+                return@withContext Result.failure(IllegalArgumentException("manifest.json 格式错误"))
             }
 
             val uuid = manifest.optString("user_uuid", "")
             if (!isValidUuid(uuid)) {
                 return@withContext Result.failure(
-                    IllegalArgumentException("UUID 格式不正确（应为 36 位含连字符），当前值: $uuid")
+                    IllegalArgumentException("UUID 格式不正确，当前值: $uuid")
                 )
             }
+
+            progress?.onProgress(done, totalSteps, "恢复用户配置...")
 
             if (dbRestored) {
                 resetAutoIncrement(context)
@@ -165,7 +262,11 @@ object FileUtil {
                     prefRepo.setDebugMode(prefs.optBoolean("debug_mode", false))
                     prefRepo.setLastDate(prefs.optInt("last_date", 19981228))
                     prefRepo.setDayGroup(prefs.optInt("day_group", 2))
-                    prefRepo.setUserAvatar(prefs.optInt("user_avatar", 0))
+                    prefRepo.setQuestReminderEnabled(prefs.optBoolean("quest_reminder", false))
+                    prefRepo.setReminderTime(prefs.optInt("reminder_time", 2200))
+                    prefRepo.setPixelFont(prefs.optBoolean("pixel_font", false))
+                    prefRepo.setImageDisplayMode(prefs.optBoolean("image_display_mode", true))
+                    prefRepo.setLeftMode(prefs.optBoolean("left_mode", false))
 
                     val itemsArr = prefs.optJSONArray("items")
                     if (itemsArr != null) {
@@ -202,22 +303,46 @@ object FileUtil {
                 }
             }
 
-            Result.success("恢复成功")
+            // 记录缺失文件
+            val missingParts = mutableListOf<String>()
+            if (missingImages.isNotEmpty()) {
+                missingParts.add("${missingImages.size}张图片")
+            }
+            if (missingDocs.isNotEmpty()) {
+                missingParts.add("${missingDocs.size}个文档")
+            }
+
+            val resultMsg = buildString {
+                append("恢复成功")
+                if (missingParts.isNotEmpty()) {
+                    append("，但有${missingParts.joinToString("、")}文件缺失")
+                }
+            }
+
+            if (missingParts.isNotEmpty()) {
+                val now = TimeUtil.getTimeInt()
+                val nowTime = TimeUtil.getTimeInt(TimeUtil.TIME_TYPE_SECOND)
+                val logRepo = com.archite.piecesoflife.data.LogRepository(
+                    com.archite.piecesoflife.data.AppDatabase.getInstance(context).logDao()
+                )
+                logRepo.saveLog(com.archite.piecesoflife.data.LogEntity(
+                    logType = com.archite.piecesoflife.data.LogType.HINT,
+                    logText = "⚠️ 导入备份时发现 ${missingParts.joinToString("、")} 文件缺失，对应日志将显示为空",
+                    buildDate = now,
+                    buildTime = nowTime,
+                    changeDate = now,
+                    changeTime = nowTime,
+                ))
+            }
+
+            progress?.onProgress(totalSteps, totalSteps, resultMsg)
+            Result.success(resultMsg)
         } catch (e: Exception) {
+            progress?.onProgress(0, 0, "导入失败: ${e.message}")
             Result.failure(e)
         }
     }
 
-    /**
-     * 自动备份到 APP 的外部私有存储目录。
-     *
-     * 保存到 `ExternalFilesDir("Backup")`，每日首次启动时由 PieceOfLifeApp 调用。
-     * 此备份通过文件复制（非 ZIP）保存 Room 数据库和 DataStore 文件，
-     * 用户不可直接访问（需 USB 调试），仅用于灾难恢复。
-     *
-     * @param context 上下文
-     * @return 0=成功，-1=失败
-     */
     suspend fun saveAutoBackup(context: Context): Int = withContext(Dispatchers.IO) {
         try {
             checkpointWal(context)
@@ -229,27 +354,16 @@ object FileUtil {
             copyFile(dbFile, File(backupDir, BACKUP_FILENAME))
             copyFile(dsFile, File(backupDir, "user_preferences.preferences_pb"))
             0
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             -1
         }
     }
 
-    /**
-     * 检查 `ExternalFilesDir("Backup")` 中是否存在自动备份文件。
-     *
-     * @param context 上下文
-     * @return true=自动备份文件存在
-     */
     fun autoBackupExists(context: Context): Boolean {
         val backupDir = context.getExternalFilesDir("Backup") ?: return false
         return File(backupDir, BACKUP_FILENAME).exists()
     }
 
-    /**
-     * 执行 SQLite WAL checkpoint，将 WAL 文件中的变更合并到主 .db 文件。
-     * Room 默认启用 WAL 模式，备份前需确保 .db 文件包含所有最新数据。
-     * 静默处理异常，不中断备份流程。
-     */
     private fun checkpointWal(context: Context) {
         try {
             AppDatabase.getInstance(context).openHelper.writableDatabase
@@ -257,10 +371,6 @@ object FileUtil {
         } catch (_: Exception) { }
     }
 
-    /**
-     * 重置 SQLite 自增计数器，使下一行 id 从当前 MAX(id)+1 开始。
-     * 导入旧备份后调用，防止自增 id 跳跃。
-     */
     private fun resetAutoIncrement(context: Context) {
         try {
             SQLiteDatabase.openDatabase(
@@ -273,9 +383,6 @@ object FileUtil {
         } catch (_: Exception) { }
     }
 
-    /**
-     * 校验 UUID 字符串是否为标准的 36 位格式（含连字符）。
-     */
     private fun isValidUuid(uuid: String): Boolean {
         return try {
             UUID.fromString(uuid)
@@ -285,19 +392,9 @@ object FileUtil {
         }
     }
 
-    /**
-     * 获取 DataStore 文件在 APP 内部存储中的绝对路径。
-     */
     private fun getDataStoreFile(context: Context): File =
         File(context.filesDir, "datastore/user_preferences.preferences_pb")
 
-    /**
-     * 复制文件（使用 FileChannel 零拷贝，效率高于流式复制）。
-     *
-     * @param source 源文件
-     * @param dest 目标文件（父目录不存在时自动创建）
-     * @return true=复制成功
-     */
     private fun copyFile(source: File, dest: File): Boolean {
         return try {
             dest.parentFile?.mkdirs()
@@ -307,8 +404,7 @@ object FileUtil {
                 }
             }
             true
-        } catch (e: IOException) {
-            e.printStackTrace()
+        } catch (_: IOException) {
             false
         }
     }

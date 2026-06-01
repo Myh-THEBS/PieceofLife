@@ -21,12 +21,23 @@
         android:orientation="horizontal"
         android:layout_alignParentTop="true">
 
-        <ImageView
-            android:id="@+id/ivAvatar"
+        <FrameLayout
             android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:background="@drawable/background_input"
-            android:contentDescription="@string/empty_string" />
+            android:layout_height="80dp">
+
+            <ImageView
+                android:id="@+id/ivAvatar"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:contentDescription="@string/empty_string" />
+
+            <ImageView
+                android:id="@+id/ivAvatarBorder"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@drawable/background_input2"
+                android:contentDescription="@string/empty_string" />
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/rightContainer"

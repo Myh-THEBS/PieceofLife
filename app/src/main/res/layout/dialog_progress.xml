@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialogRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/titleContainer"
+        android:layout_marginTop="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="36dp">
+
+        <ImageView
+            android:id="@+id/dialogIcon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:contentDescription="@string/empty_string" />
+
+        <TextView
+            android:id="@+id/dialogTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/dialogIcon"
+            android:textColor="@color/TEXT_black"
+            android:fontFamily="@font/wqy_12px"
+            android:textSize="24dp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/dialogMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColor="@color/TEXT_black"
+        android:fontFamily="@font/wqy_12px"
+        android:textSize="24dp"
+        android:lineSpacingExtra="4dp" />
+
+    <LinearLayout
+        android:id="@+id/progressContainer"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="4dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/ivProgressBar"
+            android:layout_width="0dp"
+            android:layout_height="10dp"
+            android:layout_weight="1"
+            android:scaleType="fitXY"
+            android:contentDescription="@string/empty_string" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvProgressInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="4dp"
+        android:textColor="@color/deepDark"
+        android:fontFamily="@font/wqy_12px"
+        android:textSize="16dp" />
+
+    <LinearLayout
+        android:id="@+id/btnRowSingle"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/btnSingle"
+            android:layout_width="104dp"
+            android:layout_height="24dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="@string/addon_cancel" />
+    </LinearLayout>
+
+</LinearLayout>
