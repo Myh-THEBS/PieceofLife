@@ -59,6 +59,9 @@
         <activity
             android:name=".ui.ImagePreviewActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.DataStatsActivity"
+            android:exported="false" />
 
         <activity
             android:name=".ui.LogInfoActivity"

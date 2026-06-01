@@ -41,6 +41,7 @@ object SpanTextBuilder {
                 LogType.QUEST -> {
                     if (QuestFlag.isFinished(log.flag0)) sb.setSpan(ForegroundColorSpan("#2E7D32".toColorInt()), 0, sb.length, 0)
                     else if (QuestFlag.isFailed(log.flag0)) sb.setSpan(ForegroundColorSpan("#C62828".toColorInt()), 0, sb.length, 0)
+                    else if ("超时" in timeStr) sb.setSpan(ForegroundColorSpan("#C62828".toColorInt()), 0, sb.length, 0)
                     else sb.setSpan(ForegroundColorSpan("#F3E8A4".toColorInt()), 0, sb.length, 0)
                 }
                 else -> sb.setSpan(ForegroundColorSpan(Color.LTGRAY), 0, sb.length, 0)
@@ -79,8 +80,9 @@ object SpanTextBuilder {
             log.changeDate >= 30000000 -> "【长期任务】"
             else -> {
                 val daysLeft = TimeUtil.dateIntMinus(lastDate, log.changeDate)
-                if (daysLeft == 0) "【最后一天】"
-                else "【剩余${daysLeft}天】"
+                if (daysLeft == 0) "【最后 1 天】"
+                else if (daysLeft < 0) "【任务超时】"
+                else "【剩余 ${daysLeft + 1} 天】"
             }
         }
     }

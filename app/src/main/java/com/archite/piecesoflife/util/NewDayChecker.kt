@@ -122,26 +122,32 @@ object NewDayChecker {
             if (quest.changeDate >= 30000000 || quest.changeDate == 0) continue
             if (quest.changeDate >= today) continue
 
-            val expiredQuest = quest.copy(flag0 = if (QuestFlag.isDefaultType(quest.flag0)) QuestFlag.DEFAULT_FAILED else QuestFlag.MINUS_FAILED)
-            logRepo.saveLog(expiredQuest)
-            failedCount++
-
             if (quest.flag1 != QuestType.DEFAULT) {
-                val nextDate = TimeUtil.getNextDate(quest.changeDate, quest.flag1)
+                var nextDate = TimeUtil.getNextDate(quest.changeDate, quest.flag1)
+                while (nextDate < today) {
+                    nextDate = TimeUtil.getNextDate(nextDate, quest.flag1)
+                }
                 val newQuest = LogEntity(
                     logType = LogType.QUEST,
                     logText = quest.logText,
                     remark = quest.remark,
                     buildDate = today,
-                    buildTime = 0,
+                    buildTime = 1,
                     changeDate = nextDate,
                     changeTime = 235959,
-                    flag0 = if (QuestFlag.isDefaultType(quest.flag0)) QuestFlag.DEFAULT_UNFINISHED else QuestFlag.MINUS_UNFINISHED,
+                    flag0 = quest.flag0,
                     flag1 = quest.flag1,
                 )
                 logRepo.saveLog(newQuest)
                 newCount++
             }
+
+            val expiredQuest = quest.copy(
+                flag0 = if (QuestFlag.isDefaultType(quest.flag0)) QuestFlag.DEFAULT_FAILED else QuestFlag.MINUS_FAILED,
+                flag1 = QuestType.DEFAULT,
+            )
+            logRepo.saveLog(expiredQuest)
+            failedCount++
         }
 
         return QuestProcessResult(failedCount, newCount)

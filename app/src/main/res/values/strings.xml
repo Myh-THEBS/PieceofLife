@@ -11,8 +11,8 @@
     <string name="addon_tool2">添加文档</string>
     <string name="addon_tool3">添加图片</string>
     <string name="addon_tool4">随机一下</string>
-    <string name="addon_tool5">问答精灵</string>
-    <string name="addon_tool6">词云宝典</string>
+    <string name="addon_tool5">出勤记录</string>
+    <string name="addon_tool6">文字坟墓</string>
     <string name="addon_tool7">属性账单</string>
 
     <!-- AppSetting -->
@@ -117,7 +117,7 @@
     <string name="log_info_quest_type">任务类型</string>
     <string name="log_info_quest_status">完成情况</string>
     <string name="log_info_repeat">重复时间</string>
-    <string name="log_info_no_repeat">不重复或已完成重复</string>
+    <string name="log_info_no_repeat">无重复或已完成重复</string>
     <string name="log_info_word_count">字数</string>
     <string name="log_info_default_type">默认型</string>
     <string name="log_info_penalty_type">惩罚型</string>
@@ -128,6 +128,15 @@
     <string name="log_info_file_type">文件类型</string>
     <string name="log_info_editor_unsaved_title">尚未保存</string>
     <string name="log_info_editor_unsaved_msg">此操作会保存当前日志内容与属性变更，是否继续？</string>
+
+    <!-- DataStats -->
+    <string name="data_stats_title">数据统计</string>
+    <string name="data_stats_info">统计信息</string>
+    <string name="data_stats_month_count">本月条数</string>
+    <string name="data_stats_month_words">本月字数</string>
+    <string name="data_stats_max_day">单日最高条数</string>
+    <string name="data_stats_max_words">单日最高字数</string>
+    <string name="data_stats_max_single">单条最高字数</string>
 
     <!-- ImagePreview -->
     <string name="image_preview_title">图片预览</string>

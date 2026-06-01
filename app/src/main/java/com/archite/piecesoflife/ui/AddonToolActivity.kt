@@ -99,7 +99,7 @@ class AddonToolActivity : AppCompatActivity() {
             binding.toolIcon1, binding.toolIcon2, binding.toolIcon3,
             binding.toolIcon4, binding.toolIcon5, binding.toolIcon6, binding.toolIcon7,
         )
-        val iconIndices = listOf(20, 22, 23, 24, 3, 5, 17)
+        val iconIndices = listOf(20, 22, 23, 24, 46, 44, 17)
         for (i in toolIcons.indices) {
             SpriteLoader.setIcon(toolIcons[i], index = iconIndices[i], scale = 5)
         }
@@ -147,6 +147,10 @@ class AddonToolActivity : AppCompatActivity() {
 
         binding.toolPanel3.setOnClickListener {
             imagePickerLauncher.launch("image/*")
+        }
+
+        binding.toolPanel5.setOnClickListener {
+            startActivity(Intent(this, DataStatsActivity::class.java))
         }
     }
 

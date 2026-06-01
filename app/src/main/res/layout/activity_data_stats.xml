@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/main_background"
+    android:fitsSystemWindows="true">
+
+    <RelativeLayout
+        android:id="@+id/topToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+
+        <ImageView
+            android:id="@+id/toolbarBg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:contentDescription="@string/empty_string" />
+
+        <ImageView
+            android:id="@+id/btnReturn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/click_background"
+            android:contentDescription="@string/addon_return" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:paddingBottom="6dp"
+            android:text="@string/data_stats_title"
+            android:textColor="@color/TEXT_black"
+            android:fontFamily="@font/wqy_12px"
+            android:textSize="28dp" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/contentBg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@id/bottomBar"
+        android:layout_below="@id/topToolbar"
+        android:scaleType="fitXY"
+        android:contentDescription="@string/empty_string" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="70dp"
+        android:layout_marginBottom="74dp"
+        android:scrollbars="none"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:gravity="top">
+
+        <LinearLayout
+            android:id="@+id/contentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingVertical="8dp">
+
+                <ImageView
+                    android:id="@+id/btnYearDec"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background"
+                    android:contentDescription="@string/empty_string" />
+
+                <TextView
+                    android:id="@+id/tvYear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="12dp"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:textSize="24dp" />
+
+                <ImageView
+                    android:id="@+id/btnYearAdd"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="24dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background"
+                    android:contentDescription="@string/empty_string" />
+
+                <ImageView
+                    android:id="@+id/btnMonthDec"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background"
+                    android:contentDescription="@string/empty_string" />
+
+                <TextView
+                    android:id="@+id/tvMonth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="12dp"
+                    android:textColor="@color/TEXT_black"
+                    android:fontFamily="@font/wqy_12px"
+                    android:textSize="24dp" />
+
+                <ImageView
+                    android:id="@+id/btnMonthAdd"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/click_background"
+                    android:contentDescription="@string/empty_string" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/calendarContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/data_stats_info"
+                android:textColor="@color/TEXT_black"
+                android:fontFamily="@font/wqy_12px"
+                android:textSize="26dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvStatsInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="120dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/background_input"
+                android:padding="12dp"
+                android:textColor="@color/TEXT_black"
+                android:fontFamily="@font/wqy_12px"
+                android:textSize="20sp"
+                android:gravity="start|top"
+                android:lineSpacingExtra="4dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/btnCancel"
+            android:layout_width="144dp"
+            android:layout_height="64dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="@string/addon_cancel" />
+
+        <ImageView
+            android:id="@+id/bottomSpacer"
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_weight="1.0"
+            android:scaleType="fitXY" />
+
+        <ImageView
+            android:id="@+id/btnConfirm"
+            android:layout_width="144dp"
+            android:layout_height="64dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="@string/addon_confirm" />
+    </LinearLayout>
+
+</RelativeLayout>
