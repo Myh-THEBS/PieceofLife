@@ -111,7 +111,7 @@ object NewDayChecker {
                     it.changeDate < today && it.changeDate > 0 && it.changeDate < 90000000
         }
         for (log in toDelete) {
-            logRepo.softDeleteLog(log.id)
+            logRepo.permanentlyDeleteLog(log.id)
         }
         return toDelete.size
     }

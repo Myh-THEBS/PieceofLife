@@ -52,7 +52,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (QuestFlag.isMinusType(log.flag0)) ApplyMode.PENALTY_FAILURE else ApplyMode.DEFAULT_FAILURE
         }
         val items = userRepo.getItems().toMutableList()
+        val itemsBefore = items.toList()
         LogItemChange.apply(deltas, mode, items)
+        val levelUpMsgs = LogItemChange.detectSkillLevelUp(itemsBefore, items)
+        val today = TimeUtil.getTimeInt()
+        val nowTime = TimeUtil.getTimeInt(TimeUtil.TIME_TYPE_SECOND)
+        for (msg in levelUpMsgs) {
+            logRepo.saveLog(LogEntity(
+                logType = LogType.HINT,
+                logText = msg,
+                buildDate = today,
+                buildTime = nowTime,
+                changeDate = today,
+                changeTime = nowTime,
+            ))
+        }
         userRepo.setItems(items)
     }
 
@@ -97,7 +111,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     logRepo.getLogsInDateRange(rangeStart, rangeEnd)
                 }
 
-                val activeQuests = logRepo.getActiveQuests()
+                val activeQuests = if (!showDeletedLogs && keyword.isEmpty() && focusDate == TimeUtil.getTimeInt()) {
+                    logRepo.getActiveQuests()
+                } else {
+                    emptyList()
+                }
 
                 val logs = (rangeLogs + activeQuests)
                     .distinctBy { it.id }

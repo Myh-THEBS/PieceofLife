@@ -58,6 +58,8 @@ object SpanTextBuilder {
         sb.append(log.logText)
         if (log.logType == LogType.DEBUG || log.logType == LogType.ERROR) {
             sb.setSpan(ForegroundColorSpan("#777777".toColorInt()), bodyStart, sb.length, 0)
+        } else if (log.logType == LogType.HINT) {
+            sb.setSpan(ForegroundColorSpan("#C8C8C8".toColorInt()), bodyStart, sb.length, 0)
         }
 
         applyRemarkFormats(sb, bodyStart, log.remark)

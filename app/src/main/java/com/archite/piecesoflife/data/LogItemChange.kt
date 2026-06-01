@@ -36,7 +36,7 @@ object LogItemChange {
     fun parseLogText(logText: String, knownAbbrs: List<String> = emptyList()): List<ItemDelta> {
         if (knownAbbrs.isEmpty()) return emptyList()
         val groups = linkedMapOf<String, Pair<Int, Int>>()
-        val pattern = knownAbbrs.map { Regex.escape(it) }.joinToString("|")
+        val pattern = knownAbbrs.joinToString("|") { Regex.escape(it) }
         val regex = Regex("""($pattern)([+-]\d{1,9})""")
         for (match in regex.findAll(logText)) {
             val abbr = match.groupValues[1]
@@ -120,6 +120,21 @@ object LogItemChange {
         items: MutableList<UserItem>,
     ) {
         apply(deltas, mode.inverse(), items)
+    }
+
+    fun detectSkillLevelUp(itemsBefore: List<UserItem>, itemsAfter: List<UserItem>): List<String> {
+        val messages = mutableListOf<String>()
+        for (itemBefore in itemsBefore) {
+            if (itemBefore.type != UserItem.TYPE_SKILL) continue
+            val itemAfter = itemsAfter.find { it.abbr == itemBefore.abbr } ?: continue
+            val levelBefore = itemBefore.value / itemBefore.levelExp
+            val levelAfter = itemAfter.value / itemAfter.levelExp
+            if (levelAfter > levelBefore && itemAfter.levelExp > 0) {
+                val levelText = if (levelAfter >= 99) "99+" else "$levelAfter"
+                messages.add("🎉 技能进阶，${itemAfter.iconEmoji}${itemAfter.name} 的等级提升到了 LV.$levelText！")
+            }
+        }
+        return messages
     }
 }
 

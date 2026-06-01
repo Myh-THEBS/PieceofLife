@@ -692,7 +692,19 @@ class LogEditorActivity : AppCompatActivity() {
                 if (!isNewMode(currentLogId)) {
                     LogItemChange.apply(oldDeltas, applyMode.inverse(), items)
                 }
+                val itemsBeforeNewApply = items.toList()
                 LogItemChange.apply(newDeltas, applyMode, items)
+                val levelUpMsgs = LogItemChange.detectSkillLevelUp(itemsBeforeNewApply, items)
+                for (msg in levelUpMsgs) {
+                    logRepo.saveLog(LogEntity(
+                        logType = LogType.HINT,
+                        logText = msg,
+                        buildDate = now,
+                        buildTime = nowTime,
+                        changeDate = now,
+                        changeTime = nowTime,
+                    ))
+                }
                 userRepo.setItems(items)
             }
 

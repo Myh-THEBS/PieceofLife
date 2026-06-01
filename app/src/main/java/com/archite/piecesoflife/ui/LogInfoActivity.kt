@@ -230,9 +230,23 @@ class LogInfoActivity : AppCompatActivity() {
             .onConfirm {
                 lifecycleScope.launch(Dispatchers.IO) {
                     val items = userRepo.getItems().toMutableList()
+                    val itemsBefore = items.toList()
                     val deltas = LogItemChange.fromJson(entity.itemsJson)
                     val mode = ApplyMode.fromQuest(LogType.QUEST, entity.flag0)
                     LogItemChange.apply(deltas, mode.inverse(), items)
+                    val levelUpMsgs = LogItemChange.detectSkillLevelUp(itemsBefore, items)
+                    val now = TimeUtil.getTimeInt()
+                    val nowTime = TimeUtil.getTimeInt(TimeUtil.TIME_TYPE_SECOND)
+                    for (msg in levelUpMsgs) {
+                        logRepo.saveLog(LogEntity(
+                            logType = LogType.HINT,
+                            logText = msg,
+                            buildDate = now,
+                            buildTime = nowTime,
+                            changeDate = now,
+                            changeTime = nowTime,
+                        ))
+                    }
                     userRepo.setItems(items)
                     logRepo.completeQuest(entity.id, !QuestFlag.isFinished(entity.flag0))
                     hasReversed = true
