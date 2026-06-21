@@ -8,10 +8,9 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <!-- 允许广播接收器唤醒设备，用于定时任务提醒 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <!-- 允许在设备重启后重新调度提醒闹钟（Android 8.0+） -->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- 发送通知权限（Android 13+ 运行时权限） -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
 
     <application
@@ -77,7 +76,7 @@
 
         <receiver
             android:name=".util.QuestReminderReceiver"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.archite.piecesoflife.ACTION_QUEST_REMINDER" />
             </intent-filter>

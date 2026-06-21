@@ -653,6 +653,29 @@ class LogEditorActivity : AppCompatActivity() {
                 }
             }
 
+            // 默认类型日志不允许保存空内容
+            if (currentMode == LogEditorMode.DEFAULT && logText.isBlank()) {
+                withContext(Dispatchers.Main) {
+                    PixelDialog(this@LogEditorActivity)
+                        .setType(PixelDialog.DialogType.WARN)
+                        .setTitle("无法保存")
+                        .setMessage("内容不能为空，请输入文字后再保存。")
+                        .setButtons(PixelDialog.ButtonMode.SINGLE_CLOSE)
+                        .show()
+                }
+                return@launch
+            }
+
+            // 编辑模式无变更时直接返回，不修改更新时间
+            if (!isNewMode(currentLogId) && originalLogEntity != null &&
+                logText == originalLogEntity!!.logText && remark == originalLogEntity!!.remark) {
+                withContext(Dispatchers.Main) {
+                    setResult(RESULT_OK)
+                    finish()
+                }
+                return@launch
+            }
+
             val knownAbbrs = abbrPairs.map { it.second }
             val newDeltas = LogItemChange.parseLogText(logText, knownAbbrs)
             val newItemsJson = LogItemChange.toJson(newDeltas)
@@ -689,10 +712,10 @@ class LogEditorActivity : AppCompatActivity() {
                 val items = userRepo.getItems().toMutableList()
                 val oldDeltas = LogItemChange.fromJson(baseLog.itemsJson)
                 val applyMode = ApplyMode.fromQuest(baseLog.logType, baseLog.flag0)
+                val itemsBeforeNewApply = items.toList()
                 if (!isNewMode(currentLogId)) {
                     LogItemChange.apply(oldDeltas, applyMode.inverse(), items)
                 }
-                val itemsBeforeNewApply = items.toList()
                 LogItemChange.apply(newDeltas, applyMode, items)
                 val levelUpMsgs = LogItemChange.detectSkillLevelUp(itemsBeforeNewApply, items)
                 for (msg in levelUpMsgs) {

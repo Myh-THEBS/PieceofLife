@@ -18,13 +18,12 @@
         android:layout_height="48dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="26dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="18dp"
         android:clickable="true"
         android:focusable="true"
-        android:background="@drawable/click_background"
         android:contentDescription="@string/empty_string"
-        android:padding="8dp" />
+        android:scaleType="fitCenter" />
 
     <ImageView
         android:id="@+id/btnEdit"
@@ -32,14 +31,12 @@
         android:layout_height="48dp"
         android:layout_alignParentTop="true"
         android:layout_toStartOf="@id/btnClose"
-        android:layout_marginTop="26dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginTop="36dp"
+
         android:clickable="true"
         android:focusable="true"
-        android:background="@drawable/click_background"
         android:contentDescription="@string/empty_string"
-        android:padding="8dp"
-        android:visibility="gone" />
+        android:scaleType="fitCenter" />
 
         
 

@@ -24,12 +24,14 @@ class PieceOfLifeApp : Application() {
         // 创建通知渠道（Android 8.0+ 必需，通知渠道必须在发送任何通知之前创建）
         createNotificationChannels()
 
-        // 从 DataStore 读取提醒设置，如果有必要则调度每日提醒闹钟
+        // 调度每日提醒闹钟
         appScope.launch {
             val userRepo = UserPreferencesRepository(this@PieceOfLifeApp)
-            val reminderEnabled = userRepo.getQuestReminderEnabled()
-            val reminderTime = userRepo.getReminderTime()
-            QuestNotificationScheduler.scheduleDailyReminder(this@PieceOfLifeApp, reminderEnabled, reminderTime)
+            QuestNotificationScheduler.scheduleDailyReminder(
+                this@PieceOfLifeApp,
+                userRepo.getQuestReminderEnabled(),
+                userRepo.getReminderTime()
+            )
         }
     }
 
@@ -48,7 +50,7 @@ class PieceOfLifeApp : Application() {
         ).apply {
             description = getString(R.string.channel_quest_reminder_desc) // 渠道描述，显示在系统设置中
         }
-
+        
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(questChannel)
     }

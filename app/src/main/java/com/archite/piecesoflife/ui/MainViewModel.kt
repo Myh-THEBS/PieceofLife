@@ -13,6 +13,7 @@ import com.archite.piecesoflife.data.QuestFlag
 import com.archite.piecesoflife.data.UserItem
 import com.archite.piecesoflife.data.UserPreferencesRepository
 import com.archite.piecesoflife.util.NewDayChecker
+import com.archite.piecesoflife.util.QuestNotificationScheduler
 import com.archite.piecesoflife.util.TimeUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -81,7 +82,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         userRepo.setLastDate(today)
         val userName = userRepo.getUserName()
         val items = userRepo.getItems()
-        return NewDayChecker.check(logRepo, today, userName, items, getApplication())
+        val result = NewDayChecker.check(logRepo, today, userName, items, getApplication())
+        // 每日检测后刷新提醒闹钟（确保闹钟在正确的时间点触发）
+        val context = getApplication<android.app.Application>()
+        QuestNotificationScheduler.scheduleDailyReminder(
+            context, userRepo.getQuestReminderEnabled(), userRepo.getReminderTime()
+        )
+        return result
     }
 
     fun refresh(callback: (MainUiState) -> Unit) {

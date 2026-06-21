@@ -1,5 +1,6 @@
 package com.archite.piecesoflife.data
 
+import com.archite.piecesoflife.util.TimeUtil
 import kotlinx.coroutines.flow.Flow
 
 class LogRepository(private val dao: LogDao) {
@@ -38,8 +39,8 @@ class LogRepository(private val dao: LogDao) {
         dao.getLogsInDateRange(startDate, endDate)
 
     suspend fun completeQuest(logId: Long, isSuccess: Boolean) {
-        val today = com.archite.piecesoflife.util.TimeUtil.getTimeInt()
-        val nowTime = com.archite.piecesoflife.util.TimeUtil.getTimeInt(com.archite.piecesoflife.util.TimeUtil.TIME_TYPE_SECOND)
+        val today = TimeUtil.getTimeInt()
+        val nowTime = TimeUtil.getTimeInt(TimeUtil.TIME_TYPE_SECOND)
         dao.getById(logId)?.let { quest ->
             val newFlag0 = if (isSuccess) {
                 if (QuestFlag.isDefaultType(quest.flag0)) QuestFlag.DEFAULT_FINISHED else QuestFlag.MINUS_FINISHED

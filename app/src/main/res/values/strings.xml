@@ -147,7 +147,7 @@
     <string name="time_unit_minute">分</string>
 
     <!-- Notification Channels -->
-    <string name="channel_quest_reminder">任务提醒</string>
+    <string name="channel_quest_reminder">任务临期提醒</string>
     <string name="channel_quest_reminder_desc">每日任务到期提醒通知</string>
 
     <!-- AppSetting -->

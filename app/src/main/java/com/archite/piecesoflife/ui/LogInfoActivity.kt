@@ -184,7 +184,7 @@ class LogInfoActivity : AppCompatActivity() {
 
     private fun buildRepeatString(entity: LogEntity): String {
         return when (entity.flag1) {
-            QuestType.DAY -> getString(R.string.quest_setting_unlimited_label)
+            QuestType.DAY -> "每天重复"
             QuestType.WEEK -> "每周${getDayOfWeek(entity.changeDate)}重复"
             QuestType.MONTH -> "每月${entity.changeDate % 100}日重复"
             else -> getString(R.string.log_info_no_repeat)

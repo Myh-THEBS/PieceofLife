@@ -34,7 +34,7 @@ class ImagePreviewActivity : AppCompatActivity() {
         window.statusBarColor = ContextCompat.getColor(this, R.color.black)
         window.navigationBarColor = ContextCompat.getColor(this, R.color.black)
         SpriteLoader.setButton(binding.btnClose, SpriteDef.B24.RES, SpriteDef.B24.frame(12), scale = 5)
-        SpriteLoader.setButton(binding.btnEdit, SpriteDef.B24.RES, SpriteDef.B24.frame(20), downFrame = SpriteDef.B24.frame(21), scale = 5)
+        SpriteLoader.setButton(binding.btnEdit, SpriteDef.B24.RES, SpriteDef.B24.frame(20),  scale = 5)
 
         val imageFile = java.io.File(ImageUtil.getImagesDir(this), imageFileName)
         if (imageFile.exists()) {

@@ -141,38 +141,70 @@ object NewDayChecker {
         var failedCount = 0
         var newCount = 0
 
+        // 第一遍：收集过期且未完成的（→ 失败）和过期且有重复类型的（→ 克隆）
+        val toFail = mutableListOf<LogEntity>()
+        val toRepeat = mutableListOf<LogEntity>()
+        val repeatIds = mutableSetOf<Long>()
+
         for (quest in allQuests) {
-            if (!QuestFlag.isUnfinished(quest.flag0)) continue
             if (quest.changeDate >= 30000000 || quest.changeDate == 0) continue
             if (quest.changeDate >= today) continue
 
-            if (quest.flag1 != QuestType.DEFAULT) {
-                var nextDate = TimeUtil.getNextDate(quest.changeDate, quest.flag1)
-                while (nextDate < today) {
-                    nextDate = TimeUtil.getNextDate(nextDate, quest.flag1)
-                }
-                val newQuest = LogEntity(
-                    logType = LogType.QUEST,
-                    logText = quest.logText,
-                    remark = quest.remark,
-                    buildDate = today,
-                    buildTime = 1,
-                    changeDate = nextDate,
-                    changeTime = 235959,
-                    flag0 = quest.flag0,
-                    flag1 = quest.flag1,
-                )
-                logRepo.saveLog(newQuest)
-                newCount++
+            val isUnfinished = QuestFlag.isUnfinished(quest.flag0)
+            if (isUnfinished) {
+                toFail.add(quest)
             }
 
-            val expiredQuest = quest.copy(
+            if (quest.flag1 != QuestType.DEFAULT) {
+                toRepeat.add(quest)
+                repeatIds.add(quest.id)
+            }
+        }
+
+        // 第二遍：先克隆重复任务（修改原任务 flag1 → DEFAULT，创建新实例）
+        for (quest in toRepeat) {
+            val repeatType = quest.flag1
+
+            // 修改原任务的 flag1 为 DEFAULT，使其不再被认为是重复任务
+            logRepo.saveLog(quest.copy(flag1 = QuestType.DEFAULT))
+
+            var nextDate = TimeUtil.getNextDate(quest.changeDate, repeatType)
+            while (nextDate < today) {
+                nextDate = TimeUtil.getNextDate(nextDate, repeatType)
+            }
+
+            val clonedFlag0 = when {
+                QuestFlag.isFinished(quest.flag0) -> quest.flag0 - 100
+                QuestFlag.isFailed(quest.flag0) -> quest.flag0 + 100
+                else -> quest.flag0
+            }
+
+            logRepo.saveLog(LogEntity(
+                logType = LogType.QUEST,
+                logText = quest.logText,
+                remark = quest.remark,
+                buildDate = today,
+                buildTime = 1,
+                changeDate = nextDate,
+                changeTime = 235959,
+                flag0 = clonedFlag0,
+                flag1 = repeatType,
+            ))
+            newCount++
+        }
+
+        // 第三遍：再标记过期且未完成的为失败
+        // 如果同一个任务也已在 toRepeat 中，flag1 已被改为 DEFAULT，copy 时需统一
+        for (quest in toFail) {
+            val alsoRepeated = quest.id in repeatIds
+            logRepo.saveLog(quest.copy(
                 flag0 = if (QuestFlag.isDefaultType(quest.flag0)) QuestFlag.DEFAULT_FAILED else QuestFlag.MINUS_FAILED,
-                flag1 = QuestType.DEFAULT,
+                flag1 = if (alsoRepeated) QuestType.DEFAULT else quest.flag1,
+                buildDate = today,
+                buildTime = TimeUtil.getTimeInt(TimeUtil.TIME_TYPE_SECOND),
                 changeDate = today,
                 changeTime = TimeUtil.getTimeInt(TimeUtil.TIME_TYPE_SECOND),
-            )
-            logRepo.saveLog(expiredQuest)
+            ))
             failedCount++
         }
 

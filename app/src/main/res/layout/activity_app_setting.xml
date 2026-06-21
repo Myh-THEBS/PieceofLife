@@ -488,6 +488,16 @@
                     android:contentDescription="@string/app_setting_load" />
             </LinearLayout>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:fontFamily="@font/wqy_12px"
+                android:text="v2.0.0621"
+                android:textColor="#777777"
+                android:textSize="20dp" />
+
         </LinearLayout>
     </ScrollView>
 

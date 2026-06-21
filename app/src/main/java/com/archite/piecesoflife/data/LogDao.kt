@@ -31,7 +31,7 @@ interface LogDao {
         }
     }
 
-    @Query("SELECT * FROM log_data WHERE id = :id AND is_deleted = 0")
+    @Query("SELECT * FROM log_data WHERE id = :id")
     suspend fun getById(id: Long): LogEntity?
 
     /** 软删除：标记为已删除，数据保留在数据库中 */

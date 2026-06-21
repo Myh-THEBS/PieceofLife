@@ -244,7 +244,7 @@ class NoteContentEditText : androidx.appcompat.widget.AppCompatEditText {
         if (historySpan.size > MAX_HISTORY) historySpan.removeAt(0)
         historyPointer = historySpan.size - 1
         lastSnapshotTime = System.currentTimeMillis()
-        android.util.Log.d("NoteContent", "updateHistoryList done ptr=$historyPointer size=${historySpan.size}")
+        //android.util.Log.d("NoteContent", "updateHistoryList done ptr=$historyPointer size=${historySpan.size}")
     }
 
     override fun onTextChanged(
@@ -260,7 +260,7 @@ class NoteContentEditText : androidx.appcompat.widget.AppCompatEditText {
         if (!::historySpan.isInitialized || isProgrammaticChange) return
 
         val now = System.currentTimeMillis()
-        android.util.Log.d("NoteContent", "onTextChanged ptr=$historyPointer text='${text?.toString()}' start=$start lenB=$lengthBefore lenA=$lengthAfter spanSize=${historySpan.size}")
+        //android.util.Log.d("NoteContent", "onTextChanged ptr=$historyPointer text='${text?.toString()}' start=$start lenB=$lengthBefore lenA=$lengthAfter spanSize=${historySpan.size}")
         if (now - lastSnapshotTime >= SNAPSHOT_DEBOUNCE_MS) {
             while (historySpan.size > historyPointer + 1) {
                 historySpan.removeAt(historySpan.lastIndex)
