@@ -494,7 +494,7 @@
                 android:layout_marginTop="24dp"
                 android:gravity="center"
                 android:fontFamily="@font/wqy_12px"
-                android:text="v2.0.0621"
+                android:text="@string/app_version_name"
                 android:textColor="#777777"
                 android:textSize="20dp" />
 

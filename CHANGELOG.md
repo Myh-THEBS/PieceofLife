@@ -9,6 +9,27 @@
 
 ---
 
+## [2.1.0] — 2026-06-22
+
+### 新增
+- 🟢 通知系统（任务临期提醒，`QuestReminderReceiver.kt` + `QuestNotificationScheduler`）
+  - 基于 AlarmManager + `setExactAndAllowWhileIdle`，真机关闭电池优化后正常触发
+  - APP 内事件驱动（NewDayChecker / AppSetting / PieceOfLifeApp），不依赖链式续期
+  - 通知点击打开 APP 主页面
+  - 完整 Logcat 调试日志（TAG=QuestReminder）
+- 🟢 编辑日志时光标自动移到末尾（`LogEditorActivity.kt`）
+- 🟢 APP 设置页版本号显示 v2.1.0.0622（`activity_app_setting.xml` + `strings.xml`）
+
+### 修复
+- 🔴 重复任务克隆后 flag0 被错误还原（`NewDayChecker.kt` — `+-100` → `+-50`）
+- 🔴 其它次要BUG
+
+### 优化
+- 🔧 通知调度改为 APP 内事件驱动，去除链式续期，消除 DataStore 在 BroadcastReceiver 中不可靠的问题（`QuestReminderReceiver.kt`）
+- 🔧 新一天检测改为 `onResume` + `btnTool1` 触发，覆盖熬夜跨天场景（`MainActivity.kt`）
+
+---
+
 ## [2.0.1] — 2026-06-01
 
 ### 优化

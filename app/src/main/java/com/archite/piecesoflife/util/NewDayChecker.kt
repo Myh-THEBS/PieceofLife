@@ -174,8 +174,8 @@ object NewDayChecker {
             }
 
             val clonedFlag0 = when {
-                QuestFlag.isFinished(quest.flag0) -> quest.flag0 - 100
-                QuestFlag.isFailed(quest.flag0) -> quest.flag0 + 100
+                QuestFlag.isFinished(quest.flag0) -> quest.flag0 - 50
+                QuestFlag.isFailed(quest.flag0) -> quest.flag0 + 50
                 else -> quest.flag0
             }
 

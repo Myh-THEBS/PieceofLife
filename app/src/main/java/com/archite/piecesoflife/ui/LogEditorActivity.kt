@@ -237,8 +237,10 @@ class LogEditorActivity : AppCompatActivity() {
                         loadAndDisplayPicture(imageFileName)
                     }
                     binding.noteContent.loadFromLog(logText, logRemark)
+                    if (logText.isNotEmpty()) binding.noteContent.setSelection(logText.length)
                 } else {
                     binding.noteContent.loadFromLog(logText, logRemark)
+                    if (logText.isNotEmpty()) binding.noteContent.setSelection(logText.length)
                 }
 
                 binding.fastAbbrBtn.isEnabled = abbrPairs.isNotEmpty()
@@ -517,13 +519,11 @@ class LogEditorActivity : AppCompatActivity() {
         }
         if (hasChanges) {
             PixelDialog(this)
-                .setType(PixelDialog.DialogType.INFO)
-                .setTitle(getString(R.string.log_info_editor_unsaved_title))
-                .setMessage(getString(R.string.log_info_editor_unsaved_msg))
-                .setButtons(PixelDialog.ButtonMode.DUAL_CONFIRM_CANCEL)
-                .onConfirm {
-                    lifecycleScope.launch(Dispatchers.IO) { saveDocContent(); openLogInfo() }
-                }
+                .setType(PixelDialog.DialogType.WARN)
+                .setTitle("放弃修改")
+                .setMessage("此操作会放弃当前日志内容修改与属性变更，是否继续？")
+                .setButtons(PixelDialog.ButtonMode.DUAL_IMPORT_CONFIRM)
+                .onConfirm { openLogInfo() }
                 .show()
         } else {
             openLogInfo()

@@ -111,7 +111,6 @@ class MainActivity : AppCompatActivity() {
         initRecyclerView()
         renderSprites()
         bindClickEvents()
-        runNewDayCheck()
     }
 
     private fun setupSystemBars() {
@@ -267,6 +266,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun bindClickEvents() {
         binding.btnTool1.setOnClickListener {
+            runNewDayCheck()
             refresh(RefreshOptions(resetFocus = true, clearKeyword = true, scrollTarget = ScrollTarget.BOTTOM))
         }
         binding.btnTool2.setOnClickListener {
@@ -311,6 +311,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        runNewDayCheck()
     }
 
     private fun refresh(options: RefreshOptions) {
