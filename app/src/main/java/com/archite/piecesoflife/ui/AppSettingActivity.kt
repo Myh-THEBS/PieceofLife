@@ -3,8 +3,11 @@ package com.archite.piecesoflife.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -142,8 +145,7 @@ class AppSettingActivity : AppCompatActivity() {
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
-            currentQuestReminder = true
-            updateQuestReminderButton()
+            enableQuestReminder()
         } else {
             PixelDialog(this)
                 .setType(PixelDialog.DialogType.INFO)
@@ -266,6 +268,30 @@ class AppSettingActivity : AppCompatActivity() {
 
     private fun updatePixelFontButton() {
         binding.btnPixelFontToggle.setImageBitmap(SpriteLoader.button96x32(if (currentPixelFont) 1 else 0))
+    }
+
+    private fun enableQuestReminder() {
+        currentQuestReminder = true
+        updateQuestReminderButton()
+        if (!QuestNotificationScheduler.canScheduleExactAlarms(this)) {
+            PixelDialog(this)
+                .setType(PixelDialog.DialogType.WARN)
+                .setTitle("需要开启精确闹钟权限")
+                .setMessage("系统默认禁止本应用设定精确闹钟，不开启时提醒可能不准时甚至不触发。\n\n点「确认」前往系统页面开启「闹钟和提醒」，返回本页后请点确认保存。")
+                .onConfirm { launchExactAlarmSettings() }
+                .show()
+        }
+    }
+
+    private fun launchExactAlarmSettings() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        try {
+            startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                data = Uri.parse("package:$packageName")
+            })
+        } catch (e: Exception) {
+            Log.w("AppSetting", "无法打开精确闹钟设置页: ${e.message}")
+        }
     }
 
     private fun updateQuestReminderButton() {
@@ -472,13 +498,14 @@ class AppSettingActivity : AppCompatActivity() {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     == PackageManager.PERMISSION_GRANTED
                 ) {
-                    currentQuestReminder = true
-                    updateQuestReminderButton()
+                    enableQuestReminder()
                 } else {
                     notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
+            } else if (newState) {
+                enableQuestReminder()
             } else {
-                currentQuestReminder = newState
+                currentQuestReminder = false
                 updateQuestReminderButton()
             }
         }

@@ -29,7 +29,6 @@ class AddonToolActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_EDIT_RESULT = "editResult"
         const val RESULT_LOGS_CHANGED = 1
-        const val RESULT_SETTINGS_CHANGED = 2
         const val RESULT_SHOW_DELETED = 3
     }
 

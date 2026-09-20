@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -19,10 +20,11 @@ import kotlinx.coroutines.runBlocking
 
 private const val TAG = "QuestReminder"
 
-const val CHANNEL_ID_QUEST_REMINDER = "quest_reminder"
+const val CHANNEL_ID_QUEST_REMINDER = "quest_due_reminder"
 const val NOTIFICATION_ID_QUEST = 1001
 const val ACTION_QUEST_REMINDER = "com.archite.piecesoflife.ACTION_QUEST_REMINDER"
 const val EXTRA_REMINDER_ENABLED = "reminder_enabled"
+const val EXTRA_REMINDER_TIME = "reminder_time"
 
 class QuestReminderReceiver : BroadcastReceiver() {
 
@@ -34,6 +36,12 @@ class QuestReminderReceiver : BroadcastReceiver() {
         if (!isEnabled) {
             Log.w(TAG, "onReceive: disabled or no EXTRA, skipping")
             return
+        }
+
+        val reminderTime = intent?.getIntExtra(EXTRA_REMINDER_TIME, 0) ?: 0
+        if (reminderTime > 0) {
+            QuestNotificationScheduler.scheduleDailyReminder(context, true, reminderTime)
+            Log.d(TAG, "onReceive: re-armed next reminder at $reminderTime")
         }
 
         Log.d(TAG, "onReceive: alarm triggered, checking quests...")
@@ -73,7 +81,7 @@ class QuestReminderReceiver : BroadcastReceiver() {
                 .setSmallIcon(R.drawable.smallicon)
                 .setContentTitle("任务临期通知")
                 .setContentText(content)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setContentIntent(
                     PendingIntent.getActivity(
@@ -93,10 +101,16 @@ class QuestReminderReceiver : BroadcastReceiver() {
 
 /**
  * 提醒闹钟调度器。
- * 调度由 APP 内事件驱动（NewDayChecker / AppSetting），
- * 不在 BroadcastReceiver 中链式续期。
+ * 调度由 APP 内事件驱动（Application 启动 / NewDayChecker / AppSetting），
+ * 并在 Receiver 触发后用 Intent 自带的时间续排下一次，不读取 DataStore。
  */
 object QuestNotificationScheduler {
+
+    fun canScheduleExactAlarms(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return false
+        return alarmManager.canScheduleExactAlarms()
+    }
 
     fun scheduleDailyReminder(context: Context, reminderEnabled: Boolean, reminderTime: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
@@ -105,8 +119,9 @@ object QuestNotificationScheduler {
             return
         }
 
-        val intent = Intent(ACTION_QUEST_REMINDER).apply {
+        val intent = Intent(context, QuestReminderReceiver::class.java).setAction(ACTION_QUEST_REMINDER).apply {
             putExtra(EXTRA_REMINDER_ENABLED, reminderEnabled)
+            putExtra(EXTRA_REMINDER_TIME, reminderTime)
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context, 0, intent,
@@ -136,37 +151,29 @@ object QuestNotificationScheduler {
             Log.d(TAG, "scheduleDailyReminder: time already passed, scheduling tomorrow")
         }
 
-        Log.d(TAG, "alarm set: ${calendar.time} (${calendar.timeInMillis}) with setExactAndAllowWhileIdle")
-        try {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                pendingIntent
-            )
-        } catch (e: SecurityException) {
-            Log.w(TAG, "SCHEDULE_EXACT_ALARM denied, falling back to setAndAllowWhileIdle: ${e.message}")
+        if (canScheduleExactAlarms(context)) {
+            Log.d(TAG, "alarm set: ${calendar.time} with setExactAndAllowWhileIdle")
+            try {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    pendingIntent
+                )
+            } catch (e: SecurityException) {
+                Log.w(TAG, "SCHEDULE_EXACT_ALARM denied, falling back to setAndAllowWhileIdle: ${e.message}")
+                alarmManager.setAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    pendingIntent
+                )
+            }
+        } else {
+            Log.w(TAG, "canScheduleExactAlarms=false, alarm set: ${calendar.time} with setAndAllowWhileIdle (不准时)")
             alarmManager.setAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 calendar.timeInMillis,
                 pendingIntent
             )
         }
-    }
-
-    fun cancelDailyReminder(context: Context) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
-        if (alarmManager == null) {
-            Log.w(TAG, "cancelDailyReminder: AlarmManager unavailable")
-            return
-        }
-        val intent = Intent(ACTION_QUEST_REMINDER).apply {
-            putExtra(EXTRA_REMINDER_ENABLED, false)
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context, 0, intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        alarmManager.cancel(pendingIntent)
-        Log.d(TAG, "cancelDailyReminder: alarm cancelled")
     }
 }

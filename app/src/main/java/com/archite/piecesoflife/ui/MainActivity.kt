@@ -71,7 +71,6 @@ class MainActivity : AppCompatActivity() {
                     resetFocus = true, clearKeyword = true,
                     scrollTarget = ScrollTarget.BOTTOM, fadeAnimation = true
                 )
-                AddonToolActivity.RESULT_SETTINGS_CHANGED -> RefreshOptions(fadeAnimation = false)
                 AddonToolActivity.RESULT_SHOW_DELETED -> {
                     viewModel.showDeleted = true
                     RefreshOptions(fadeAnimation = false)

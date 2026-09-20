@@ -46,7 +46,7 @@ class PieceOfLifeApp : Application() {
         val questChannel = NotificationChannel(
             CHANNEL_ID_QUEST_REMINDER,
             getString(R.string.channel_quest_reminder), // 渠道名称，显示在系统设置中
-            NotificationManager.IMPORTANCE_DEFAULT       // 通知重要级别：DEFAULT 会在通知栏显示并发出声音
+            NotificationManager.IMPORTANCE_HIGH          // 通知重要级别：HIGH 才会弹出横幅提醒
         ).apply {
             description = getString(R.string.channel_quest_reminder_desc) // 渠道描述，显示在系统设置中
         }

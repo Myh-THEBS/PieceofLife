@@ -23,6 +23,14 @@
   - （`ThreeColorProgressBar.kt` + `PixelGraphics.drawThreeColorProgress` + `process_bar_3color.png`）
 - 🟢 编辑器支持透传任务截止日：从周视图 `[+]` 进入时截止日自动为那一天（`LogEditorActivity.kt`）
 
+### 修复
+- 🔴 修复任务提醒「闹钟排上却从不触发」：广播始终未送达 Receiver
+  - 根因：PendingIntent 内嵌的是**仅有 action 的隐式 Intent**，Android 8.0 起的后台执行限制会在投递环节丢弃这类隐式广播 —— 表现为闹钟按时触发、进程被唤醒，但 `onReceive` 一次都没执行（`dumpsys alarm` 里能看到 `3 wakes`，日志里却没有 `onReceive`）
+  - 改为显式组件 `Intent(context, QuestReminderReceiver::class.java)`；`schedule` 与 `cancel` 两处必须一致，否则无法取消已排的闹钟（`QuestReminderReceiver.kt`）
+- 🔧 闹钟支持次日续期：排闹钟时把提醒时间写入 Intent（`EXTRA_REMINDER_TIME`），`onReceive` 内据此续排次日，不再依赖「用户每天开一次 APP」（`QuestReminderReceiver.kt`）
+- 🔧 精确闹钟权限：新增 `canScheduleExactAlarms()` 检查，未授权时明确降级并打日志；AppSetting 打开提醒开关时弹窗引导跳系统「闹钟和提醒」授权页（`QuestReminderReceiver.kt` + `AppSettingActivity.kt`）
+- 🔧 通知可见性：渠道 id 改为 `quest_due_reminder`、重要级别 DEFAULT → HIGH（Android 对已存在渠道忽略级别变更，故必须换 id），通知优先级同步为 HIGH（`PieceOfLifeApp.kt` + `QuestReminderReceiver.kt`）
+
 ### 优化
 - 🔧 `SpanTextBuilder` 新增 `plainText` 模式：跳过时间前缀与 remark 格式，保留属性 emoji 与标签高亮（`SpanTextBuilder.kt`）
 - 🔧 任务的 `changeTime` 统一为 `235959`（原编辑保存会写入当前时刻），与 `NewDayChecker` 克隆任务的口径一致（`LogEditorActivity.kt`）
@@ -34,6 +42,8 @@
   - 涉及 `WeekPlanActivity.kt`、`activity_week_plan.xml`、Manifest 注册、相关字符串、`TimeUtil.getIsoWeek()`
 - 🔧 移除三个页面的无效底栏（两个按钮均只是返回）—— 数据统计、日志信息、工具宝箱；内容区改为延伸至屏幕底部
   - 涉及 `activity_data_stats.xml` / `activity_log_info.xml` / `activity_addon_tool.xml` 及对应 Activity 的按钮精灵与点击绑定
+- 🔧 移除未使用的 `WAKE_LOCK` 权限声明 —— 唤醒设备由闹钟类型 `RTC_WAKEUP` 保证，代码从未申请唤醒锁（`AndroidManifest.xml`）
+- 🔧 清理死代码：`QuestNotificationScheduler.cancelDailyReminder()`（零调用）、`AddonToolActivity.RESULT_SETTINGS_CHANGED` 及 `MainActivity` 对应分支（无生产者，且与 `else` 分支等价）
 
 ---
 
