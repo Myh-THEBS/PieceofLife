@@ -72,17 +72,17 @@ class CalendarHeatmapViewController(
         val headerRow = LinearLayout(dateContainer.context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dp24(dateContainer.context)
+                dp32(dateContainer.context)
             )
             orientation = LinearLayout.HORIZONTAL
         }
         val weekLabels = arrayOf("一", "二", "三", "四", "五", "六", "日")
         for (i in 0 until 7) {
             headerRow.addView(TextView(dateContainer.context).apply {
-                layoutParams = LinearLayout.LayoutParams(0, dp24(dateContainer.context), 1f)
+                layoutParams = LinearLayout.LayoutParams(0, dp32(dateContainer.context), 1f)
                 gravity = Gravity.CENTER
                 text = weekLabels[i]
-                textSize = 18f
+                textSize = 24f
                 setTextColor(Color.BLACK)
                 setTypeface(font, Typeface.BOLD)
             })
@@ -93,16 +93,16 @@ class CalendarHeatmapViewController(
             val weekRow = LinearLayout(dateContainer.context).apply {
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    dp24(dateContainer.context)
+                    dp32(dateContainer.context)
                 )
                 orientation = LinearLayout.HORIZONTAL
             }
             for (col in 0 until 7) {
                 val index = row * 7 + col
                 val cell = TextView(dateContainer.context).apply {
-                    layoutParams = LinearLayout.LayoutParams(0, dp24(dateContainer.context), 1f)
+                    layoutParams = LinearLayout.LayoutParams(0, dp32(dateContainer.context), 1f)
                     gravity = Gravity.CENTER
-                    textSize = 18f
+                    textSize = 24f
                     setTextColor(Color.LTGRAY)
                     setTypeface(font, Typeface.BOLD)
                 }
@@ -113,8 +113,8 @@ class CalendarHeatmapViewController(
         }
     }
 
-    private fun dp24(context: Context): Int {
+    private fun dp32(context: Context): Int {
         val density = context.resources.displayMetrics.density
-        return (24 * density + 0.5f).toInt()
+        return (32 * density + 0.5f).toInt()
     }
 }

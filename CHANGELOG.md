@@ -27,10 +27,13 @@
 - 🔧 `SpanTextBuilder` 新增 `plainText` 模式：跳过时间前缀与 remark 格式，保留属性 emoji 与标签高亮（`SpanTextBuilder.kt`）
 - 🔧 任务的 `changeTime` 统一为 `235959`（原编辑保存会写入当前时刻），与 `NewDayChecker` 克隆任务的口径一致（`LogEditorActivity.kt`）
 - 🔧 依赖：Room 2.6.1 → 2.8.5，适配 Kotlin 2.2.10 / KSP2 元数据处理
+- 🔧 统一月历与年月调节器：`CalendarHeatmapViewController` 行高 24dp → 32dp、字号 18f → 24f，与「任务设置 / 日志查询」对齐；数据统计页的调节器同步对齐基准（行高 48dp、字号 30dp、「年/月」改独立标签、值固定宽度、中间改用 Space 分隔）
 
 ### 移除
 - 🔧 删除「周计划设置」页面及其入口 —— 远距离跳周与月统计使用频率极低，已由底栏翻周 + 三色进度条覆盖
   - 涉及 `WeekPlanActivity.kt`、`activity_week_plan.xml`、Manifest 注册、相关字符串、`TimeUtil.getIsoWeek()`
+- 🔧 移除三个页面的无效底栏（两个按钮均只是返回）—— 数据统计、日志信息、工具宝箱；内容区改为延伸至屏幕底部
+  - 涉及 `activity_data_stats.xml` / `activity_log_info.xml` / `activity_addon_tool.xml` 及对应 Activity 的按钮精灵与点击绑定
 
 ---
 

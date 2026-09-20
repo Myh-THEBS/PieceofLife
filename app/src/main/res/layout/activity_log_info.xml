@@ -45,42 +45,10 @@
         android:id="@+id/contentBg"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_above="@id/bottomBar"
+        android:layout_alignParentBottom="true"
         android:layout_below="@id/topToolbar"
         android:scaleType="fitXY"
         android:contentDescription="@string/empty_string" />
-
-    <LinearLayout
-        android:id="@+id/bottomBar"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:layout_alignParentBottom="true"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/btnCancel"
-            android:layout_width="144dp"
-            android:layout_height="64dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:contentDescription="@string/addon_cancel" />
-
-        <ImageView
-            android:id="@+id/bottomSpacer"
-            android:layout_width="0dp"
-            android:layout_height="64dp"
-            android:layout_weight="1.0"
-            android:scaleType="fitXY" />
-
-        <ImageView
-            android:id="@+id/btnConfirm"
-            android:layout_width="144dp"
-            android:layout_height="64dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:contentDescription="@string/addon_confirm" />
-    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -88,7 +56,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="70dp"
-        android:layout_marginBottom="74dp"
+        android:layout_marginBottom="16dp"
         android:scrollbars="none"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"

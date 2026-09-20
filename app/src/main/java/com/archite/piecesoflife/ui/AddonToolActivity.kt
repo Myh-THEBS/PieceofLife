@@ -96,14 +96,11 @@ class AddonToolActivity : AppCompatActivity() {
 
     private fun renderBackgrounds() {
         binding.toolbarBg.setImageDrawable(SpriteLoader.background48(index = 0, pixelScale = 5))
-        binding.bottomSpacer.background = SpriteLoader.background48(index = 0, pixelScale = 5)
         binding.contentBg.setImageDrawable(SpriteLoader.background48(index = 0, pixelScale = 5))
     }
 
     private fun renderSprites() {
         SpriteLoader.setButton(binding.btnReturn, SpriteDef.B16.RES, SpriteDef.B16.frame(17), downFrame = SpriteDef.B16.frame(17), scale = 5)
-        SpriteLoader.setButton(binding.btnCancel, SpriteDef.B72x32.RES, SpriteDef.B72x32.frame(2), scale = 5)
-        SpriteLoader.setButton(binding.btnConfirm, SpriteDef.B72x32.RES, SpriteDef.B72x32.frame(0), scale = 5)
 
         val toolIcons = listOf(
             binding.toolIcon1, binding.toolIcon2, binding.toolIcon3,
@@ -118,14 +115,6 @@ class AddonToolActivity : AppCompatActivity() {
 
     private fun bindClickEvents() {
         binding.btnReturn.setOnClickListener { finish() }
-        binding.btnCancel.setOnClickListener {
-            setResult(RESULT_OK, Intent().apply { putExtra(EXTRA_EDIT_RESULT, RESULT_SETTINGS_CHANGED) })
-            finish()
-        }
-        binding.btnConfirm.setOnClickListener {
-            setResult(RESULT_OK, Intent().apply { putExtra(EXTRA_EDIT_RESULT, RESULT_LOGS_CHANGED) })
-            finish()
-        }
 
         binding.toolPanel1.setOnClickListener {
             editorLauncher.launch(

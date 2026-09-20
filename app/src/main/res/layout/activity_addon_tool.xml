@@ -43,61 +43,22 @@
 
     </RelativeLayout>
 
-    <!-- 底部确定和取消 -->
-    <LinearLayout
-        android:id="@+id/bottomBar"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/btnCancel"
-            android:contentDescription="@string/addon_cancel"
-            android:layout_width="144dp"
-            android:layout_height="64dp"
-            android:scaleType="fitXY"
-            android:clickable="true"
-            android:focusable="true">
-        </ImageView>
-
-        <ImageView
-            android:id="@+id/bottomSpacer"
-            android:layout_width="0dp"
-            android:layout_height="64dp"
-            android:layout_weight="1.0"
-            android:scaleType="fitXY" />
-
-        <ImageView
-            android:id="@+id/btnConfirm"
-            android:contentDescription="@string/addon_confirm"
-            android:layout_width="144dp"
-            android:layout_height="64dp"
-            android:scaleType="fitXY"
-            android:clickable="true"
-            android:focusable="true">
-        </ImageView>
-
-    </LinearLayout>
-
-    <!-- 主体背景层（夹在工具栏和底部栏之间） -->
     <ImageView
         android:id="@+id/contentBg"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_above="@id/bottomBar"
+        android:layout_alignParentBottom="true"
         android:layout_below="@id/topToolbar"
         android:scaleType="fitXY"
         android:contentDescription="@string/empty_string" />
 
-    <!-- 主体内容 -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="70dp"
-        android:layout_marginBottom="74dp"
+        android:layout_marginBottom="16dp"
         android:scrollbars="none"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
