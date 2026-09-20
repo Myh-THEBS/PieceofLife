@@ -45,10 +45,13 @@ class LogEditorActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_LOG_ID = "logId"
         const val EXTRA_RESULT_ID = "resultId"
+        const val EXTRA_QUEST_DEADLINE = "questDeadline"
         const val NEW_LOG_DEFAULT = -1L
         const val NEW_LOG_QUEST = -2L
         const val RESULT_SAVED = 1
         const val RESULT_DELETED = 2
+
+        private const val QUEST_CHANGE_TIME = 235959
         fun isNewMode(logId: Long) = logId < 0
 
         private val TYPE_NAME_MAP = mapOf(
@@ -204,6 +207,7 @@ class LogEditorActivity : AppCompatActivity() {
                 }
             } else if (currentLogId == NEW_LOG_QUEST) {
                 logType = LogType.QUEST
+                questDeadline = intent.getIntExtra(EXTRA_QUEST_DEADLINE, 0)
             }
 
             currentLogType = logType
@@ -700,7 +704,7 @@ class LogEditorActivity : AppCompatActivity() {
                 remark = remark,
                 itemsJson = newItemsJson,
                 changeDate = if (baseLog.logType == LogType.QUEST && questDeadline > 0) questDeadline else now,
-                changeTime = nowTime,
+                changeTime = if (baseLog.logType == LogType.QUEST) QUEST_CHANGE_TIME else nowTime,
                 flag0 = questFlag0,
                 flag1 = if (baseLog.logType == LogType.QUEST) questRepeat else baseLog.flag1,
                 updatedAt = System.currentTimeMillis(),

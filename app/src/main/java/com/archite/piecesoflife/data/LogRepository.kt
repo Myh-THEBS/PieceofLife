@@ -32,6 +32,9 @@ class LogRepository(private val dao: LogDao) {
 
     suspend fun getActiveQuests(): List<LogEntity> = dao.getActiveQuests()
 
+    suspend fun getQuestsInDateRange(startDate: Int, endDate: Int): List<LogEntity> =
+        dao.getQuestsInDateRange(startDate, endDate)
+
     suspend fun getLogDateSetInRange(startDate: Int, endDate: Int): Set<Int> =
         dao.getDistinctDatesInRange(startDate, endDate).toSet()
 

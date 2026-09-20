@@ -92,6 +92,14 @@ object SpriteDef {
         fun frame(index: Int) = SpriteFrame(index * FW, 0, FW, FH)
     }
 
+    object ProgressBar3 {
+        val RES = R.drawable.process_bar_3color
+        const val FW = 8; const val FH = 8
+        // 帧顺序：0=左盖, 1=右盖, 2=绿(完成), 3=红(失败), 4=白(未完成),
+        //        5=绿红过渡, 6=绿白过渡, 7=红白过渡
+        fun frame(index: Int) = SpriteFrame(index * FW, 0, FW, FH)
+    }
+
     object Loading {
         val RES = R.drawable.loading
         const val FW = 48; const val FH = 48

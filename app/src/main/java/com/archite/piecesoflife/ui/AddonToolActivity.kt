@@ -61,6 +61,15 @@ class AddonToolActivity : AppCompatActivity() {
         }
     }
 
+    private val questViewLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            setResult(RESULT_OK, Intent().apply { putExtra(EXTRA_EDIT_RESULT, RESULT_LOGS_CHANGED) })
+            finish()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddonToolBinding.inflate(layoutInflater)
@@ -99,8 +108,9 @@ class AddonToolActivity : AppCompatActivity() {
         val toolIcons = listOf(
             binding.toolIcon1, binding.toolIcon2, binding.toolIcon3,
             binding.toolIcon4, binding.toolIcon5, binding.toolIcon6, binding.toolIcon7,
+            binding.toolIcon8,
         )
-        val iconIndices = listOf(20, 22, 23, 24, 46, 44, 17)
+        val iconIndices = listOf(20, 22, 23, 24, 46, 44, 17, 47)
         for (i in toolIcons.indices) {
             SpriteLoader.setIcon(toolIcons[i], index = iconIndices[i], scale = 5)
         }
@@ -179,6 +189,10 @@ class AddonToolActivity : AppCompatActivity() {
 
         binding.toolPanel5.setOnClickListener {
             startActivity(Intent(this, DataStatsActivity::class.java))
+        }
+
+        binding.toolPanel8.setOnClickListener {
+            questViewLauncher.launch(Intent(this, QuestViewActivity::class.java))
         }
     }
 

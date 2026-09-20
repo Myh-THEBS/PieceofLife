@@ -22,6 +22,7 @@ object SpanTextBuilder {
         lastDate: Int,
         itemAbbrMap: Map<String, String> = emptyMap(),
         labelNames: Set<String> = emptySet(),
+        plainText: Boolean = false,
     ): SpannableStringBuilder {
         val sb = SpannableStringBuilder()
 
@@ -32,7 +33,7 @@ object SpanTextBuilder {
             return sb
         }
 
-        val timeStr = when (log.logType) {
+        val timeStr = if (plainText) "" else when (log.logType) {
             LogType.DEBUG, LogType.ERROR -> ""
             LogType.QUEST -> buildQuestPrefix(log, lastDate)
             LogType.HINT -> ""
@@ -62,7 +63,7 @@ object SpanTextBuilder {
             sb.setSpan(ForegroundColorSpan("#C8C8C8".toColorInt()), bodyStart, sb.length, 0)
         }
 
-        applyRemarkFormats(sb, bodyStart, log.remark)
+        if (!plainText) applyRemarkFormats(sb, bodyStart, log.remark)
 
         if (itemAbbrMap.isNotEmpty()) {
             for ((abbr, emoji) in itemAbbrMap) {

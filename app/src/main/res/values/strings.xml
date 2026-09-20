@@ -14,6 +14,19 @@
     <string name="addon_tool5">数据统计</string>
     <string name="addon_tool6">最近删除</string>
     <string name="addon_tool7">属性账单</string>
+    <string name="addon_tool8">每周计划</string>
+
+    <!-- QuestView -->
+    <string name="quest_view_title">每周计划</string>
+    <string name="quest_view_today">今天</string>
+    <string name="quest_view_empty">（暂无任务）</string>
+    <string name="quest_view_add">新增任务</string>
+    <string name="quest_week_last">上</string>
+    <string name="quest_week_current">本</string>
+    <string name="quest_week_next">下</string>
+    <string name="quest_view_prev_week">上一周</string>
+    <string name="quest_view_reset_week">回到本周</string>
+    <string name="quest_view_next_week">下一周</string>
 
     <!-- AppSetting -->
     <string name="app_setting_title">系统设置</string>
@@ -186,5 +199,5 @@
     <string name="log_editor_hint">请输入文档内容，文档编辑器不支持快捷插入操作，属性变更也不会生效。</string>
 
     <!-- 版本号 -->
-    <string name="app_version_name">v2.1.0.0622</string>
+    <string name="app_version_name">v2.2.0.0920</string>
 </resources>

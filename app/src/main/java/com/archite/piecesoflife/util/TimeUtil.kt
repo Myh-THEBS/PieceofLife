@@ -119,6 +119,21 @@ object TimeUtil {
         return timeInterval
     }
 
+    fun addDays(dateInt: Int, days: Int): Int {
+        val calendar = Calendar.getInstance()
+        calendar.set(dateInt / 10000, ((dateInt / 100) % 100) - 1, dateInt % 100)
+        calendar.add(Calendar.DAY_OF_MONTH, days)
+        return getTimeInt(calendar)
+    }
+
+    fun getMondayOfWeek(dateInt: Int): Int {
+        val calendar = Calendar.getInstance()
+        calendar.set(dateInt / 10000, ((dateInt / 100) % 100) - 1, dateInt % 100)
+        val dayOfWeek = (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7
+        calendar.add(Calendar.DAY_OF_MONTH, -dayOfWeek)
+        return getTimeInt(calendar)
+    }
+
     fun getWeek(year: Int, month: Int): IntArray {
         val calendar = Calendar.getInstance()
         calendar.set(year, month - 1, 1)

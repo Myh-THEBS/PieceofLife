@@ -13,6 +13,12 @@ data class NinePatchRect(
 
 object PixelGraphics {
 
+    private const val FRAME_LEFT = 0
+    private const val FRAME_RIGHT = 1
+    private const val FRAME_DONE = 2
+    private const val FRAME_FAILED = 3
+    private const val FRAME_UNFINISHED = 4
+
     private val paint = Paint(Paint.FILTER_BITMAP_FLAG).apply {
         isFilterBitmap = false
     }
@@ -107,6 +113,93 @@ object PixelGraphics {
         override fun setAlpha(@IntRange(from = 0, to = 255) alpha: Int) {}
         override fun setColorFilter(colorFilter: ColorFilter?) {}
         override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+    }
+
+    /**
+     * 绘制三段三色进度条。
+     * 帧序：0=左盖, 1=右盖, 2=绿(完成), 3=红(失败), 4=白(未完成),
+     *      5=绿红过渡, 6=绿白过渡, 7=红白过渡。
+     * 左右盖各占一帧宽度，其中靠内的一半是透明窗，因此填充层先铺满内区、盖最后压在上层。
+     */
+    fun drawThreeColorProgress(
+        canvas: Canvas, sheet: Bitmap,
+        left: Int, top: Int, barWidth: Int, scale: Int,
+        done: Int, failed: Int, unfinished: Int,
+    ) {
+        val fw = SpriteDef.ProgressBar3.FW
+        val frameW = fw * scale
+        val halfCap = frameW / 2
+        val fillLeft = left + halfCap
+        val innerWidth = left + barWidth - halfCap - fillLeft
+        val units = (innerWidth + frameW - 1) / frameW
+
+        if (units > 0) {
+            val total = done + failed + unfinished
+            if (total == 0) {
+                tileFrame(canvas, sheet, FRAME_UNFINISHED, fillLeft, top, units, scale)
+            } else {
+                val segments = ArrayList<Pair<Int, Int>>(3)
+                if (done > 0) segments.add(FRAME_DONE to done)
+                if (failed > 0) segments.add(FRAME_FAILED to failed)
+                if (unfinished > 0) segments.add(FRAME_UNFINISHED to unfinished)
+
+                var junctionUnits = if (segments.size > 1) segments.size - 1 else 0
+                var fillUnits = units - junctionUnits
+                if (fillUnits < segments.size) {
+                    junctionUnits = 0
+                    fillUnits = units
+                }
+
+                val segUnits = IntArray(segments.size)
+                var remaining = fillUnits
+                for (i in segments.indices) {
+                    val needAfter = segments.size - i - 1
+                    segUnits[i] = if (i == segments.lastIndex) {
+                        remaining
+                    } else {
+                        val proposed = (fillUnits.toFloat() * segments[i].second / total).toInt()
+                        proposed.coerceIn(1, max(1, remaining - needAfter))
+                    }
+                    remaining -= segUnits[i]
+                }
+
+                var x = fillLeft
+                for (i in segments.indices) {
+                    tileFrame(canvas, sheet, segments[i].first, x, top, segUnits[i], scale)
+                    x += segUnits[i] * frameW
+                    if (junctionUnits > 0 && i != segments.lastIndex) {
+                        val transition = transitionFrame(segments[i].first, segments[i + 1].first)
+                        drawSprite(canvas, sheet, transition * fw, 0, fw, SpriteDef.ProgressBar3.FH, x.toFloat(), top.toFloat(), scale.toFloat())
+                        x += frameW
+                    }
+                }
+            }
+        }
+
+        drawSprite(canvas, sheet, FRAME_LEFT * fw, 0, fw, SpriteDef.ProgressBar3.FH, left.toFloat(), top.toFloat(), scale.toFloat())
+        drawSprite(canvas, sheet, FRAME_RIGHT * fw, 0, fw, SpriteDef.ProgressBar3.FH, (left + barWidth - frameW).toFloat(), top.toFloat(), scale.toFloat())
+    }
+
+    private fun tileFrame(
+        canvas: Canvas, sheet: Bitmap, frameIndex: Int,
+        dstLeft: Int, dstTop: Int, units: Int, scale: Int,
+    ) {
+        val fw = SpriteDef.ProgressBar3.FW
+        val frameW = fw * scale
+        val frameH = SpriteDef.ProgressBar3.FH * scale
+        for (i in 0 until units) {
+            srcR.set(frameIndex * fw, 0, frameIndex * fw + fw, SpriteDef.ProgressBar3.FH)
+            val x = dstLeft + i * frameW
+            dstR.set(x, dstTop, x + frameW, dstTop + frameH)
+            canvas.drawBitmap(sheet, srcR, dstR, paint)
+        }
+    }
+
+    private fun transitionFrame(from: Int, to: Int): Int = when {
+        from == FRAME_DONE && to == FRAME_FAILED -> 5
+        from == FRAME_DONE && to == FRAME_UNFINISHED -> 6
+        from == FRAME_FAILED && to == FRAME_UNFINISHED -> 7
+        else -> from
     }
 
     fun crop(sheet: Bitmap, x: Int, y: Int, w: Int, h: Int, scale: Int = 1): Bitmap {

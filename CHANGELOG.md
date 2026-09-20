@@ -9,6 +9,31 @@
 
 ---
 
+## [2.2.0] — 2026-09-20
+
+### 新增
+- 🟢 「每周计划」任务视图（工具宝箱第 8 格）
+  - 以周（周一~周日）为单位展示任务；周条 7 格，点击进入当日日视图，再点同一天返回周视图
+  - 列表按截止日分日期组，组内未完成在前、其余按创建时间升序
+  - 组头含日期（带年份）、相对周标签（上周一 / 本周三 / 今天，仅最近三周显示）与 `[+]` 新增入口
+  - 新增任务的截止日即所在分组日期；过去日期的 `[+]` 置灰，避免建完即被判定失败
+  - 完成/失败的条目整行减淡并沉至组末，冲正走长按进编辑器
+  - （`QuestViewActivity.kt` + `QuestViewHolder.kt` PLAN 模式 + `LogDao.kt` + `TimeUtil.kt`）
+- 🟢 三色周进度条：按周汇总 完成/失败/未完成 占比；填充在下、左右盖（含透明窗）在上，交界处绘制过渡帧
+  - （`ThreeColorProgressBar.kt` + `PixelGraphics.drawThreeColorProgress` + `process_bar_3color.png`）
+- 🟢 编辑器支持透传任务截止日：从周视图 `[+]` 进入时截止日自动为那一天（`LogEditorActivity.kt`）
+
+### 优化
+- 🔧 `SpanTextBuilder` 新增 `plainText` 模式：跳过时间前缀与 remark 格式，保留属性 emoji 与标签高亮（`SpanTextBuilder.kt`）
+- 🔧 任务的 `changeTime` 统一为 `235959`（原编辑保存会写入当前时刻），与 `NewDayChecker` 克隆任务的口径一致（`LogEditorActivity.kt`）
+- 🔧 依赖：Room 2.6.1 → 2.8.5，适配 Kotlin 2.2.10 / KSP2 元数据处理
+
+### 移除
+- 🔧 删除「周计划设置」页面及其入口 —— 远距离跳周与月统计使用频率极低，已由底栏翻周 + 三色进度条覆盖
+  - 涉及 `WeekPlanActivity.kt`、`activity_week_plan.xml`、Manifest 注册、相关字符串、`TimeUtil.getIsoWeek()`
+
+---
+
 ## [2.1.0] — 2026-06-22
 
 ### 新增

@@ -93,6 +93,19 @@ interface LogDao {
     @Query("SELECT DISTINCT build_date FROM log_data WHERE is_deleted = 0 AND build_date BETWEEN :startDate AND :endDate")
     suspend fun getDistinctDatesInRange(startDate: Int, endDate: Int): List<Int>
 
+    @Query("""
+        SELECT * FROM log_data 
+        WHERE is_deleted = 0
+          AND log_type = :questType 
+          AND change_date BETWEEN :startDate AND :endDate
+        ORDER BY change_date ASC, change_time ASC
+    """)
+    suspend fun getQuestsInDateRange(
+        startDate: Int,
+        endDate: Int,
+        questType: Int = LogType.QUEST
+    ): List<LogEntity>
+
     @Query("SELECT * FROM log_data WHERE is_deleted = 0 ORDER BY build_date ASC, build_time ASC")
     suspend fun getAll(): List<LogEntity>
 

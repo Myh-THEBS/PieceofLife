@@ -74,6 +74,10 @@
             android:name=".ui.LogInfoActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.QuestViewActivity"
+            android:exported="false" />
+
         <receiver
             android:name=".util.QuestReminderReceiver"
             android:exported="true">
