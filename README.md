@@ -54,8 +54,8 @@
 需要 **JDK 17** 与 Android SDK（compileSdk 35）。
 
 ```bash
-git clone https://github.com/<your-username>/PiecesofLife.git
-cd PiecesofLife
+git clone https://github.com/Myh-THEBS/PieceofLife.git
+cd PieceofLife
 ./gradlew assembleDebug
 ```
 
