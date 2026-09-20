@@ -1,23 +1,41 @@
+# ---------- 构建产物 ----------
+build/
+/app/release/
+*.apk
+*.aab
+
+# ---------- Gradle ----------
+.gradle/
+gradle/gradle-daemon-jvm.properties
+
+# ---------- 本地/机器相关配置 ----------
+local.properties
+/tools/
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# ---------- IDE ----------
+/.idea/*
+!/.idea/codeStyles/
 *.iml
-.gradle
-/local.properties
-/tools
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
+/.vscode/
 .externalNativeBuild
 .cxx
-local.properties
-/.vscode
-第三阶段_UI层重构开发计划.md
-开发者总结报告.md
 
-# Kotlin compiler error logs
-.kotlin/errors/
+# ---------- Kotlin ----------
+.kotlin/
+
+# ---------- 系统 ----------
+.DS_Store
+Thumbs.db
+/captures/
+*.hprof
+*.log
+
+# ---------- 本地文档（不随仓库发布） ----------
 .trae/
+开发者总结报告.md
+项目重构报告.md
+第三阶段_UI层重构开发计划.md
