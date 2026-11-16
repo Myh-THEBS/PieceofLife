@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-11-16
+
+### fix: 任务落库后截止日期无法修改
+- **原因**：`saveAndFinish` 的「无变更检测」只比较 `logText` 与 `remark`；只修改截止日 / 任务类型 / 重复模式时，文本未变即命中提前返回，`changeDate` 从未写库，但界面仍返回 `RESULT_OK`
+- **修改**：`LogEditorActivity.kt` — 对未完成任务额外比较 `questDeadline` / `questTypeFlag` / `questRepeat` 与原记录，任一变化即走正常保存；已完成/失败任务仍不提供截止日编辑入口
+
+### fix: 软删除日志的硬删除计时错误
+- **原因**：`purgeOldDeletedLogs` 使用 `changeDate < today - 14` 判定：
+  - `changeDate` 是最后修改日或任务截止日，**不是删除时间**，很久未编辑的日志可能在删除次日就被清掉
+  - `yyyyMMdd` 整数减法跨月会算错（如 `20261105 - 14 = 20261091`）
+  - 无期限任务 `changeDate = 99990000`，永远不会被硬删除
+- **修改**：`NewDayChecker.kt` — 改为 `updatedAt < 当前时刻 - 14 天`，并抽出 `DELETED_RETENTION_DAYS`；软删除时 `LogDao.softDeleteById` 已写入 `updated_at`，无需改表或迁移
+- **影响**：统一为「删除后满 14 天」硬删除；编辑已删除日志会刷新 `updated_at`，保留期顺延；「最近删除」仍显示库内全部软删除记录（不额外按时间过滤）
+
+---
+
 ## 2026-09-20 (v2.2.0.0920)
 
 ### fix: 进入「每周计划」页崩溃（x + width must be <= bitmap.width）

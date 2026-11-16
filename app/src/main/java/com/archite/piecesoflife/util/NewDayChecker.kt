@@ -11,6 +11,8 @@ import java.io.File
 
 object NewDayChecker {
 
+    private const val DELETED_RETENTION_DAYS = 14
+
     data class NewDayResult(
         val isNewDay: Boolean,
         val deletedCount: Int = 0,
@@ -56,7 +58,7 @@ object NewDayChecker {
 
         val deletedCount = deleteExpiredLogs(logRepo, today)
 
-        val purgedCount = context?.let { purgeOldDeletedLogs(logRepo, today, it) } ?: 0
+        val purgedCount = context?.let { purgeOldDeletedLogs(logRepo, it) } ?: 0
 
         val questResult = processQuestLog(logRepo, today)
 
@@ -116,10 +118,10 @@ object NewDayChecker {
         return toDelete.size
     }
 
-    private suspend fun purgeOldDeletedLogs(logRepo: LogRepository, today: Int, context: Context): Int {
+    private suspend fun purgeOldDeletedLogs(logRepo: LogRepository, context: Context): Int {
         val allDeleted = logRepo.getDeletedLogs()
-        val cutoff = today - 14
-        val toPurge = allDeleted.filter { it.changeDate < cutoff && it.changeDate > 0 }
+        val cutoffMillis = System.currentTimeMillis() - DELETED_RETENTION_DAYS * 24L * 60L * 60L * 1000L
+        val toPurge = allDeleted.filter { it.updatedAt < cutoffMillis }
         val imagesDir = ImageUtil.getImagesDir(context)
         val documentsDir = ImageUtil.getDocumentsDir(context)
 

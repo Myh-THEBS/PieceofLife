@@ -670,9 +670,16 @@ class LogEditorActivity : AppCompatActivity() {
                 return@launch
             }
 
+            val original = originalLogEntity
+            val questChanged = original != null && original.logType == LogType.QUEST &&
+                QuestFlag.isUnfinished(original.flag0) &&
+                (questDeadline != original.changeDate ||
+                    questTypeFlag != (if (QuestFlag.isMinusType(original.flag0)) 1 else 0) ||
+                    questRepeat != original.flag1)
+
             // 编辑模式无变更时直接返回，不修改更新时间
-            if (!isNewMode(currentLogId) && originalLogEntity != null &&
-                logText == originalLogEntity!!.logText && remark == originalLogEntity!!.remark) {
+            if (!isNewMode(currentLogId) && original != null &&
+                logText == original.logText && remark == original.remark && !questChanged) {
                 withContext(Dispatchers.Main) {
                     setResult(RESULT_OK)
                     finish()

@@ -237,8 +237,8 @@ class AppSettingActivity : AppCompatActivity() {
         SpriteLoader.setButton(binding.btnDisplayWeek, SpriteDef.B32.RES, SpriteDef.B32.frame(8), scale = 5)
         SpriteLoader.setButton(binding.btnDisplayDay, SpriteDef.B32.RES, SpriteDef.B32.frame(10), scale = 5)
 
-        SpriteLoader.setButton(binding.btnBackupSave, SpriteDef.B48x32.RES, SpriteDef.B48x32.frame(4), scale = 5)
-        SpriteLoader.setButton(binding.btnBackupLoad, SpriteDef.B48x32.RES, SpriteDef.B48x32.frame(6), scale = 5)
+        SpriteLoader.setButton(binding.btnBackupSave, SpriteDef.B48x32.RES, SpriteDef.B48x32.frame(8), scale = 5)
+        SpriteLoader.setButton(binding.btnBackupLoad, SpriteDef.B48x32.RES, SpriteDef.B48x32.frame(10), scale = 5)
 
         binding.iconPixelFont.setImageBitmap(SpriteLoader.button16(33, scale = 5))
         SpriteLoader.setButton(binding.btnPixelFontToggle, SpriteDef.B96x32.RES, SpriteDef.B96x32.frame(0), scale = 5)

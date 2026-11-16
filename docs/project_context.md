@@ -1,6 +1,6 @@
 # PiecesOfLife — 项目上下文快照
 
-> 最后更新：2026-09-20 | 每周计划视图完成 + 任务提醒修复，v2.2.0 发布
+> 最后更新：2026-11-16 | 修复任务截止日无法修改 + 软删除硬删除计时
 
 ---
 
@@ -381,6 +381,8 @@ LogInfoActivity
 | D50 | PendingIntent 一致性 | `schedule` 与 `cancel` 必须用**同一 Intent 构造**，否则 `cancel` 匹配不到已排的闹钟 |
 | D51 | 通知渠道调级 | Android 对**已存在**渠道忽略 `importance` 变更 → 调级只能换 channel id（旧渠道会作为空渠道残留，需手动删除或卸载重装） |
 | D52 | `WAKE_LOCK` | 移除声明。唤醒设备由闹钟类型 `RTC_WAKEUP` 保证，仅在真正调用 `PowerManager.newWakeLock()` 时才需要该权限 |
+| D53 | 任务截止日保存 | `saveAndFinish` 的无变更检测必须包含 `questDeadline` / `questTypeFlag` / `questRepeat`，否则只改任务设置时会被提前返回吞掉 |
+| D54 | 软删除保留期 | 以 `updated_at`（软删除时写入）为删除时间，满 14 天硬删除；不按 `changeDate` 计算，也不用 `yyyyMMdd` 整数减法 |
 
 ---
 
